@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DOABNO | Compare before you buy</title>
+  <meta name="description" content="Search any product and see the lowest total price across trusted stores in Saudi Arabia, the Gulf, the US and the UK.">
+  <meta name="theme-color" content="#0D2942">
+  <link rel="icon" type="image/svg+xml" href="assets/brand/doabno-app-icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/brand/doabno-tokens.css">
+  <link rel="stylesheet" href="v2.css">
+</head>
+<body>
+  <a class="skip-link" href="#main" data-i18n="skip">Skip to content</a>
+
+  <div class="util">
+    <div class="wrap util-in">
+      <div class="util-prefs">
+        <label><span data-i18n="marketHd">Prices for</span><select id="marketSelect"></select></label>
+        <label><span data-i18n="currencyLbl">Currency</span><select id="currencySelect"></select></label>
+      </div>
+      <div class="util-end">
+        <button class="util-btn" id="langBtn" type="button"></button>
+        <button class="util-btn" id="signInBtn" type="button">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span data-i18n="signin">Sign in</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <header class="top" id="top">
+    <div class="wrap top-in">
+      <a href="#/" class="logo" aria-label="DOABNO"><img src="assets/brand/doabno-logo-primary.svg" alt="DOABNO" width="188" height="36"></a>
+      <nav class="topnav" aria-label="Main">
+        <button class="nav-i" id="browseBtn" type="button" data-menu="cats" aria-haspopup="true" aria-expanded="false" aria-controls="navPopup">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          <span data-i18n="nav.cats">Categories</span>
+          <svg class="chev" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <a class="nav-i" href="#/deals"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 12V4h8l10 10-8 8L3 12z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="7.5" cy="7.5" r="1.4" fill="currentColor"/></svg><span data-i18n="deals">Deals</span></a>
+        <a class="nav-i" href="#/alerts" data-menu="alerts" aria-haspopup="true" aria-expanded="false" aria-controls="navPopup"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 16V11a6 6 0 1112 0v5l2 2H4l2-2zM10 20a2 2 0 004 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span data-i18n="alerts">Price alerts</span><b class="cnt" id="alertCnt" hidden></b></a>
+        <a class="nav-i" href="#/favorites" data-menu="favs" aria-haspopup="true" aria-expanded="false" aria-controls="navPopup"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span data-i18n="favsNav">Favorites</span><b class="cnt" id="favCnt" hidden></b></a>
+      </nav>
+    </div>
+    <div class="np" id="navPopup" data-open="false" aria-hidden="true">
+      <svg class="np-arrow" id="npArrow" width="20" height="10" viewBox="0 0 20 10" fill="none" aria-hidden="true"><path d="M9.66 2.6L4.81 6.97A4 4 0 012.13 8H0v2h20V8h-1.47a4 4 0 01-2.68-1.03L11 2.6a1.5 1.5 0 00-1.34 0z" fill="#fff"/><path d="M0 9h2.13a5 5 0 003.35-1.28l4.85-4.37a1 1 0 011.34 0l4.85 4.37A5 5 0 0018.53 9H20" stroke="#E3E8ED" fill="none"/></svg>
+      <div class="np-box"><div class="np-view" id="npView"></div></div>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1"></main>
+
+  <footer class="foot" id="foot"></footer>
+
+  <nav class="tabbar" aria-label="Primary">
+    <a href="#/" data-tab="home"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 11l9-8 9 8M5 9.5V21h14V9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg><span data-i18n="tab.home">Home</span></a>
+    <a href="#/search" data-tab="search"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg><span data-i18n="tab.search">Search</span></a>
+    <a href="#/deals" data-tab="deals"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 4v14M7 13l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="tab.deals">Deals</span></a>
+    <a href="#/alerts" data-tab="alerts"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 17V11a6 6 0 0112 0v6l1.5 2h-15zM10 21h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg><span data-i18n="tab.alerts">Alerts</span></a>
+    <a href="#/favorites" data-tab="favorites"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span data-i18n="tab.saved">Saved</span></a>
+  </nav>
+
+  <div class="cookie" id="cookie" hidden role="region" aria-label="Cookies">
+    <p data-i18n="cookie.text">We use essential cookies to keep DOABNO working. Analytics cookies help us improve the experience.</p>
+    <div class="cookie-btns">
+      <button class="btn ghost sm" type="button" data-cookie="essential" data-i18n="cookie.ess">Essential only</button>
+      <button class="btn primary sm" type="button" data-cookie="all" data-i18n="cookie.all">Accept all</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <dialog class="modal" id="modal"></dialog>
+
+  <script src="assets/data.js"></script>
+  <script src="v2.js"></script>
+</body>
+</html>

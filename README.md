@@ -15,7 +15,27 @@ web/    Frontend UI prototype (static HTML/CSS/JS, no build step)
   app/            Mobile app layout (clickable prototype): index.html, mobile.css, mobile-i18n.js, mobile.js
 ```
 
-## Run the prototype
+## Redesign v2 (try this first)
+
+Search-first redesign of the website and the mobile app, in separate folders so it can be compared with the original (`web/`).
+
+```bash
+py serve-v2.py
+```
+
+Then open http://localhost:5174 (website), http://localhost:5174/app/ (mobile app) and http://localhost:5174/old/ (the original site; its admin portal is at `/old/admin/`). On a phone on the same Wi-Fi, use your computer's IP address instead of `localhost`.
+
+```
+web-v2/            Redesigned website (static HTML/CSS/JS): index.html, v2.css, v2.js, assets/ (demo data + brand)
+app-v2/            Redesigned mobile app prototype: index.html, mobile.css, mobile.js, mobile-i18n.js, assets/
+DESIGN.md          Design system notes
+PRD-CHECKLIST.md   PRD requirements, old vs redesign, and what is still open
+serve-v2.py        Runs web-v2, app-v2 and the original on one port
+```
+
+Needs Python 3 and an internet connection (fonts, demo photos and store logos are loaded from the web). All data is demo data.
+
+## Run the original prototype
 
 ```bash
 py serve.py

@@ -5,6 +5,7 @@ each file on every load, so edits show up after a normal refresh (phones include
 """
 import argparse
 import functools
+import os
 import http.server
 from pathlib import Path
 
@@ -19,13 +20,15 @@ class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
 
 def main():
     parser = argparse.ArgumentParser(description='Serve the DOABNO prototype from web/.')
-    parser.add_argument('port', nargs='?', type=int, default=5173)
+    parser.add_argument('port', nargs='?', type=int, default=int(os.environ.get('PORT', 5173)))
     parser.add_argument('--bind', default='0.0.0.0',
                         help='address to listen on; 0.0.0.0 also lets phones on the same network connect')
+    parser.add_argument('--root', default=None, help='folder to serve instead of web/ (for example web-v2)')
     args = parser.parse_args()
-    handler = functools.partial(NoCacheHandler, directory=str(WEB_ROOT))
+    root = (WEB_ROOT.parent / args.root) if args.root else WEB_ROOT
+    handler = functools.partial(NoCacheHandler, directory=str(root))
     with http.server.ThreadingHTTPServer((args.bind, args.port), handler) as server:
-        print(f'Serving {WEB_ROOT} at http://localhost:{args.port}  (Ctrl+C to stop)', flush=True)
+        print(f'Serving {root} at http://localhost:{args.port}  (Ctrl+C to stop)', flush=True)
         try:
             server.serve_forever()
         except KeyboardInterrupt:
