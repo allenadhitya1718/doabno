@@ -1,0 +1,15 @@
+/* DOABNO brand tokens, v2.0 */
+:root {
+  --doabno-navy: #0E2A47;
+  --doabno-orange: #FF7A00; /* decorative branding, not small text on white */
+  --doabno-orange-text: #A94300; /* text on white; verify at final font size */
+  --doabno-orange-on-navy: #FF9A46;
+  --doabno-ink: #172B3A;
+  --doabno-muted: #526272;
+  --doabno-surface: #FFFFFF;
+  --doabno-soft: #F5F8FA;
+  --doabno-focus: #A94300;
+}
+/* Examples: primary CTA navy/white; value highlight orange, with words and numbers too. */
+.doabno-button {background:var(--doabno-navy); color:#fff; border-radius:8px; padding:12px 20px; font-weight:700;}
+.doabno-button:focus-visible {outline:3px solid var(--doabno-focus); outline-offset:3px;}

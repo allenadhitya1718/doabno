@@ -1,0 +1,10 @@
+# Screenshots are generated: recreate them with `node capture-screens.js`.
+screens/
+
+# Local Claude settings
+.claude/settings.local.json
+
+# OS files
+Thumbs.db
+desktop.ini
+.DS_Store

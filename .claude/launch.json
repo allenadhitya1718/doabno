@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web",
+      "runtimeExecutable": "py",
+      "runtimeArgs": ["D:\\DOABNO\\serve.py", "5173"],
+      "port": 5173
+    }
+  ]
+}
