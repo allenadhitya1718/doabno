@@ -23,11 +23,12 @@ Search-first redesign of the website and the mobile app, in separate folders so 
 py serve-v2.py
 ```
 
-Then open http://localhost:5174 (website), http://localhost:5174/app/ (mobile app) and http://localhost:5174/old/ (the original site; its admin portal is at `/old/admin/`). On a phone on the same Wi-Fi, use your computer's IP address instead of `localhost`.
+Then open http://localhost:5174 (website), http://localhost:5174/app/ (mobile app), http://localhost:5174/admin/ (admin portal) and http://localhost:5174/old/ (the original site; its admin portal is at `/old/admin/`). On a phone on the same Wi-Fi, use your computer's IP address instead of `localhost`.
 
 ```
 web-v2/            Redesigned website (static HTML/CSS/JS): index.html, v2.css, v2.js, assets/ (demo data + brand)
 app-v2/            Redesigned mobile app prototype: index.html, mobile.css, mobile.js, mobile-i18n.js, assets/
+admin-v2/          Admin portal: original design plus store and brand logos (served at /admin/)
 DESIGN.md          Design system notes
 PRD-CHECKLIST.md   PRD requirements, old vs redesign, and what is still open
 serve-v2.py        Runs web-v2, app-v2 and the original on one port

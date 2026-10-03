@@ -31,9 +31,9 @@
       'ac.signup': 'Create account', 'ac.name': 'Full name', 'ac.have': 'Already have an account? Sign in', 'ac.new': 'New to DOABNO? Create an account', 'ac.title': 'My profile', 'ac.prefs': 'Notifications', 'ac.notif': 'Email me when a price alert triggers', 'ac.promo': 'Send me deals and coupons',
       'ac.data': 'Your data', 'ac.dataD': 'You can download everything we keep about you, or delete your account. In production this also removes server-side records (PDPL, GDPR and CCPA rights).', 'ac.export': 'Download my data', 'ac.delete': 'Delete my account', 'ac.signout': 'Sign out', 'ac.deleted': 'Account deleted', 'ac.saved': 'Saved',
       'ac.consent': 'I agree to the Terms of use and Privacy policy', 'ac.hello': 'Hello, {n}', 'ac.confirmDel': 'Delete your account and all saved data from this browser?', 'ac.pw8': 'Password (8+ characters)', 'ac.err': 'Enter a valid email and a password of 8+ characters.', 'ac.errName': 'Enter your name and accept the terms.', 'ac.signedUp': 'Welcome to DOABNO', 'ac.demo': 'Demo only: accounts are stored in this browser and nothing is sent.', 'viz.s0': 'Searching…', 'viz.s1': 'Checking {n} stores…', 'viz.s2': 'Comparing total prices…', 'viz.s3': 'Lowest price found', 'viz.s4': 'Price history · 30 days',
-      'viz.low': 'Lowest total price', 'viz.save': 'Save {x}', 'viz.more': '+ {n} more stores', 'viz.drop': '↓ {n}% below 30-day average', 'viz.today': 'Best price today', 'viz.alt': 'Example: {p} compared across {n} stores, lowest total {x}.', 'app.soon': 'Coming soon on', 'app.pill': 'Coming soon', 'app.title': 'Take DOABNO wherever you go', 'app.text': 'The DOABNO app for iPhone and Android is on its way.',
-      'app.f1': 'Compare offers from every store we track', 'app.f2': 'Get notified on your phone when prices drop', 'app.f3': 'Favorites and price alerts synced with the website',
-      'app.mock.search': 'Search products', 'app.mock.alert': 'Price dropped', 'app.mock.now': 'Now {p} at {s}',
+      'viz.low': 'Lowest total price', 'viz.save': 'Save {x}', 'viz.more': '+ {n} more stores', 'viz.drop': '↓ {n}% below 30-day average', 'viz.today': 'Best price today', 'viz.alt': 'Example: {p} compared across {n} stores, lowest total {x}.', 'app.soon': 'Coming soon', 'app.pill': 'Coming soon', 'app.title': 'Compare prices wherever you go.', 'app.text': 'The DOABNO app is coming soon for iPhone and Android.',
+      'app.f1': '<b>Compare prices</b> across every store we track', 'app.f2': '<b>Get notified</b> when a price drops', 'app.f3': '<b>Keep saved products</b> in sync',
+      'app.mock.search': 'Search products', 'app.mock.alert': 'Price dropped', 'app.mock.now': 'Now {p} at {s}', 'app.mock.saved': 'Saved',
       'sec.cats': 'Popular categories', 'sec.drops': 'Biggest price drops today', 'sec.pop': 'Popular comparisons', 'sec.how': 'How DOABNO works', 'sec.stores': 'Trusted stores in {m}',
       all: 'See all', products: '{n} products', 'drop.vs': 'vs 30-day average', compare: 'Compare prices',
       'how.1': 'Search', 'how.1d': 'Type a product, brand or model. We match it across stores.', 'how.2': 'Compare', 'how.2d': 'See every offer sorted by total price, with delivery and stock.',
@@ -69,9 +69,9 @@
       'ac.signup': 'إنشاء حساب', 'ac.name': 'الاسم الكامل', 'ac.have': 'لديك حساب؟ سجّل الدخول', 'ac.new': 'جديد في دوابنو؟ أنشئ حسابًا', 'ac.title': 'ملفي الشخصي', 'ac.prefs': 'الإشعارات', 'ac.notif': 'أرسل لي بريدًا عند تفعيل تنبيه سعر', 'ac.promo': 'أرسل لي العروض والكوبونات',
       'ac.data': 'بياناتك', 'ac.dataD': 'يمكنك تنزيل كل ما نحتفظ به عنك أو حذف حسابك. في النسخة الفعلية يشمل ذلك السجلات على الخادم (حقوق PDPL وGDPR وCCPA).', 'ac.export': 'تنزيل بياناتي', 'ac.delete': 'حذف حسابي', 'ac.signout': 'تسجيل الخروج', 'ac.deleted': 'تم حذف الحساب', 'ac.saved': 'تم الحفظ',
       'ac.consent': 'أوافق على شروط الاستخدام وسياسة الخصوصية', 'ac.hello': 'مرحبًا، {n}', 'ac.confirmDel': 'هل تريد حذف حسابك وكل البيانات المحفوظة في هذا المتصفح؟', 'ac.pw8': 'كلمة المرور (8 أحرف فأكثر)', 'ac.err': 'أدخل بريدًا صحيحًا وكلمة مرور من 8 أحرف فأكثر.', 'ac.errName': 'أدخل اسمك ووافق على الشروط.', 'ac.signedUp': 'أهلاً بك في دوابنو', 'ac.demo': 'نسخة تجريبية: الحسابات تُحفظ في هذا المتصفح ولا يُرسل شيء.', 'viz.s0': 'جارٍ البحث…', 'viz.s1': 'فحص {n} متاجر…', 'viz.s2': 'مقارنة الأسعار الإجمالية…', 'viz.s3': 'تم العثور على أقل سعر', 'viz.s4': 'سجل الأسعار · 30 يومًا',
-      'viz.low': 'أقل سعر إجمالي', 'viz.save': 'وفّر {x}', 'viz.more': '+ {n} متاجر أخرى', 'viz.drop': '↓ {n}% أقل من متوسط 30 يومًا', 'viz.today': 'أفضل سعر اليوم', 'viz.alt': 'مثال: مقارنة {p} عبر {n} متاجر، أقل سعر إجمالي {x}.', 'app.soon': 'قريبًا على', 'app.pill': 'قريبًا', 'app.title': 'دوابنو معك أينما ذهبت', 'app.text': 'تطبيق دوابنو لأجهزة iPhone وAndroid في الطريق إليك.',
-      'app.f1': 'قارن عروض كل المتاجر التي نتابعها', 'app.f2': 'تنبيهات على جوالك عند انخفاض الأسعار', 'app.f3': 'المفضلة وتنبيهات الأسعار متزامنة مع الموقع',
-      'app.mock.search': 'ابحث عن منتج', 'app.mock.alert': 'انخفض السعر', 'app.mock.now': 'الآن {p} لدى {s}',
+      'viz.low': 'أقل سعر إجمالي', 'viz.save': 'وفّر {x}', 'viz.more': '+ {n} متاجر أخرى', 'viz.drop': '↓ {n}% أقل من متوسط 30 يومًا', 'viz.today': 'أفضل سعر اليوم', 'viz.alt': 'مثال: مقارنة {p} عبر {n} متاجر، أقل سعر إجمالي {x}.', 'app.soon': 'قريبًا', 'app.pill': 'قريبًا', 'app.title': 'قارن الأسعار أينما كنت.', 'app.text': 'تطبيق دوابنو قادم قريبًا لأجهزة iPhone وAndroid.',
+      'app.f1': '<b>قارن الأسعار</b> بين كل المتاجر التي نتابعها', 'app.f2': '<b>احصل على تنبيه</b> عند انخفاض السعر', 'app.f3': '<b>حافظ على منتجاتك المحفوظة</b> متزامنة',
+      'app.mock.search': 'ابحث عن منتج', 'app.mock.alert': 'انخفض السعر', 'app.mock.now': 'الآن {p} لدى {s}', 'app.mock.saved': 'تم الحفظ',
       'sec.cats': 'الأقسام الشائعة', 'sec.drops': 'أكبر انخفاضات الأسعار اليوم', 'sec.pop': 'مقارنات شائعة', 'sec.how': 'كيف يعمل دوابنو', 'sec.stores': 'متاجر موثوقة في {m}',
       all: 'عرض الكل', products: '{n} منتج', 'drop.vs': 'عن متوسط 30 يومًا', compare: 'قارن الأسعار',
       'how.1': 'ابحث', 'how.1d': 'اكتب اسم المنتج أو الماركة أو الموديل ونطابقه عبر المتاجر.', 'how.2': 'قارن', 'how.2d': 'شاهد كل العروض مرتبة حسب السعر الإجمالي مع التوصيل والتوفر.',
@@ -423,18 +423,56 @@
   const APPLE = 'M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701';
   const PLAY = 'M22.018 13.298l-3.919 2.218-3.515-3.493 3.543-3.521 3.891 2.202a1.49 1.49 0 0 1 0 2.594zM1.337.924a1.486 1.486 0 0 0-.112.568v21.017c0 .217.045.419.124.6l11.155-11.087L1.337.924zm12.207 10.065l3.258-3.238L3.45.195a1.466 1.466 0 0 0-.946-.179l11.04 10.973zm0 2.067l-11 10.933c.298.036.612-.016.906-.183l13.324-7.54-3.23-3.21z';
   const storeLogo = d => '<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="' + d + '" fill="currentColor"/></svg>';
+  // App promo: the phone plays a short loop of the real app flow (search -> store prices -> price-drop alert -> saved).
+  const appDemo = { token: 0, io: null };
+  function appDemoStop() { appDemo.token++; if (appDemo.io) { appDemo.io.disconnect(); appDemo.io = null; } }
   function appBanner() {
-    const all = items().slice().sort((a, b) => b.p.drop - a.p.drop);
-    const drop = all[0], rest = all.slice(1, 3);
-    const phone = '<div class="phone"><div class="phone-screen"><img class="phone-logo" src="assets/brand/doabno-logo-primary.svg" alt="" width="84" height="16">' +
-      '<div class="phone-search">' + icon.search.replace('width="20" height="20"', 'width="14" height="14"') + t('app.mock.search') + '</div>' +
-      (drop ? '<div class="phone-alert"><span class="phone-alert-ic">' + icon.bell + '</span><span><strong>' + t('app.mock.alert') + '</strong><small dir="auto">' + esc(nm(drop.p)) + '</small><small>' + t('app.mock.now', { p: money(drop.best.total), s: esc(drop.best.store.name) }) + '</small></span></div>' : '') +
-      rest.map(i => '<div class="phone-item"><span class="pi">' + thumb(i.p, 36, 36) + '</span><span><strong dir="auto">' + esc(nm(i.p)) + '</strong><small>' + t('from') + ' ' + money(i.best.total) + '</small></span></div>').join('') + '</div></div>';
-    return '<section class="sec"><div class="wrap"><div class="app-promo"><div class="app-copy"><span class="app-pill">' + t('app.pill') + '</span><h2>' + t('app.title') + '</h2><p class="app-text">' + t('app.text') + '</p>' +
-      '<ul class="app-features">' + ['app.f1', 'app.f2', 'app.f3'].map(k => '<li>' + icon.check + t(k) + '</li>').join('') + '</ul>' +
+    const feat = items().find(i => i.p.id === 'iphone-17-pro') || items()[0];
+    const phone = feat ? (function () {
+      const rows = feat.offers.filter(o => o.inStock).slice(0, 4).sort((x, y) => y.total - x.total);
+      const best = rows.reduce((m, o) => (o.total < m.total ? o : m), rows[0]);
+      const prod = (cls) => '<div class="' + cls + '"><span class="pd-img">' + thumb(feat.p, 44, 44) + '</span><div><b dir="auto">' + esc(nm(feat.p)) + '</b><small>' + t('from') + ' <b class="money">' + moneyText(best.total) + '</b></small></div></div>';
+      return '<div class="phone" id="phone" data-s="0"><div class="phone-screen">' +
+        '<div class="pd-top"><img class="phone-logo" src="assets/brand/doabno-logo-primary.svg" alt="" width="84" height="16"><span class="pd-heart" id="pdHeart">' + icon.heart(false) + '</span></div>' +
+        '<div class="pd-layer pd-s1"><div class="pd-search">' + icon.search.replace('width="20" height="20"', 'width="14" height="14"') + '<span class="pd-ph">' + t('app.mock.search') + '</span><span class="pd-q" id="pdQ"></span><i class="pd-caret"></i></div>' + prod('pd-sugg') + '</div>' +
+        '<div class="pd-layer pd-s2"><div class="pd-prod"><span class="pd-img">' + thumb(feat.p, 44, 44) + '</span><div><b dir="auto">' + esc(nm(feat.p)) + '</b><small>' + t('from') + ' <b class="money">' + moneyText(best.total) + '</b></small><small>' + storesLabel(feat.n) + ' · ' + t('verified', { n: best.updatedMin }) + '</small></div></div>' +
+        '<ul class="pd-rows">' + rows.map((o, i) => '<li class="' + (o === best ? 'best' : '') + '" style="--i:' + i + '">' + dot(o.store) + '<span class="ps">' + esc(o.store.name) + '</span><span class="pp money">' + moneyText(o.total) + '</span><span class="pm">' + icon.check + '</span></li>').join('') + '</ul></div>' +
+        '<div class="pd-layer pd-s3"><div class="pd-notif"><span class="ic">' + icon.bell + '</span><div><b>' + t('app.mock.alert') + '</b><small dir="auto">' + esc(nm(feat.p)) + '</small><small>' + t('app.mock.now', { p: moneyText(best.total), s: esc(best.store.name) }) + '</small></div></div></div>' +
+        '<div class="pd-layer pd-s4">' + prod('pd-sugg') + '<div class="pd-saved">' + icon.heart(true) + t('app.mock.saved') + '</div></div></div></div>';
+    })() : '';
+    return '<section class="sec app-sec"><div class="wrap"><div class="app-promo"><div class="app-copy"><span class="app-pill">' + t('app.pill') + '</span><h2>' + t('app.title') + '</h2><p class="app-text">' + t('app.text') + '</p>' +
+      '<ul class="app-features">' + ['app.f1', 'app.f2', 'app.f3'].map(k => '<li>' + icon.check + '<span>' + t(k) + '</span></li>').join('') + '</ul>' +
       '<div class="store-badges"><span class="store-badge">' + storeLogo(APPLE) + '<span><small>' + t('app.soon') + '</small>App Store</span></span><span class="store-badge">' + storeLogo(PLAY) + '<span><small>' + t('app.soon') + '</small>Google Play</span></span></div></div>' +
       '<div class="app-visual" aria-hidden="true">' + phone + '</div></div></div></section>';
   }
+  function appDemoInit() {
+    appDemoStop();
+    const ph = $('#phone'); if (!ph) return;
+    const token = appDemo.token;
+    const query = D.POPULAR[0] || 'iPhone 17';
+    if (reducedMotion()) { ph.dataset.s = '2'; ph.classList.add('hl'); return; }
+    const at = (ms, fn) => setTimeout(() => { if (token === appDemo.token && ph.isConnected) fn(); }, ms);
+    // One scene at a time: search -> store prices -> price-drop alert -> saved.
+    const cycle = () => {
+      const q = $('#pdQ'), heart = $('#pdHeart');
+      ph.classList.remove('hl', 'sg', 'out'); ph.dataset.s = '0';
+      if (q) q.textContent = ''; if (heart) heart.innerHTML = icon.heart(false);
+      at(60, () => { ph.dataset.s = '1'; });
+      for (let i = 1; i <= query.length; i++) at(500 + i * 75, () => { if (q) q.textContent = query.slice(0, i); });
+      at(1500, () => ph.classList.add('sg'));
+      at(2400, () => { ph.dataset.s = '2'; });
+      at(3800, () => ph.classList.add('hl'));
+      at(5000, () => { ph.dataset.s = '3'; });
+      at(6400, () => { ph.dataset.s = '4'; if (heart) heart.innerHTML = icon.heart(true); });
+      at(7900, () => ph.classList.add('out'));
+      at(8400, cycle);
+    };
+    // Start when the phone scrolls into view; stop when the page changes.
+    appDemo.started = false;
+    appDemo.io = new IntersectionObserver(es => { if (es[0].isIntersecting && !appDemo.started) { appDemo.started = true; cycle(); } }, { threshold: 0.25 });
+    appDemo.io.observe(ph);
+  }
+  const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- hero visualization: price network -> lowest price -> price history ---------- */
   const viz = { timers: [], raf: 0, token: 0 };
@@ -746,7 +784,8 @@
           if (hit && hit.p.id !== lastId) { lastId = hit.p.id; vizStart(hit); }
         }, 450);
       });
-    } else vizStop();
+      appDemoInit();
+    } else { vizStop(); appDemoStop(); }
     if (kind === 'search') {
       const ps = $('#pageSearch');
       wireSearch(ps, $('#pageQ'), $('#suggestP'));

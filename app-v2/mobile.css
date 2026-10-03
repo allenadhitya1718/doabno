@@ -487,3 +487,13 @@ html[lang="ar"] .trend-label { letter-spacing: 0; font-size: 13px; }
 [dir="rtl"] .fade-x { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 40px), transparent); }
 .fade-x.at-end { -webkit-mask-image: none; mask-image: none; }
 @media (prefers-reduced-motion: reduce) { .pstrip.p1.p2.p3.p4 *, .pstrip * { transition-duration: .01ms !important; } }
+
+/* product bottom bar: store name and price on two lines so nothing is truncated */
+.bottombar .btn { height: 56px; }
+.bottombar .btn-outline { padding: 0 var(--s4); }
+.btn-visit-main { justify-content: space-between; gap: var(--s3); padding: 0 var(--s4) 0 var(--s5); text-align: start; }
+[dir="rtl"] .btn-visit-main { padding: 0 var(--s5) 0 var(--s4); }
+.vm-text { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; line-height: 1.2; }
+.vm-text small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 600; opacity: .85; }
+.vm-text b { font-size: 18px; font-weight: 800; letter-spacing: -.01em; }
+.signin-card .btn svg { flex: none; }

@@ -32,7 +32,7 @@ Old column is from the README and code review; New column was checked in the bro
 | Cookie consent | ☑ | ☑ | Plus "Cookie settings" re-open link in the footer |
 | CCPA "do not sell or share" | ☑ | ☑ | Page with opt-out switch |
 | Privacy, terms and cookie policy pages | ☑ | ☑ | Placeholder text, needs legal approval |
-| Admin panel (users, stores, products, coupons, clicks, CSV export, roles, logs) | ☑ | ☐ | Not redesigned |
+| Admin panel (users, stores, products, coupons, clicks, CSV export, roles, logs) | ☑ | ◐ | `admin-v2/` (http://localhost:5174/admin/): same design and screens, now with real store logos and product-brand logos. Full redesign not done |
 | Mobile app layout (iOS / Android screens) | ☑ | ☑ | Redesigned in `app-v2/` (http://localhost:5175), same screens and flows. Not re-tested on a real phone |
 | Backend: security, 7-second response time, feeds and APIs, affiliate and CPC networks, handover | n/a | n/a | |
 
