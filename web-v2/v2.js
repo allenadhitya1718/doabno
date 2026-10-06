@@ -24,7 +24,13 @@
       skip: 'Skip to content', signin: 'Sign in', browse: 'Browse', deals: 'Deals', alerts: 'Price alerts', favs: 'Saved',
       'search.ph': 'Search products, brands or stores…', 'search.hero': 'Search for iPhone 17, AirPods, Dyson…',
       'hero.title': 'Compare before you <em>buy.</em>', 'hero.sub': 'Find the lowest total price across trusted stores, delivery included.',
-      'hero.try': 'Try', 'trust.1': 'Verified prices', 'trust.2': 'Delivery included', 'trust.3': 'Price history', 'trust.4': 'Price-drop alerts',
+      'hero.try': 'Try',
+      'al.title': 'Set a price alert', 'al.sub': 'We’ll email you when the lowest price drops to your target or below.', 'al.target': 'Target price', 'al.email': 'Your email address', 'al.consent': 'I agree that DOABNO may email me price-drop alerts, product updates and marketing offers. I can unsubscribe at any time.', 'al.err': 'Enter a valid email address and tick the box to receive email alerts.', 'al.errT': 'Enter a target price.', 'al.done': 'Price alert created', 'al.create': 'Create alert',
+      'sa.chart': '30-day price', 'sa.alert': 'Price alert reached', 'sa.target': 'Target {x}',
+      'about.sec': 'About DOABNO', 'about.stat1': 'markets', 'about.stat2': 'languages', 'about.stat3': 'to use', 'about.free': 'Free', 'about.h': 'Made for smarter shoppers', 'about.more': 'Learn more about us', 'about.mission': 'Our mission', 'about.vision': 'Our vision', 'about.promise': 'What we stand for',
+      'promo.pill': 'Smart shopping', 'promo.title': 'Compare. Buy. Save.', 'promo.text': 'Check every store before you check out. DOABNO shows the lowest total price, delivery included, so the best deal is never a guess.', 'promo.cta': 'See today’s deals', 'promo.cta2': 'About DOABNO', 'pn.drop': 'Price dropped', 'pn.code': 'Promo code', 'pn.free': 'Free delivery', 'pn.best': 'Best price', 'promo.alt': 'A smiling shopper holding a phone with offers appearing from the screen',
+      'usually': 'Usually {x}', 'lessN': '{n}% less', 'viz.buy': 'Buy {p} at {s}', 'viz.buyNow': 'Buy now', 'viz.view': 'View product and buy', 'foot.aboutUs': 'About us', 'foot.disclaimer': 'Disclaimer', 'about.crumb': 'About us',
+      'ac.marketing': 'Yes, email me deals, coupons and product updates. I can unsubscribe at any time. (optional)', 'trust.1': 'Verified prices', 'trust.2': 'Delivery included', 'trust.3': 'Price history', 'trust.4': 'Price-drop alerts',
       stores: '{n} stores', store1: '1 store', bestPrice: 'Best price', compareN: 'Comparing {n} stores', live: 'Live price comparison', cmpN: '{n} stores compared', bestTotal: 'Best total price', moreStores: '+ {n} more stores', viewFull: 'View full comparison', 'sec.brands': 'Popular brands', 'p.similar': 'Similar and alternative products', coupons: 'Coupons',
       'foot.legal': 'Legal', 'foot.privacy': 'Privacy policy', 'foot.terms': 'Terms of use', 'foot.cookies': 'Cookie policy', 'foot.ccpa': 'Do not sell or share my personal information', 'foot.cookieSet': 'Cookie settings', 'foot.explore': 'Explore', 'foot.how': 'How DOABNO works',
       'cp.title': 'Coupons and promo codes', 'cp.sub': 'Codes from stores in {m}. Copy a code, then paste it at checkout.', 'cp.copy': 'Copy code', 'cp.copied': 'Code {c} copied', 'cp.exp': 'Expires in {n} days', 'cp.exp0': 'Expires today', 'cp.all': 'All', 'cp.none': 'No coupons in this category yet.', 'cp.shop': 'Shop at {s}',
@@ -62,7 +68,13 @@
       skip: 'انتقل إلى المحتوى', signin: 'تسجيل الدخول', browse: 'تصفح', deals: 'العروض', alerts: 'تنبيهات الأسعار', favs: 'المحفوظات',
       'search.ph': 'ابحث عن منتج أو ماركة أو متجر…', 'search.hero': 'ابحث عن آيفون 17 أو إيربودز أو دايسون…',
       'hero.title': 'قارن الأسعار قبل أن <em>تشتري.</em>', 'hero.sub': 'اعثر على أفضل سعر إجمالي من المتاجر الموثوقة في مكان واحد، شاملاً التوصيل.',
-      'hero.try': 'جرّب', 'trust.1': 'أسعار موثّقة', 'trust.2': 'التوصيل مشمول', 'trust.3': 'سجل الأسعار', 'trust.4': 'تنبيهات انخفاض السعر',
+      'hero.try': 'جرّب',
+      'al.title': 'إنشاء تنبيه سعر', 'al.sub': 'سنراسلك عندما ينخفض أقل سعر إلى السعر المستهدف أو أقل.', 'al.target': 'السعر المستهدف', 'al.email': 'بريدك الإلكتروني', 'al.consent': 'أوافق على أن يرسل لي دوابنو تنبيهات انخفاض الأسعار وتحديثات المنتجات والعروض التسويقية عبر البريد الإلكتروني. يمكنني إلغاء الاشتراك في أي وقت.', 'al.err': 'أدخل بريدًا إلكترونيًا صحيحًا وضع علامة الموافقة لتلقي التنبيهات عبر البريد.', 'al.errT': 'أدخل السعر المستهدف.', 'al.done': 'تم إنشاء تنبيه السعر', 'al.create': 'إنشاء التنبيه',
+      'sa.chart': 'السعر خلال 30 يومًا', 'sa.alert': 'وصل تنبيه السعر', 'sa.target': 'المستهدف {x}',
+      'about.sec': 'عن دوابنو', 'about.stat1': 'أسواق', 'about.stat2': 'لغتان', 'about.stat3': 'للاستخدام', 'about.free': 'مجاني', 'about.h': 'صُنع لمتسوّق أذكى', 'about.more': 'اعرف المزيد عنا', 'about.mission': 'رسالتنا', 'about.vision': 'رؤيتنا', 'about.promise': 'ما نؤمن به',
+      'promo.pill': 'تسوّق بذكاء', 'promo.title': 'قارن. اشترِ. وفّر.', 'promo.text': 'تحقق من كل المتاجر قبل أن تدفع. يعرض دوابنو أقل سعر إجمالي شاملًا التوصيل، فلا يبقى أفضل عرض مجرد تخمين.', 'promo.cta': 'شاهد عروض اليوم', 'promo.cta2': 'عن دوابنو', 'pn.drop': 'انخفض السعر', 'pn.code': 'كود الخصم', 'pn.free': 'توصيل مجاني', 'pn.best': 'أفضل سعر', 'promo.alt': 'متسوقة مبتسمة تمسك هاتفًا وتظهر منه العروض',
+      'usually': 'عادةً {x}', 'lessN': 'أقل بنسبة {n}%', 'viz.buy': 'اشترِ {p} من {s}', 'viz.buyNow': 'اشترِ الآن', 'viz.view': 'عرض المنتج والشراء', 'foot.aboutUs': 'من نحن', 'foot.disclaimer': 'إخلاء المسؤولية', 'about.crumb': 'من نحن',
+      'ac.marketing': 'نعم، أرسلوا لي العروض والكوبونات وتحديثات المنتجات عبر البريد. يمكنني إلغاء الاشتراك في أي وقت. (اختياري)', 'trust.1': 'أسعار موثّقة', 'trust.2': 'التوصيل مشمول', 'trust.3': 'سجل الأسعار', 'trust.4': 'تنبيهات انخفاض السعر',
       stores: '{n} متاجر', store1: 'متجر واحد', bestPrice: 'أفضل سعر', compareN: 'مقارنة {n} متاجر', live: 'مقارنة أسعار مباشرة', cmpN: 'تمت مقارنة {n} متاجر', bestTotal: 'أفضل سعر إجمالي', moreStores: '+ {n} متاجر أخرى', viewFull: 'عرض المقارنة الكاملة', 'sec.brands': 'ماركات شائعة', 'p.similar': 'منتجات مشابهة وبدائل', coupons: 'الكوبونات',
       'foot.legal': 'قانوني', 'foot.privacy': 'سياسة الخصوصية', 'foot.terms': 'شروط الاستخدام', 'foot.cookies': 'سياسة ملفات الارتباط', 'foot.ccpa': 'لا تبيع أو تشارك معلوماتي الشخصية', 'foot.cookieSet': 'إعدادات ملفات الارتباط', 'foot.explore': 'استكشف', 'foot.how': 'كيف يعمل دوابنو',
       'cp.title': 'الكوبونات وأكواد الخصم', 'cp.sub': 'أكواد من متاجر {m}. انسخ الكود ثم الصقه عند الدفع.', 'cp.copy': 'نسخ الكود', 'cp.copied': 'تم نسخ الكود {c}', 'cp.exp': 'ينتهي بعد {n} يومًا', 'cp.exp0': 'ينتهي اليوم', 'cp.all': 'الكل', 'cp.none': 'لا توجد كوبونات في هذا القسم حاليًا.', 'cp.shop': 'تسوّق من {s}',
@@ -191,42 +203,137 @@
     return items().filter(it => storeHit ? it.offers.some(o => o.store.id === storeHit.id) : toks.every(tk => searchHay(it).includes(tk)));
   }
 
+  // Policy texts follow the structure of a typical European price-comparison service (controller, data categories, purposes and legal bases,
+  // recipients, transfers, retention, rights, contact) and are adapted to the Saudi PDPL, GDPR / UK GDPR and CCPA. They are drafts for legal review.
   const LEGAL = {
     privacy: {
-      en: ['Privacy policy', [['Who we are', 'DOABNO (doabno.com) is a price-comparison service for Saudi Arabia, the Gulf, the United States and the United Kingdom.'],
-        ['What we collect', 'Account details you give us (name, email), your saved products, price alerts, market, language and currency, and basic usage data such as the stores you visit through our links.'],
-        ['Why we use it', 'To run the service, send price alerts you ask for, measure outbound clicks for our affiliate and cost-per-click partners, and keep the site secure.'],
-        ['Your rights', 'Under the Saudi Personal Data Protection Law (PDPL), the GDPR and the CCPA you can access, correct, download or delete your data, object to processing, and opt out of any sale or sharing of personal information. Use your profile page, or write to us.'],
-        ['Retention and security', 'We keep data only as long as needed and protect it with encryption in transit and access controls.']]],
-      ar: ['سياسة الخصوصية', [['من نحن', 'دوابنو (doabno.com) خدمة مقارنة أسعار للسعودية والخليج والولايات المتحدة والمملكة المتحدة.'],
-        ['ما الذي نجمعه', 'بيانات الحساب التي تقدمها (الاسم والبريد)، ومنتجاتك المحفوظة وتنبيهات الأسعار والسوق واللغة والعملة، وبيانات استخدام أساسية مثل المتاجر التي تزورها عبر روابطنا.'],
-        ['لماذا نستخدمها', 'لتشغيل الخدمة وإرسال تنبيهات الأسعار التي تطلبها وقياس النقرات الخارجية لشركائنا في العمولة والدفع بالنقرة وحماية الموقع.'],
-        ['حقوقك', 'بموجب نظام حماية البيانات الشخصية السعودي (PDPL) واللائحة الأوروبية (GDPR) وقانون CCPA يحق لك الاطلاع على بياناتك وتصحيحها وتنزيلها وحذفها والاعتراض على المعالجة وإيقاف أي بيع أو مشاركة للمعلومات الشخصية. استخدم صفحة ملفك الشخصي أو راسلنا.'],
-        ['الاحتفاظ والأمان', 'نحتفظ بالبيانات للمدة اللازمة فقط ونحميها بالتشفير أثناء النقل وضوابط الوصول.']]]
+      en: ['Privacy policy', [
+        ['1. Who is responsible', 'DOABNO (doabno.com, “DOABNO”, “we”) operates a price-comparison website and mobile app for Saudi Arabia, the Gulf, the United States and the United Kingdom. DOABNO is the controller of your personal data. Contact: privacy@doabno.com.'],
+        ['2. What this policy covers', 'This policy explains which personal data we process when you visit doabno.com, use the DOABNO app, create an account, save products, set price alerts or contact us, why we process it, and what rights you have.'],
+        ['3. Data we process', 'Usage data: pages and products viewed, searches, the stores you open through our links, device and browser type, approximate location (country or city from your IP address), language, market and currency. Account data: name, email address and password (stored hashed). Saved items: favourites and price alerts with target prices. Photo and barcode searches: images or codes you submit to find a product. Communication data: messages you send us and your marketing consent choices.'],
+        ['4. Why we process it and on what basis', 'To provide the comparison service you request (contract / performance of a service). To send price-drop alerts you set up (contract). To send marketing emails and product updates only if you gave explicit consent, which you can withdraw at any time (consent). To measure outbound clicks and settle commissions with partner stores, keep the service secure and prevent fraud, and improve DOABNO through analytics (legitimate interests, or consent where the law requires it for cookies). To meet legal duties (legal obligation).'],
+        ['5. Marketing emails and consent', 'We email price-drop alerts only for products you chose. We send marketing emails, offers and product news only if you tick the consent box when you create an account or turn on email alerts. The box is never pre-ticked. Every email contains an unsubscribe link, and you can withdraw consent in your profile or by writing to us. Withdrawing consent does not affect the lawfulness of earlier processing.'],
+        ['6. Photo and barcode search', 'Images and barcodes you submit are used only to identify the product and show matching offers. We do not use them to identify people. Photos are not kept after the search is complete unless you save the result.'],
+        ['7. Cookies and similar technologies', 'We use essential cookies and storage to remember your market, language, currency, saved products and cookie choice. Analytics and partner cookies are set only if you choose “Accept all”. See the Cookie policy for details.'],
+        ['8. Who receives your data', 'Hosting and infrastructure providers, email-delivery providers, analytics providers (only with your consent where required), and partner stores and affiliate networks, which receive a click identifier when you open a store through our links but not your name or email. Authorities where we are legally required to disclose. We do not sell your personal data for money.'],
+        ['9. International transfers', 'Some providers are located outside Saudi Arabia, the EEA or the UK. Where required, we rely on adequacy decisions, standard contractual clauses or the transfer mechanisms approved under the PDPL.'],
+        ['10. How long we keep data', 'Account data until you delete your account. Price alerts and favourites until you remove them or delete your account. Usage and click data for up to 25 months in an aggregated or pseudonymised form. Marketing consent records for as long as needed to prove consent.'],
+        ['11. Your rights', 'Under the Saudi Personal Data Protection Law (PDPL), the GDPR / UK GDPR and the CCPA you can ask for access to your data, correction, deletion, restriction, a portable copy, and you can object to processing, withdraw consent, and opt out of any sale or sharing of personal information. You can also complain to your data-protection authority (in Saudi Arabia, SDAIA). Use your profile page or email privacy@doabno.com; we reply within 30 days.'],
+        ['12. Children', 'DOABNO is not directed at children under 16 and we do not knowingly collect their data.'],
+        ['13. Security', 'We protect data with encryption in transit, access controls and regular reviews. No online service can be guaranteed to be completely secure.'],
+        ['14. Changes', 'We may update this policy. The date of the latest version is shown below, and we will tell you about important changes in the service or by email if you have an account.']]],
+      ar: ['سياسة الخصوصية', [
+        ['1. الجهة المسؤولة', 'يدير دوابنو (doabno.com، «دوابنو» أو «نحن») موقعًا وتطبيقًا لمقارنة الأسعار في السعودية والخليج والولايات المتحدة والمملكة المتحدة. دوابنو هو المتحكم في بياناتك الشخصية. للتواصل: privacy@doabno.com.'],
+        ['2. نطاق هذه السياسة', 'توضح هذه السياسة البيانات الشخصية التي نعالجها عند زيارتك doabno.com أو استخدامك التطبيق أو إنشاء حساب أو حفظ منتجات أو ضبط تنبيهات الأسعار أو التواصل معنا، وسبب معالجتها، وحقوقك.'],
+        ['3. البيانات التي نعالجها', 'بيانات الاستخدام: الصفحات والمنتجات التي تعرضها وعمليات البحث والمتاجر التي تفتحها عبر روابطنا ونوع الجهاز والمتصفح والموقع التقريبي (الدولة أو المدينة من عنوان IP) واللغة والسوق والعملة. بيانات الحساب: الاسم والبريد الإلكتروني وكلمة المرور (تُخزَّن مشفّرة). العناصر المحفوظة: المفضلة وتنبيهات الأسعار مع الأسعار المستهدفة. البحث بالصورة والباركود: الصور أو الأرقام التي ترسلها للعثور على منتج. بيانات التواصل: رسائلك وخياراتك بشأن الموافقة التسويقية.'],
+        ['4. أسباب المعالجة وأساسها', 'لتقديم خدمة المقارنة التي تطلبها (تنفيذ الخدمة). لإرسال تنبيهات انخفاض الأسعار التي تضبطها (تنفيذ الخدمة). لإرسال رسائل تسويقية وأخبار المنتجات فقط إذا منحتنا موافقتك الصريحة ويمكنك سحبها في أي وقت (الموافقة). لقياس النقرات الخارجية وتسوية العمولات مع المتاجر الشريكة وحماية الخدمة ومنع الاحتيال وتحسين دوابنو عبر التحليلات (المصلحة المشروعة أو الموافقة حين يشترطها النظام لملفات الارتباط). ولالتزامنا بالأنظمة (الالتزام النظامي).'],
+        ['5. الرسائل التسويقية والموافقة', 'نرسل تنبيهات انخفاض الأسعار فقط للمنتجات التي اخترتها. ولا نرسل رسائل تسويقية أو عروضًا أو أخبار منتجات إلا إذا وضعت علامة الموافقة عند إنشاء حساب أو تفعيل تنبيهات البريد. لا تكون الخانة محددة مسبقًا أبدًا. تحتوي كل رسالة على رابط لإلغاء الاشتراك، ويمكنك سحب موافقتك من ملفك الشخصي أو بمراسلتنا. لا يؤثر سحب الموافقة على مشروعية المعالجة السابقة.'],
+        ['6. البحث بالصورة والباركود', 'نستخدم الصور والباركود التي ترسلها فقط للتعرف على المنتج وعرض العروض المطابقة، ولا نستخدمها للتعرف على الأشخاص. لا نحتفظ بالصور بعد انتهاء البحث ما لم تحفظ النتيجة.'],
+        ['7. ملفات الارتباط والتقنيات المشابهة', 'نستخدم ملفات ارتباط وتخزينًا أساسيًا لتذكّر السوق واللغة والعملة والمنتجات المحفوظة واختيارك. لا نفعّل ملفات التحليلات والشركاء إلا إذا اخترت «قبول الكل». راجع سياسة ملفات الارتباط للتفاصيل.'],
+        ['8. من يستلم بياناتك', 'مزودو الاستضافة والبنية التقنية ومزودو إرسال البريد ومزودو التحليلات (بموافقتك حيث يلزم) والمتاجر الشريكة وشبكات الإحالة التي تستلم معرّف نقرة عند فتحك متجرًا عبر روابطنا دون اسمك أو بريدك. كما قد نفصح للجهات الرسمية عند وجود التزام نظامي. لا نبيع بياناتك الشخصية مقابل مال.'],
+        ['9. النقل الدولي', 'يقع بعض المزودين خارج السعودية والمنطقة الاقتصادية الأوروبية والمملكة المتحدة. وعند اللزوم نعتمد على قرارات الملاءمة أو البنود التعاقدية النموذجية أو آليات النقل المعتمدة بموجب نظام حماية البيانات الشخصية.'],
+        ['10. مدة الاحتفاظ', 'بيانات الحساب حتى تحذف حسابك. تنبيهات الأسعار والمفضلة حتى تزيلها أو تحذف حسابك. بيانات الاستخدام والنقرات حتى 25 شهرًا بصورة مجمّعة أو بأسماء مستعارة. سجلات الموافقة التسويقية للمدة اللازمة لإثبات الموافقة.'],
+        ['11. حقوقك', 'بموجب نظام حماية البيانات الشخصية السعودي (PDPL) واللائحة الأوروبية GDPR والبريطانية وقانون CCPA يحق لك طلب الاطلاع على بياناتك وتصحيحها وحذفها وتقييد معالجتها والحصول على نسخة منها، والاعتراض على المعالجة وسحب الموافقة وإيقاف أي بيع أو مشاركة للمعلومات الشخصية. ويحق لك تقديم شكوى إلى جهة حماية البيانات (في السعودية: سدايا). استخدم صفحة ملفك أو راسلنا على privacy@doabno.com، وسنرد خلال 30 يومًا.'],
+        ['12. الأطفال', 'دوابنو غير موجّه للأطفال دون 16 عامًا ولا نجمع بياناتهم عن علم.'],
+        ['13. الأمان', 'نحمي البيانات بالتشفير أثناء النقل وضوابط الوصول ومراجعات دورية. ولا يمكن ضمان أمان أي خدمة إلكترونية بشكل مطلق.'],
+        ['14. التغييرات', 'قد نحدّث هذه السياسة، ويظهر تاريخ آخر نسخة أدناه، وسنبلغك بالتغييرات المهمة في الخدمة أو بالبريد إذا كان لديك حساب.']]]
     },
     terms: {
-      en: ['Terms of use', [['The service', 'DOABNO shows prices and offers collected from stores and feeds. We do not sell products; purchases happen on the store’s own website.'],
-        ['Accuracy', 'Prices, delivery costs and stock can change at any time. Always confirm on the store’s website before buying.'],
-        ['Affiliate links', 'We may earn a commission or a payment per click when you visit a store through our links, at no extra cost to you.'],
-        ['Acceptable use', 'Do not scrape the service, interfere with it, or use it unlawfully.']]],
-      ar: ['شروط الاستخدام', [['الخدمة', 'يعرض دوابنو أسعارًا وعروضًا مجمّعة من المتاجر والخلاصات. نحن لا نبيع المنتجات؛ تتم عمليات الشراء على موقع المتجر نفسه.'],
-        ['الدقة', 'قد تتغير الأسعار وتكاليف التوصيل والتوفر في أي وقت. تأكد دائمًا من موقع المتجر قبل الشراء.'],
-        ['روابط الإحالة', 'قد نحصل على عمولة أو مبلغ عن كل نقرة عند زيارتك لمتجر عبر روابطنا، دون أي تكلفة إضافية عليك.'],
-        ['الاستخدام المقبول', 'يُمنع سحب بيانات الخدمة أو التشويش عليها أو استخدامها بطريقة غير قانونية.']]]
+      en: ['Terms of use', [
+        ['1. Scope', 'These terms govern your use of doabno.com and the DOABNO app. By using the service you agree to them. If you do not agree, please do not use it.'],
+        ['2. What DOABNO is', 'DOABNO is a price-comparison service. We show prices, delivery costs and availability collected from stores and product feeds. We are not a seller, we do not handle orders or payments, and no sales contract is made with us. When you click “Visit store” you leave DOABNO and buy from the store under its own terms.'],
+        ['3. Accuracy of information', 'Prices, delivery costs, stock, promo codes and product details come from third parties and can change at any moment. We work to keep them current and show when they were last updated, but we cannot guarantee they are complete or error-free. Always confirm the final price and conditions on the store’s website before you buy.'],
+        ['4. Ranking and sponsored placements', 'Offers are ranked by total price including delivery unless you choose another sort. We may earn a commission or a fee per click when you visit a store through our links; this does not change the price you pay. Any paid or promoted placement is labelled.'],
+        ['5. Your account', 'You are responsible for the accuracy of your account details and for keeping your password secure. You can delete your account at any time from your profile. We may suspend accounts that break these terms.'],
+        ['6. Price alerts and notifications', 'Price alerts are sent on a best-effort basis and may be delayed or missed if store data is unavailable. Email marketing is sent only with your consent, which you can withdraw at any time.'],
+        ['7. Acceptable use', 'Do not scrape or copy the service in bulk, use bots, interfere with its operation or security, attempt unauthorised access, upload unlawful content, or use DOABNO for any unlawful purpose.'],
+        ['8. Intellectual property', 'The DOABNO name, logo, design, software and compilation of data are owned by DOABNO or its licensors. Store names, logos and product images belong to their owners and are shown to identify offers. You receive a personal, non-transferable right to use the service.'],
+        ['9. Third-party links', 'We are not responsible for the content, availability, policies or practices of third-party websites reached through DOABNO.'],
+        ['10. Liability', 'To the extent permitted by law, DOABNO is not liable for losses arising from reliance on information shown, from purchases made on third-party sites, or from temporary unavailability of the service. Nothing here limits liability that cannot be limited by law, including for intent or gross negligence, or your statutory consumer rights.'],
+        ['11. Changes to the service and terms', 'We may change the service or these terms. Continued use after a change means you accept the new terms. We will give notice of material changes.'],
+        ['12. Governing law and disputes', 'These terms are governed by the laws of the Kingdom of Saudi Arabia. Consumers in other markets keep the mandatory protections of the law of the country where they live. Disputes are subject to the competent courts, unless mandatory law says otherwise.']]],
+      ar: ['شروط الاستخدام', [
+        ['1. النطاق', 'تنظم هذه الشروط استخدامك doabno.com وتطبيق دوابنو. باستخدامك الخدمة فإنك توافق عليها. وإن لم توافق فيرجى عدم استخدامها.'],
+        ['2. ما هو دوابنو', 'دوابنو خدمة لمقارنة الأسعار. نعرض الأسعار وتكاليف التوصيل والتوفر المجمّعة من المتاجر وخلاصات المنتجات. نحن لسنا بائعًا ولا نتعامل مع الطلبات أو المدفوعات ولا ينشأ معنا عقد بيع. وعند الضغط على «زيارة المتجر» تغادر دوابنو وتشتري من المتجر وفق شروطه.'],
+        ['3. دقة المعلومات', 'تأتي الأسعار وتكاليف التوصيل والمخزون وأكواد الخصم وتفاصيل المنتجات من أطراف ثالثة وقد تتغير في أي لحظة. نحرص على تحديثها ونعرض وقت آخر تحديث، لكن لا نضمن اكتمالها أو خلوها من الأخطاء. تأكد دائمًا من السعر النهائي والشروط على موقع المتجر قبل الشراء.'],
+        ['4. الترتيب والمواضع المدعومة', 'تُرتَّب العروض حسب السعر الإجمالي شاملًا التوصيل ما لم تختر ترتيبًا آخر. قد نحصل على عمولة أو مبلغ عن كل نقرة عند زيارتك متجرًا عبر روابطنا، ولا يغيّر ذلك السعر الذي تدفعه. ويُوضَّح أي موضع مدفوع أو مُروَّج له.'],
+        ['5. حسابك', 'أنت مسؤول عن صحة بيانات حسابك وعن حماية كلمة المرور. يمكنك حذف حسابك في أي وقت من ملفك الشخصي. وقد نعلّق الحسابات المخالفة لهذه الشروط.'],
+        ['6. تنبيهات الأسعار والإشعارات', 'تُرسل تنبيهات الأسعار بأفضل جهد وقد تتأخر أو تفوت إذا لم تتوفر بيانات المتجر. ولا تُرسل الرسائل التسويقية إلا بموافقتك ويمكنك سحبها في أي وقت.'],
+        ['7. الاستخدام المقبول', 'يُمنع سحب بيانات الخدمة أو نسخها بكميات كبيرة أو استخدام برامج آلية أو التشويش على تشغيلها وأمنها أو محاولة الدخول غير المصرح به أو رفع محتوى غير نظامي أو استخدام دوابنو لأي غرض غير قانوني.'],
+        ['8. الملكية الفكرية', 'اسم دوابنو وشعاره وتصميمه وبرمجياته وتجميع بياناته مملوكة لدوابنو أو لمرخّصيه. أما أسماء المتاجر وشعاراتها وصور المنتجات فهي لأصحابها وتُعرض لتعريف العروض. تحصل على حق شخصي غير قابل للتحويل لاستخدام الخدمة.'],
+        ['9. روابط الأطراف الثالثة', 'لسنا مسؤولين عن محتوى مواقع الأطراف الثالثة التي تصل إليها عبر دوابنو أو توفرها أو سياساتها أو ممارساتها.'],
+        ['10. المسؤولية', 'بالقدر الذي يسمح به النظام، لا يتحمل دوابنو مسؤولية الخسائر الناتجة عن الاعتماد على المعلومات المعروضة أو عن المشتريات من مواقع الأطراف الثالثة أو عن عدم توفر الخدمة مؤقتًا. ولا يقيّد شيء هنا مسؤولية لا يجوز تقييدها نظامًا، ومنها العمد والإهمال الجسيم، ولا حقوقك النظامية كمستهلك.'],
+        ['11. تغيير الخدمة والشروط', 'قد نغيّر الخدمة أو هذه الشروط. ويعني استمرارك في الاستخدام بعد التغيير قبولك الشروط الجديدة. وسنخطرك بالتغييرات الجوهرية.'],
+        ['12. القانون الواجب التطبيق والنزاعات', 'تخضع هذه الشروط لأنظمة المملكة العربية السعودية. ويحتفظ المستهلكون في الأسواق الأخرى بالحماية الإلزامية لنظام بلد إقامتهم. وتختص المحاكم المختصة بالنزاعات ما لم ينص نظام إلزامي على خلاف ذلك.']]]
+    },
+    disclaimer: {
+      en: ['Disclaimer', [
+        ['Information only', 'Everything on DOABNO is provided for general information and comparison. It is not financial, legal or professional advice and is not an offer to sell.'],
+        ['Prices and availability', 'Prices, delivery costs, stock and promotions are supplied by stores and can change without notice. The price on the store’s website at the time of purchase is the price that applies. Differences may occur because of update delays, regional pricing, taxes, or errors in store data.'],
+        ['Product information and reviews', 'Descriptions, images, ratings and specifications come from stores, manufacturers and public sources. We do not test products and do not guarantee that they are accurate or suitable for your needs.'],
+        ['Commissions', 'DOABNO earns money through commissions and cost-per-click fees from some stores. Not every store is a partner, and we aim to show the best total price whether or not a store pays us. Sponsored placements are labelled.'],
+        ['Stores and third parties', 'Orders, payments, delivery, returns, warranties and customer service are the responsibility of the store you buy from. Please read its terms before you order. DOABNO is not a party to your purchase.'],
+        ['Trademarks', 'All brand names, logos and product images belong to their owners. Their appearance on DOABNO does not imply endorsement or partnership.'],
+        ['Availability of the service', 'We aim for continuous service but do not guarantee uninterrupted or error-free operation, including photo and barcode search and price alerts.']]],
+      ar: ['إخلاء المسؤولية', [
+        ['للمعلومات فقط', 'كل ما يُعرض في دوابنو مقدَّم للمعلومات العامة والمقارنة، وليس نصيحة مالية أو قانونية أو مهنية ولا عرضًا للبيع.'],
+        ['الأسعار والتوفر', 'تأتي الأسعار وتكاليف التوصيل والمخزون والعروض من المتاجر وقد تتغير دون إشعار. والسعر المعتمد هو السعر المعروض على موقع المتجر وقت الشراء. وقد تحدث فروق بسبب تأخر التحديث أو التسعير الإقليمي أو الضرائب أو أخطاء في بيانات المتجر.'],
+        ['معلومات المنتجات والتقييمات', 'تأتي الأوصاف والصور والتقييمات والمواصفات من المتاجر والمصنّعين ومصادر عامة. نحن لا نختبر المنتجات ولا نضمن دقتها أو ملاءمتها لاحتياجاتك.'],
+        ['العمولات', 'يكسب دوابنو من العمولات ورسوم النقرات من بعض المتاجر. ليس كل متجر شريكًا، ونهدف إلى عرض أفضل سعر إجمالي سواء دفع لنا المتجر أم لا. وتُوضَّح المواضع المدعومة.'],
+        ['المتاجر والأطراف الثالثة', 'الطلبات والمدفوعات والتوصيل والإرجاع والضمان وخدمة العملاء مسؤولية المتجر الذي تشتري منه. يرجى قراءة شروطه قبل الطلب. دوابنو ليس طرفًا في عملية الشراء.'],
+        ['العلامات التجارية', 'جميع أسماء العلامات والشعارات وصور المنتجات ملك لأصحابها، وظهورها في دوابنو لا يعني تأييدًا أو شراكة.'],
+        ['توفر الخدمة', 'نسعى لتقديم خدمة متواصلة لكن لا نضمن تشغيلًا دون انقطاع أو أخطاء، بما في ذلك البحث بالصورة والباركود وتنبيهات الأسعار.']]]
     },
     cookies: {
-      en: ['Cookie policy', [['Essential cookies', 'Needed to remember your market, language, currency, saved products and cookie choice. They cannot be switched off.'],
+      en: ['Cookie policy', [
+        ['What cookies are', 'Cookies and similar storage are small pieces of data saved in your browser. They help a website remember your choices.'],
+        ['Essential cookies', 'Needed to remember your market, language, currency, saved products, sign-in and cookie choice. They cannot be switched off.'],
         ['Analytics cookies', 'Optional. They help us understand which pages and stores people use so we can improve DOABNO. They are only set if you choose “Accept all”.'],
-        ['Your choice', 'You can change your choice at any time with “Cookie settings” in the footer.']]],
-      ar: ['سياسة ملفات الارتباط', [['الملفات الأساسية', 'ضرورية لتذكّر السوق واللغة والعملة والمنتجات المحفوظة واختيارك لملفات الارتباط. لا يمكن إيقافها.'],
+        ['Partner and advertising identifiers', 'Optional. When you open a store through our links, the store or its affiliate network may set its own cookie to credit our commission. This is only enabled if you choose “Accept all” and is not sold to third parties.'],
+        ['Your choice', 'You can change your choice at any time with “Cookie settings” in the footer, or delete cookies in your browser settings. We honour the Global Privacy Control signal.']]],
+      ar: ['سياسة ملفات الارتباط', [
+        ['ما هي ملفات الارتباط', 'ملفات الارتباط والتخزين المشابه بيانات صغيرة تُحفظ في متصفحك وتساعد الموقع على تذكّر خياراتك.'],
+        ['الملفات الأساسية', 'ضرورية لتذكّر السوق واللغة والعملة والمنتجات المحفوظة وتسجيل الدخول واختيارك لملفات الارتباط. لا يمكن إيقافها.'],
         ['ملفات التحليلات', 'اختيارية. تساعدنا على فهم الصفحات والمتاجر التي يستخدمها الناس لتحسين دوابنو. لا تُفعَّل إلا إذا اخترت «قبول الكل».'],
-        ['اختيارك', 'يمكنك تغيير اختيارك في أي وقت عبر «إعدادات ملفات الارتباط» في أسفل الصفحة.']]]
+        ['معرّفات الشركاء والإعلانات', 'اختيارية. عند فتحك متجرًا عبر روابطنا قد يضع المتجر أو شبكة الإحالة ملف ارتباط خاصًا به لاحتساب عمولتنا. لا يُفعَّل إلا إذا اخترت «قبول الكل» ولا يُباع لأطراف ثالثة.'],
+        ['اختيارك', 'يمكنك تغيير اختيارك في أي وقت عبر «إعدادات ملفات الارتباط» في أسفل الصفحة أو بحذف الملفات من إعدادات المتصفح. ونحترم إشارة Global Privacy Control.']]]
     },
     ccpa: {
       en: ['Do not sell or share my personal information', [['Your California privacy choices', 'DOABNO does not sell your personal information for money. Sharing data with advertising partners (for example outbound click identifiers) may count as “sharing” under the CCPA.'],
         ['Opt out', 'Turn on the switch below to opt out. We will honour a Global Privacy Control signal from your browser automatically.']]],
       ar: ['لا تبيع أو تشارك معلوماتي الشخصية', [['خياراتك للخصوصية في كاليفورنيا', 'لا يبيع دوابنو معلوماتك الشخصية مقابل مال. وقد تُعدّ مشاركة بعض البيانات مع شركاء الإعلانات (مثل معرّفات النقرات الخارجية) «مشاركة» بموجب قانون CCPA.'],
         ['إلغاء الاشتراك', 'فعّل المفتاح أدناه لإيقاف البيع أو المشاركة. سنحترم إشارة Global Privacy Control من متصفحك تلقائيًا.']]]
+    }
+  };
+
+  const ABOUT = {
+    en: {
+      title: 'About DOABNO', lead: 'DOABNO helps shoppers in Saudi Arabia, the Gulf, the US and the UK find the lowest total price, delivery included, before they buy.',
+      blocks: [
+        ['Who we are', 'DOABNO (doabno.com) is an independent price-comparison platform. We bring offers from many trusted stores into one place, in Arabic and English and in your own currency, so you can compare quickly and buy with confidence.'],
+        ['Our mission', 'To make every purchase a smarter one by giving shoppers clear, honest and up-to-date prices.'],
+        ['Our vision', 'To be the first place people in the region look before they buy anything online.'],
+        ['Core objectives', ['Show the real total price: product price plus delivery, with stock and promo codes.', 'Keep prices fresh and show when each offer was last updated.', 'Be transparent about how we earn money and never let it change the price you pay.', 'Protect your privacy and give you control over your data and notifications.', 'Make comparison effortless in Arabic and English, on the web and in the app.']],
+        ['Why we built DOABNO', 'Shopping across many stores should not mean opening a dozen tabs. We built DOABNO to put every price side by side, so finding the best deal takes seconds, not hours. Shop better, save more, and keep it simple.'],
+        ['How we work', 'We collect product and price data from store feeds and partners, match the same product across stores, and rank offers by total price. When you visit a store through our links we may earn a small commission at no extra cost to you. That is how DOABNO stays free.'],
+        ['What you can do on DOABNO', ['Search by name, brand, store, photo or barcode.', 'Compare offers and check the price history.', 'Save favourites and set price alerts.', 'Use the DOABNO app on iPhone and Android.']],
+        ['Contact us', 'Questions, feedback or a store you would like us to add? Write to hello@doabno.com.']
+      ],
+      cta: 'Start comparing', links: 'Read our policies'
+    },
+    ar: {
+      title: 'عن دوابنو', lead: 'يساعد دوابنو المتسوقين في السعودية والخليج والولايات المتحدة والمملكة المتحدة على إيجاد أقل سعر إجمالي شاملًا التوصيل قبل الشراء.',
+      blocks: [
+        ['من نحن', 'دوابنو (doabno.com) منصة مستقلة لمقارنة الأسعار. نجمع عروض متاجر موثوقة عديدة في مكان واحد، بالعربية والإنجليزية وبعملتك، لتقارن بسرعة وتشتري بثقة.'],
+        ['رسالتنا', 'أن نجعل كل عملية شراء أذكى عبر تزويد المتسوقين بأسعار واضحة وصادقة ومحدّثة.'],
+        ['رؤيتنا', 'أن نكون أول مكان يبحث فيه الناس في المنطقة قبل شراء أي شيء عبر الإنترنت.'],
+        ['أهدافنا الأساسية', ['عرض السعر الإجمالي الحقيقي: سعر المنتج مع التوصيل والتوفر وأكواد الخصم.', 'إبقاء الأسعار حديثة وإظهار وقت آخر تحديث لكل عرض.', 'الشفافية في كيفية ربحنا وألا يغيّر ذلك السعر الذي تدفعه.', 'حماية خصوصيتك ومنحك التحكم في بياناتك وإشعاراتك.', 'جعل المقارنة سهلة بالعربية والإنجليزية على الموقع وفي التطبيق.']],
+        ['لماذا بنينا دوابنو', 'التسوق بين متاجر كثيرة لا ينبغي أن يعني فتح عشرات الصفحات. بنينا دوابنو ليضع كل الأسعار جنبًا إلى جنب، فيصبح العثور على أفضل عرض مسألة ثوانٍ لا ساعات. تسوّق أفضل ووفّر أكثر وابقَ على البساطة.'],
+        ['كيف نعمل', 'نجمع بيانات المنتجات والأسعار من خلاصات المتاجر والشركاء، ونطابق المنتج نفسه بين المتاجر، ونرتّب العروض حسب السعر الإجمالي. وعند زيارتك متجرًا عبر روابطنا قد نحصل على عمولة صغيرة دون أي تكلفة إضافية عليك. وبهذا يبقى دوابنو مجانيًا.'],
+        ['ماذا يمكنك أن تفعل في دوابنو', ['البحث بالاسم أو الماركة أو المتجر أو الصورة أو الباركود.', 'مقارنة العروض ومراجعة سجل الأسعار.', 'حفظ المفضلة وضبط تنبيهات الأسعار.', 'استخدام تطبيق دوابنو على آيفون وأندرويد.']],
+        ['تواصل معنا', 'أسئلة أو ملاحظات أو متجر تود إضافته؟ راسلنا على hello@doabno.com.']
+      ],
+      cta: 'ابدأ المقارنة', links: 'اقرأ سياساتنا'
     }
   };
 
@@ -253,8 +360,8 @@
     const f = $('#foot'); if (!f) return;
     const a = (h, k) => '<a href="' + h + '">' + t(k) + '</a>';
     f.innerHTML = '<div class="wrap"><div class="foot-grid"><div class="foot-brand"><img src="assets/brand/doabno-logo-primary.svg" alt="DOABNO" width="120" height="23"><p>' + t('foot.about') + '</p></div>' +
-      '<div><h2>' + t('foot.explore') + '</h2>' + a('#/deals', 'deals') + a('#/coupons', 'coupons') + a('#/alerts', 'alerts') + a('#/favorites', 'favsNav') + '</div>' +
-      '<div><h2>' + t('foot.legal') + '</h2>' + a('#/legal/privacy', 'foot.privacy') + a('#/legal/terms', 'foot.terms') + a('#/legal/cookies', 'foot.cookies') + a('#/legal/ccpa', 'foot.ccpa') + '<button type="button" class="foot-link" data-cookie-reset>' + t('foot.cookieSet') + '</button></div></div>' +
+      '<div><h2>' + t('foot.explore') + '</h2>' + a('#/about', 'foot.aboutUs') + a('#/deals', 'deals') + a('#/coupons', 'coupons') + a('#/alerts', 'alerts') + a('#/favorites', 'favsNav') + '</div>' +
+      '<div><h2>' + t('foot.legal') + '</h2>' + a('#/legal/privacy', 'foot.privacy') + a('#/legal/terms', 'foot.terms') + a('#/legal/disclaimer', 'foot.disclaimer') + a('#/legal/cookies', 'foot.cookies') + a('#/legal/ccpa', 'foot.ccpa') + '<button type="button" class="foot-link" data-cookie-reset>' + t('foot.cookieSet') + '</button></div></div>' +
       '<p class="foot-note">' + t('foot.note') + '</p></div>';
   }
   function updateCounts() {
@@ -412,6 +519,18 @@
       '<div class="pr">' + money(b.total) + '</div><div class="was">' + (p.drop >= 3 ? '<span class="tag drop">' + t('dropTag', { n: pct(p.drop) }) + '</span><span>' + t('drop.vs') + '</span>' : '') + '</div>' +
       '<div class="meta">' + esc(b.store.name) + ' · ' + storesLabel(i.n) + '</div><span class="btn ghost sm">' + t('compare') + ' ' + icon.arrow + '</span></a>';
   }
+  // Product card used in the listing grid (search, categories, deals): image, chips, title, price, "usually" line, buy button.
+  function listCard(i) {
+    const p = i.p, b = i.best, hasDrop = p.drop >= 3;
+    const usual = hasDrop ? b.total / (1 - p.drop / 100) : 0;
+    const rv = p.reviews >= 1000 ? (p.reviews / 1000).toFixed(1).replace('.0', '') + 'k' : String(p.reviews);
+    return '<a class="sq" href="#/p/' + p.id + '"><div class="sq-im">' + thumb(p, 360, 360) + '</div>' +
+      '<div class="sq-chips"><span class="sq-c drop">' + (hasDrop ? '↓ ' + pct(p.drop) + '%' : storesLabel(i.n)) + '</span><span class="sq-c rate"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" fill="currentColor"/></svg>' + p.rating.toFixed(1) + ' (' + rv + ')</span></div>' +
+      '<h3 dir="auto">' + esc(nm(p)) + '</h3>' +
+      '<div class="sq-pr">' + dot(b.store) + '<b>' + money(b.total) + '</b></div>' +
+      '<div class="sq-us">' + (hasDrop ? '<span>' + t('usually', { x: moneyText(usual) }) + '</span><em>' + t('lessN', { n: pct(p.drop) }) + '</em>' : '<span>' + storesLabel(i.n) + '</span>') + '</div>' +
+      '<span class="btn ghost sq-buy">' + t('viz.buyNow') + '</span></a>';
+  }
   function rowItem(i) {
     const p = i.p, b = i.best;
     return '<a class="row" href="#/p/' + p.id + '"><div class="im">' + thumb(p, 84, 84) + '</div><div><h3 dir="auto">' + esc(nm(p)) + '</h3><div class="meta"><span>' + esc(p.brand) + '</span><span>' + storesLabel(i.n) + '</span>' + fresh(b) +
@@ -479,6 +598,14 @@
   const NODE_POS = [[50, 14], [84, 35], [77, 86], [23, 86], [16, 35]];
   let vizResizeT = 0;
   window.addEventListener('resize', () => { clearTimeout(vizResizeT); vizResizeT = setTimeout(() => { if ($('#viz') && viz.item) vizStart(viz.item); }, 250); });
+  // Hovering or focusing the widget freezes it on the final frame so a store can be clicked.
+  function vizHold(on) {
+    const el = $('#viz'); if (!el || !viz.item || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (on) { vizStop(); el.className = 'viz p0 p1 p2 p3 static'; $$('.vp', el).forEach(p => { p.textContent = moneyText(+p.dataset.final); }); const st = $('#vzStatus span'); if (st) st.textContent = t('viz.s3'); }
+    else vizStart(viz.item);
+  }
+  document.addEventListener('mouseover', e => { if (e.target.closest && e.target.closest('#viz') && !viz.held) { viz.held = true; vizHold(true); } });
+  document.addEventListener('mouseout', e => { if (viz.held && e.target.closest && e.target.closest('#viz') && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('#viz'))) { viz.held = false; vizHold(false); } });
   function vizStop() { viz.token++; viz.timers.forEach(clearTimeout); viz.timers = []; cancelAnimationFrame(viz.raf); }
   function countTo(el, from, to, ms, token) {
     const t0 = performance.now();
@@ -508,7 +635,7 @@
     const path = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
     const end = pts[pts.length - 1];
     const lines = order.map((o, i) => '<line x1="' + (W / 2) + '" y1="' + (H / 2) + '" x2="' + (NODE_POS[i][0] * W / 100) + '" y2="' + (NODE_POS[i][1] * H / 100) + '" pathLength="1" class="vz-line' + (o === best ? ' best' : '') + '" style="--i:' + i + '"/>').join('');
-    const nodes = order.map((o, i) => '<div class="vz-node' + (o === best ? ' best' : '') + '" style="left:' + NODE_POS[i][0] + '%;top:' + NODE_POS[i][1] + '%;--i:' + i + '">' + dot(o.store) + '<span class="vn"><b>' + esc(o.store.name) + '</b><span class="vp money" data-final="' + o.total + '">' + moneyText(o.total) + '</span></span><i class="vz-tag">' + t('bestTag') + '</i></div>').join('');
+    const nodes = order.map((o, i) => '<a class="vz-node' + (o === best ? ' best' : '') + '" href="#/p/' + it.p.id + '" aria-label="' + esc(t('viz.buy', { p: nm(it.p), s: o.store.name })) + '" style="left:' + NODE_POS[i][0] + '%;top:' + NODE_POS[i][1] + '%;--i:' + i + '">' + dot(o.store) + '<span class="vn"><b>' + esc(o.store.name) + '</b><span class="vp money" data-final="' + o.total + '">' + moneyText(o.total) + '</span></span><i class="vz-tag">' + t('bestTag') + '</i></a>').join('');
     el.innerHTML = '<div class="vz-status" id="vzStatus"><i></i><span>' + t('viz.s0') + '</span></div>' +
       '<svg class="vz-lines" viewBox="0 0 ' + W + ' ' + H + '">' + lines + '</svg>' +
       '<div class="vz-core"><div class="vz-ring"></div><div class="vz-ring r2"></div><div class="vz-chip">' + icon.search.replace('width="20" height="20"', 'width="16" height="16"') + '<span dir="auto">' + esc(nm(it.p)) + '</span></div>' +
@@ -517,6 +644,11 @@
       '<div class="vz-hist"><div class="vh-top"><span class="vh-chip">' + (dropPct >= 1 ? t('viz.drop', { n: dropPct }) : t('viz.today')) + '</span></div>' +
       '<div class="vh-plot"><svg viewBox="0 0 300 110" preserveAspectRatio="none"><path d="' + path + ' L300 110 L0 110 Z" class="vh-area"/><path d="' + path + '" pathLength="1" class="vh-line"/></svg>' +
       '<span class="vh-dot" style="left:' + (end[0] / 3) + '%;top:' + (end[1] / 110 * 100) + '%"></span></div><b class="vh-price money">' + moneyText(best.total) + '</b></div>';
+    const cta = $('#vizCta'); if (cta) {
+      cta.href = '#/p/' + it.p.id; cta.setAttribute('aria-label', t('viz.buy', { p: nm(it.p), s: best.store.name }));
+      cta.innerHTML = '<span class="vc-logo">' + dot(best.store) + '</span><span class="vc-info"><span class="vc-best">' + esc(t('bestTag')) + ' · ' + esc(best.store.name) + '</span><span class="vc-name" dir="auto">' + esc(nm(it.p)) + '</span></span>' +
+        '<b class="vc-price money">' + moneyText(best.total) + '</b><span class="vc-go" aria-hidden="true">' + icon.arrow + '</span>';
+    }
     $('#vizAlt').textContent = t('viz.alt', { p: nm(it.p), n: it.n, x: moneyText(best.total) });
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) { el.className = 'viz p0 p1 p2 p3 static'; $('#vzStatus span').textContent = t('viz.s3'); return; }
     const status = k => { const s = $('#vzStatus span'); if (s) s.textContent = t('viz.s' + k, { n: it.n }); };
@@ -537,23 +669,53 @@
     run();
   }
 
+  // Offers that pop out of the phone in the promo banner (x, y are percent positions inside the photo).
+  const promoNodes = [
+    { x: 12, y: 20, cls: 'green', a: t => '↓ 18%', b: t => t('pn.drop') },
+    { x: 9, y: 70, cls: '', a: t => 'SAVE10', b: t => t('pn.code') },
+    { x: 85, y: 16, cls: 'best', a: t => 'SAR 3,914', b: t => 'Carrefour · ' + t('pn.best') },
+    { x: 90, y: 38, cls: '', a: t => t('pn.free'), b: t => 'noon' }
+  ];
+  // About Us panel on the home page; the full text lives on #/about.
+  function aboutSection() {
+    const d = ABOUT[lang] || ABOUT.en, b = d.blocks;
+    return '<section class="sec about-sec" id="about"><div class="wrap"><div class="ab-panel"><div class="ab-panel-t"><span class="app-pill">' + t('about.sec') + '</span><h2>' + t('about.h') + '</h2><p>' + esc(d.lead) + '</p>' +
+      '<div class="ab-panel-stats"><span><b>4</b>' + t('about.stat1') + '</span><span><b>2</b>' + t('about.stat2') + '</span><span><b>' + t('about.free') + '</b>' + t('about.stat3') + '</span></div>' +
+      '<a class="btn primary" href="#/about">' + t('about.more') + '</a></div>' +
+      '<div class="ab-panel-v"><figure><img src="assets/about-hero.jpg" alt="" width="1200" height="833" loading="lazy" decoding="async"></figure>' +
+      '<div class="ab-fc m"><small>' + t('about.mission') + '</small><p>' + esc(b[1][1]) + '</p></div><div class="ab-fc v"><small>' + t('about.vision') + '</small><p>' + esc(b[2][1]) + '</p></div></div></div></div></section>';
+  }
   function home() {
     const all = items();
     const feat = all.find(i => i.p.id === 'iphone-17-pro') || all[0];
     const popularRows = all.slice().sort((a, b) => b.p.reviews - a.p.reviews).slice(0, 6);
     const drops = all.slice().sort((a, b) => b.p.drop - a.p.drop).slice(0, 4);
-    const vizHtml = '<div class="viz-wrap"><div class="viz" id="viz" aria-hidden="true"></div><p class="sr" id="vizAlt"></p></div>';
+    const vizHtml = '<div class="viz-wrap"><div class="viz" id="viz"></div><p class="sr" id="vizAlt"></p><a class="viz-cta" id="vizCta" href="#/p/' + feat.p.id + '"></a></div>';
     const trust = ['trust.1', 'trust.2', 'trust.3', 'trust.4'].map(k => '<li>' + icon.check + t(k) + '</li>').join('');
     return '<section class="hero"><div class="wrap hero-in"><div><h1>' + t('hero.title') + '</h1><p class="sub">' + t('hero.sub') + '</p>' +
       '<form class="bigsearch" id="heroSearch" role="search" autocomplete="off"><svg class="si" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
       '<input type="search" id="heroQ" placeholder="' + esc(t('search.hero')) + '" aria-label="' + esc(t('search.ph')) + '" role="combobox" aria-expanded="false" aria-controls="suggestHero"><button class="btn go" type="submit" aria-label="' + t('tab.search') + '">' + icon.arrow + '</button><div class="suggest" id="suggestHero" hidden></div></form>' +
       '<div class="chips-row"><span class="lbl">' + t('hero.try') + '</span>' + D.POPULAR.slice(0, 4).map(r => '<a class="chip" href="#/search?q=' + encodeURIComponent(r) + '">' + esc(r) + '</a>').join('') + '</div>' +
-      '<ul class="trust">' + trust + '</ul></div>' + vizHtml + '</div></section>' +
+      '<ul class="trust">' + trust + '</ul></div>' + vizHtml + '</div>' +
+      '<div class="wrap"><section class="promo" aria-labelledby="promoT"><div class="promo-copy"><span class="app-pill">' + t('promo.pill') + '</span><h2 id="promoT">' + t('promo.title') + '</h2><p>' + t('promo.text') + '</p>' +
+      '<div class="promo-btns"><a class="btn primary" href="#/deals">' + t('promo.cta') + '</a><a class="btn ghost-light" href="#/about">' + t('promo.cta2') + '</a></div></div>' +
+      '<div class="promo-visual" role="img" aria-label="' + esc(t('promo.alt')) + '">' +
+        '<span class="promo-circle" aria-hidden="true"></span>' +
+        '<svg class="pn-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' + promoNodes.map((n, i) => '<line x1="29.5" y1="45.5" x2="' + n.x + '" y2="' + n.y + '" pathLength="1" style="--i:' + i + '"/>').join('') + '</svg>' +
+        '<span class="promo-person"><img src="assets/hero-person.png" alt="" width="322" height="488" loading="eager" decoding="async">' +
+          // Miniature of the app home screen, drawn over the phone in the photo (sized in em so it scales with the picture).
+          '<span class="pp-screen" aria-hidden="true"><i class="ps-top"><b>DOAB<u>NO</u></b><em></em></i><i class="ps-search"><s></s><span></span></i>' +
+          '<i class="ps-card"><i class="ps-img"><s></s><em>-18%</em></i><b>iPhone 17 Pro</b><strong>SAR 3,914</strong><small>' + esc(t('pn.best')) + '</small></i>' +
+          '<i class="ps-row"><s></s><span></span><b></b></i><i class="ps-row"><s class="o"></s><span></span><b></b></i>' +
+          '<i class="ps-tabs"><s class="on"></s><s></s><s></s><s></s></i></span></span>' +
+        promoNodes.map((n, i) => '<span class="pn pn' + (i + 1) + (n.cls ? ' ' + n.cls : '') + '" style="left:' + n.x + '%;top:' + n.y + '%;--i:' + i + '"><b>' + n.a(t) + '</b><small>' + n.b(t) + '</small></span>').join('') + '</div>' +
+      '</section></div></section>' +
       '<section class="sec tight"><div class="wrap"><h2 class="sr">' + t('sec.cats') + '</h2><div class="circles">' + D.CATEGORIES.flatMap(c => c.subs.map(s => ({ c, s, it: all.find(i => i.p.cat === c.id && i.p.sub === s.id) }))).map(({ c, s, it }) =>
         '<a class="circle" href="#/c/' + c.id + '/' + s.id + '"><span class="circle-img" style="--tint:' + c.tint + '">' + (it ? thumb(it.p, 144, 144) : '') + '</span><span class="circle-label">' + esc(nm(s)) + '</span></a>').join('') + '</div></div></section>' +
       '<section class="sec alt"><div class="wrap"><div class="sec-h"><h2>' + t('sec.drops') + '</h2><a href="#/deals">' + t('all') + '</a></div><div class="grid4">' + drops.map(productCard).join('') + '</div></div></section>' +
       '<section class="sec"><div class="wrap"><div class="sec-h"><h2>' + t('sec.pop') + '</h2></div><div class="cmplist">' + popularRows.map(rowItem).join('') + '</div></div></section>' +
       '<section class="sec alt"><div class="wrap"><div class="sec-h"><h2>' + t('sec.how') + '</h2></div><div class="steps">' + [1, 2, 3].map(n => '<div class="step"><div class="n">' + n + '</div><h3>' + t('how.' + n) + '</h3><p>' + t('how.' + n + 'd') + '</p></div>').join('') + '</div></div></section>' +
+      aboutSection() +
       '<section class="sec"><div class="wrap"><div class="sec-h"><h2>' + t('sec.stores', { m: esc(nm(MK[market])) }) + '</h2></div><div class="tiles">' + D.STORES[market].slice(0, 12).map(s => '<a class="tile" href="#/search?q=' + encodeURIComponent(s.name) + '">' + dot(s, true) + '<span>' + esc(s.name) + '</span></a>').join('') + '</div></div></section>' +
       '<section class="sec alt"><div class="wrap"><div class="sec-h"><h2>' + t('sec.brands') + '</h2></div><div class="tiles brands">' + Object.keys(BRAND_DOMAINS).map(b => '<a class="tile" href="#/search?q=' + encodeURIComponent(b) + '">' + brandLogo(b) + '<span>' + esc(b) + '</span></a>').join('') + '</div></div></section>' + appBanner();
   }
@@ -586,8 +748,8 @@
       '<button class="btn ghost sm block" type="button" id="clearF">' + t('clear') + '</button>';
     const psearch = kind === 'search' ? '<form class="bigsearch page-search" id="pageSearch" role="search" autocomplete="off"><svg class="si" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input type="search" id="pageQ" placeholder="' + esc(t('search.hero')) + '" aria-label="' + esc(t('search.ph')) + '" role="combobox" aria-expanded="false" aria-controls="suggestP"><button class="btn go" type="submit" aria-label="' + t('tab.search') + '">' + icon.arrow + '</button><div class="suggest" id="suggestP" hidden></div></form>' : '';
     const html = '<div class="page"><div class="wrap">' + psearch + '<div class="crumbs">' + crumbs + '</div><div class="page-h"><div><h1 dir="auto">' + title + '</h1>' + (desc ? '<p>' + esc(desc) + '</p>' : '<p id="count"></p>') + '</div>' +
-      '<div class="sortbar"><button class="btn ghost sm fhead" type="button" id="fToggle">' + t('filters') + '</button><span class="lbl">' + t('sort') + '</span>' + sorts.map(s => '<button class="btn ghost sm" type="button" data-sort="' + s[0] + '" aria-pressed="false">' + t(s[1]) + '</button>').join('') + '</div></div>' +
-      '<div class="lay"><aside class="filters" id="filters" aria-label="' + t('filters') + '">' + filters + '</aside><div><div class="rows" id="results"></div><div style="text-align:center;margin-top:16px"><button class="btn ghost" type="button" id="more" hidden>' + t('showMore') + '</button></div></div></div></div></div>';
+      '<div class="sortbar"><button class="btn ghost sm fhead" type="button" id="fToggle">' + t('filters') + '</button><label class="sortsel"><span class="lbl">' + t('sort') + ':</span><select id="sortSel" aria-label="' + t('sort') + '">' + sorts.map(s => '<option value="' + s[0] + '">' + t(s[1]) + '</option>').join('') + '</select></label></div></div>' +
+      '<div class="lay"><aside class="filters" id="filters" aria-label="' + t('filters') + '">' + filters + '</aside><div><div class="sq-grid" id="results"></div><div style="text-align:center;margin-top:16px"><button class="btn ghost" type="button" id="more" hidden>' + t('showMore') + '</button></div></div></div></div></div>';
     listing.ctx = { base, desc };
     return html;
   }
@@ -608,10 +770,10 @@
     else if (sort === 'drop') list.sort((a, b) => b.p.drop - a.p.drop);
     else if (sort === 'rating') list.sort((a, b) => b.p.rating - a.p.rating);
     else if (listing.isSearch === false) list.sort((a, b) => b.p.reviews - a.p.reviews);
-    $$('[data-sort]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sort === sort)));
+    const ss = $('#sortSel'); if (ss) ss.value = sort;
     const c = $('#count'); if (c) c.textContent = t('resultsN', { n: list.length });
     const res = $('#results');
-    res.innerHTML = list.length ? list.slice(0, F.shown).map(rowItem).join('') : '<div class="empty"><h3>' + t('none') + '</h3><p>' + t('noneD') + '</p></div>';
+    res.innerHTML = list.length ? list.slice(0, F.shown).map(listCard).join('') : '<div class="empty"><h3>' + t('none') + '</h3><p>' + t('noneD') + '</p></div>';
     $('#more').hidden = list.length <= F.shown;
   }
 
@@ -684,7 +846,66 @@
     return '<div class="page"><div class="wrap legal"><div class="crumbs"><a href="#/">' + t('home') + '</a> / ' + esc(title) + '</div><h1>' + esc(title) + '</h1>' +
       secs.map(s => '<h2>' + esc(s[0]) + '</h2><p>' + esc(s[1]) + '</p>').join('') +
       (id === 'ccpa' ? '<label class="switch"><input type="checkbox" id="optOut"' + (store.get('optout', false) ? ' checked' : '') + '><span>' + esc(title) + '</span></label>' : '') +
-      '<p class="muted small">' + (lang === 'ar' ? 'نص تجريبي للمراجعة، يُستبدل بنص يعتمده المستشار القانوني قبل الإطلاق.' : 'Prototype text for review. Replace with copy approved by legal counsel before launch.') + '</p></div></div>';
+      '<p class="muted small">' + (lang === 'ar' ? 'آخر تحديث: أكتوبر 2026. ' : 'Last updated: October 2026. ') + (lang === 'ar' ? 'نص تجريبي للمراجعة، يُستبدل بنص يعتمده المستشار القانوني قبل الإطلاق.' : 'Prototype text for review. Replace with copy approved by legal counsel before launch.') + '</p></div></div>';
+  }
+  // Extra copy for the redesigned About page (the long text itself stays in ABOUT).
+  const ABOUT_UI = {
+    en: {
+      pill: 'About DOABNO', h1: 'Shop smarter. <em>Pay less.</em>', cta1: 'Start comparing', cta2: 'Read our policies',
+      stats: [['4', 'Markets', 'Saudi Arabia, UAE, US and UK'], ['2', 'Languages', 'Arabic and English'], ['4', 'Currencies', 'SAR, AED, USD and GBP'], ['0', 'Cost to you', 'Free for every shopper']],
+      mission: 'Our mission', vision: 'Our vision', obj: 'What we work toward', objSub: 'Five promises that shape every page of DOABNO.', objCta: 'See how it works',
+      objT: ['The real total price', 'Always up to date', 'Honest about money', 'Your data, your choice', 'Easy in two languages'],
+      story: 'Why we built DOABNO', story2: 'Prices change every day, and delivery fees can turn a bargain into a bad deal. DOABNO tracks both, shows you the price history, and tells you when it is the right moment to buy.',
+      pts: [['One place, every store', 'Compare offers from trusted stores in Saudi Arabia, the Gulf, the US and the UK.'], ['The price you really pay', 'Delivery, stock and promo codes are included in every comparison.'], ['Know when to buy', 'Follow price history and set alerts so you never overpay.']],
+      how: 'How DOABNO works', howSub: 'From store feeds to the best price on your screen.',
+      steps: [['Collect', 'We gather prices, delivery costs and stock from store feeds and partners.'], ['Match', 'The same product is matched across stores, so you compare like with like.'], ['Rank', 'Offers are sorted by the total price you actually pay, delivery included.']],
+      earn: 'How we earn', do: 'What you can do here', contact: 'Talk to us', contactSub: 'Questions, feedback, or a store you want us to add?', mail: 'Email hello@doabno.com'
+    },
+    ar: {
+      pill: 'عن دوابنو', h1: 'تسوّق بذكاء. <em>ادفع أقل.</em>', cta1: 'ابدأ المقارنة', cta2: 'اقرأ سياساتنا',
+      stats: [['4', 'أسواق', 'السعودية والإمارات وأمريكا وبريطانيا'], ['2', 'لغتان', 'العربية والإنجليزية'], ['4', 'عملات', 'ريال ودرهم ودولار وجنيه'], ['0', 'تكلفة عليك', 'مجاني لكل متسوق']],
+      mission: 'رسالتنا', vision: 'رؤيتنا', obj: 'ما نعمل من أجله', objSub: 'خمسة وعود تشكّل كل صفحة في دوابنو.', objCta: 'شاهد كيف نعمل',
+      objT: ['السعر الإجمالي الحقيقي', 'محدّث دائمًا', 'صريحون بشأن المال', 'بياناتك بقرارك', 'سهل بلغتين'],
+      story: 'لماذا بنينا دوابنو', story2: 'الأسعار تتغير كل يوم، ورسوم التوصيل قد تحوّل الصفقة الجيدة إلى صفقة سيئة. يتابع دوابنو الأمرين، ويعرض لك سجل الأسعار، وينبّهك متى يكون الوقت المناسب للشراء.',
+      pts: [['مكان واحد لكل المتاجر', 'قارن عروض متاجر موثوقة في السعودية والخليج والولايات المتحدة والمملكة المتحدة.'], ['السعر الذي تدفعه فعلًا', 'التوصيل والتوفر وأكواد الخصم مشمولة في كل مقارنة.'], ['اعرف متى تشتري', 'تابع سجل الأسعار واضبط التنبيهات حتى لا تدفع أكثر من اللازم.']],
+      how: 'كيف يعمل دوابنو', howSub: 'من خلاصات المتاجر إلى أفضل سعر على شاشتك.',
+      steps: [['نجمع', 'نجمع الأسعار وتكاليف التوصيل والمخزون من خلاصات المتاجر والشركاء.'], ['نطابق', 'نطابق المنتج نفسه بين المتاجر لتقارن الشيء بمثله.'], ['نرتّب', 'تُرتَّب العروض حسب السعر الإجمالي الذي تدفعه فعلًا شاملًا التوصيل.']],
+      earn: 'كيف نربح', do: 'ماذا يمكنك أن تفعل هنا', contact: 'تحدث معنا', contactSub: 'أسئلة أو ملاحظات أو متجر تود إضافته؟', mail: 'راسلنا على hello@doabno.com'
+    }
+  };
+  function aboutPage() {
+    const d = ABOUT[lang] || ABOUT.en, u = ABOUT_UI[lang] || ABOUT_UI.en, B = d.blocks;
+    const svg = p => '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="' + p + '" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const IC = {
+      target: 'M12 3a9 9 0 100 18 9 9 0 000-18zM12 8a4 4 0 100 8 4 4 0 000-8z', eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 9a3 3 0 100 6 3 3 0 000-6z',
+      tag: 'M3 12V4h8l10 10-8 8L3 12zM7.5 7.5h.01', clock: 'M12 3a9 9 0 100 18 9 9 0 000-18zM12 7v5l3 2', shield: 'M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3zM8.5 12l2.5 2.5L15.5 10',
+      lock: 'M6 11h12v9H6zM8 11V8a4 4 0 118 0v3', globe: 'M12 3a9 9 0 100 18 9 9 0 000-18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18', search: 'M11 4a7 7 0 110 14 7 7 0 010-14zM20 20l-4-4',
+      scale: 'M12 4v16M5 8h14M5 8l-2 6a3 3 0 006 0L7 8M19 8l-2 6a3 3 0 006 0l-2-6', bell: 'M6 16V11a6 6 0 1112 0v5l2 2H4l2-2zM10 20a2 2 0 004 0', heart: 'M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z',
+      phone: 'M8 3h8a1 1 0 011 1v16a1 1 0 01-1 1H8a1 1 0 01-1-1V4a1 1 0 011-1zM11 18h2', mail: 'M4 6h16v12H4zM4 7l8 6 8-6'
+    };
+    const objIc = ['tag', 'clock', 'scale', 'lock', 'globe'], doIc = ['search', 'scale', 'bell', 'phone'];
+    const mock = '<figure class="ab-photo"><img src="assets/about-hero.jpg" alt="" width="1200" height="833" loading="eager" decoding="async"></figure>' +
+      '<span class="ab-float f1">↓ 18%<small>' + t('pn.drop') + '</small></span>' +
+      '<span class="ab-float f2">SAR 3,914<small>Carrefour · ' + t('pn.best') + '</small></span>' +
+      '<span class="ab-float f3">' + t('pn.free') + '<small>noon</small></span>';
+    return '<div class="about-page">' +
+      '<section class="ab-hero"><div class="wrap ab-hero-in"><div><span class="app-pill">' + esc(u.pill) + '</span><h1>' + u.h1 + '</h1><p class="ab-lede">' + esc(d.lead) + '</p>' +
+        '<div class="ab-ctas"><a class="btn primary" href="#/">' + esc(u.cta1) + '</a><a class="btn ghost" href="#/legal/privacy">' + esc(u.cta2) + '</a></div></div><div class="ab-visual">' + mock + '</div></div></section>' +
+      '<section class="ab-stats"><div class="wrap"><div class="ab-stat-grid">' + u.stats.map(x => '<div class="ab-stat"><b>' + x[0] + '</b><strong>' + esc(x[1]) + '</strong><span>' + esc(x[2]) + '</span></div>').join('') + '</div></div></section>' +
+      '<section class="ab-sec"><div class="wrap"><div class="ab-duo">' +
+        '<article class="ab-big navy"><div class="ab-big-img"><img src="assets/about-mission.jpg" alt="" width="1200" height="833" loading="lazy" decoding="async"></div><div class="ab-big-b"><span class="ab-ic">' + svg(IC.target) + '</span><h2>' + esc(u.mission) + '</h2><p>' + esc(B[1][1]) + '</p></div></article>' +
+        '<article class="ab-big orange"><div class="ab-big-img"><img src="assets/about-vision.jpg" alt="" width="1200" height="833" loading="lazy" decoding="async"></div><div class="ab-big-b"><span class="ab-ic">' + svg(IC.eye) + '</span><h2>' + esc(u.vision) + '</h2><p>' + esc(B[2][1]) + '</p></div></article></div></div></section>' +
+      '<section class="ab-sec alt"><div class="wrap ab-work"><aside class="ab-work-intro"><span class="ab-work-pill">05</span><h2>' + esc(u.obj) + '</h2><p>' + esc(u.objSub) + '</p><a class="btn primary" href="#how">' + esc(u.objCta) + '</a></aside>' +
+        '<ol class="ab-work-list">' + B[3][1].map((x, i) => '<li class="ab-work-i"><span class="ab-work-n">0' + (i + 1) + '</span><span class="ab-ic sm">' + svg(IC[objIc[i]]) + '</span><div><h3>' + esc(u.objT[i]) + '</h3><p>' + esc(x) + '</p></div></li>').join('') + '</ol></div></section>' +
+      '<section class="ab-sec"><div class="wrap ab-story"><div><h2>' + esc(u.story) + '</h2><p>' + esc(B[4][1]) + '</p><p>' + esc(u.story2) + '</p>' +
+          '<ul class="ab-pts">' + u.pts.map((x, i) => '<li><span class="ab-ic sm">' + svg(IC[['globe', 'tag', 'bell'][i]]) + '</span><div><b>' + esc(x[0]) + '</b><span>' + esc(x[1]) + '</span></div></li>').join('') + '</ul></div>' +
+        '<div class="ab-illus" aria-hidden="true"><svg viewBox="0 0 480 520" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="il-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#EAF1F8"/><stop offset="1" stop-color="#FFF1E3"/></linearGradient><linearGradient id="il-or" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFA24D"/><stop offset="1" stop-color="#FF7900"/></linearGradient><linearGradient id="il-nv" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#16456C"/><stop offset="1" stop-color="#0D2942"/></linearGradient><linearGradient id="il-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD66B"/><stop offset="1" stop-color="#F4B400"/></linearGradient></defs><rect width="480" height="520" rx="30" fill="url(#il-bg)"/><circle cx="240" cy="250" r="176" fill="#fff" opacity=".85"/><circle cx="240" cy="250" r="176" fill="none" stroke="#FF7900" stroke-opacity=".35" stroke-width="2" stroke-dasharray="4 10" stroke-linecap="round"/><ellipse cx="240" cy="452" rx="170" ry="16" fill="#0D2942" opacity=".12"/><!-- orange shopping bag --><g transform="rotate(-6 120 360)"><path d="M70 262h108l12 156a10 10 0 01-10 11H68a10 10 0 01-10-11z" fill="url(#il-or)"/><path d="M98 262v-22a26 26 0 0152 0v22" fill="none" stroke="#0D2942" stroke-width="7" stroke-linecap="round"/><circle cx="124" cy="330" r="22" fill="#fff" opacity=".95"/><path d="M114 340l20-20M116 322h.01M132 338h.01" stroke="#FF7900" stroke-width="5" stroke-linecap="round"/></g><!-- navy shopping bag --><g transform="rotate(5 380 370)"><path d="M330 292h104l10 134a10 10 0 01-10 10H330a10 10 0 01-10-10z" fill="url(#il-nv)"/><path d="M356 292v-20a24 24 0 0148 0v20" fill="none" stroke="#FF7900" stroke-width="7" stroke-linecap="round"/><rect x="320" y="372" width="124" height="22" fill="#FF7900" opacity=".95"/><path d="M346 383h72" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".9"/></g><!-- phone --><g transform="rotate(-3 240 250)"><rect x="168" y="86" width="150" height="316" rx="28" fill="#0D2942"/><rect x="177" y="96" width="132" height="296" rx="21" fill="#fff"/><rect x="222" y="102" width="42" height="8" rx="4" fill="#0D2942"/><rect x="190" y="124" width="106" height="14" rx="7" fill="#EEF2F6"/><rect x="190" y="150" width="106" height="82" rx="14" fill="#EEF2F6"/><rect x="226" y="160" width="34" height="62" rx="9" fill="#1B2A38"/><rect x="190" y="244" width="64" height="9" rx="4.5" fill="#C8D2DC"/><text x="190" y="280" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="21" fill="#0D2942">SAR 3,914</text><rect x="190" y="292" width="62" height="20" rx="10" fill="#E8F6EF"/><circle cx="203" cy="302" r="5" fill="#1FA971"/><path d="M200.5 302l2 2 3.5-3.5" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><rect x="212" y="298" width="30" height="7" rx="3.5" fill="#1FA971" opacity=".55"/><rect x="190" y="330" width="106" height="34" rx="12" fill="url(#il-or)"/><rect x="220" y="343" width="46" height="8" rx="4" fill="#fff"/></g><!-- hanging price tag --><path d="M330 96c28 6 40 34 30 70" fill="none" stroke="#0D2942" stroke-width="2.5" stroke-linecap="round" opacity=".6"/><g transform="rotate(14 366 196)"><path d="M342 170h46a8 8 0 018 8v50a8 8 0 01-8 8h-46a8 8 0 01-8-8v-50a8 8 0 018-8z" fill="url(#il-or)"/><circle cx="365" cy="181" r="4.5" fill="#fff"/><text x="365" y="222" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="26" fill="#fff">%</text></g><!-- coins --><g><ellipse cx="206" cy="436" rx="30" ry="9" fill="#C58E00"/><rect x="176" y="418" width="60" height="18" fill="#E5A400"/><ellipse cx="206" cy="418" rx="30" ry="9" fill="url(#il-gold)"/><ellipse cx="206" cy="406" rx="30" ry="9" fill="#C58E00"/><rect x="176" y="388" width="60" height="18" fill="#E5A400"/><ellipse cx="206" cy="388" rx="30" ry="9" fill="url(#il-gold)"/><ellipse cx="206" cy="388" rx="19" ry="5" fill="none" stroke="#C58E00" stroke-width="2"/><ellipse cx="262" cy="440" rx="26" ry="8" fill="#C58E00"/><rect x="236" y="424" width="52" height="16" fill="#E5A400"/><ellipse cx="262" cy="424" rx="26" ry="8" fill="url(#il-gold)"/></g><!-- sparkles --><g fill="#FF7900"><path d="M88 150l4 10 10 4-10 4-4 10-4-10-10-4 10-4z"/><path d="M410 120l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/></g><g fill="#1FA971"><circle cx="64" cy="230" r="5"/><circle cx="420" cy="250" r="4"/></g><g fill="#0D2942" opacity=".5"><circle cx="150" cy="70" r="3.5"/><circle cx="440" cy="330" r="3"/></g></svg></div></div></section>' +
+      '<section class="ab-sec alt" id="how"><div class="wrap"><div class="ab-title"><h2>' + esc(u.how) + '</h2><p>' + esc(u.howSub) + '</p></div><div class="ab-steps">' +
+        u.steps.map((x, i) => '<div class="ab-step"><span class="ab-num">' + (i + 1) + '</span><h3>' + esc(x[0]) + '</h3><p>' + esc(x[1]) + '</p></div>').join('') + '</div>' +
+        '<div class="ab-earn"><span class="ab-ic sm">' + svg(IC.shield) + '</span><div><h3>' + esc(u.earn) + '</h3><p>' + esc(B[5][1]) + '</p></div></div></div></section>' +
+      '<section class="ab-sec"><div class="wrap"><div class="ab-title"><h2>' + esc(u.do) + '</h2></div><div class="ab-do">' +
+        B[6][1].map((x, i) => '<div class="ab-do-i"><span class="ab-ic sm">' + svg(IC[doIc[i]]) + '</span><p>' + esc(x) + '</p></div>').join('') + '</div></div></section>' +
+      '<section class="ab-cta"><div class="wrap"><div class="ab-cta-in"><div><h2>' + esc(u.contact) + '</h2><p>' + esc(u.contactSub) + '</p></div><div class="ab-ctas"><a class="btn primary" href="mailto:hello@doabno.com">' + esc(u.mail) + '</a><a class="btn ghost-light" href="#/">' + esc(u.cta1) + '</a></div></div></div></section></div>';
   }
   function accountPage() {
     if (!user) { setTimeout(() => openAuth('signin'), 0); return '<div class="page"><div class="wrap"><div class="empty"><h3>' + t('signin') + '</h3></div></div></div>'; }
@@ -701,7 +922,8 @@
     m.innerHTML = '<button class="x" type="button" aria-label="Close" id="mx">×</button><h2>' + (up ? t('ac.signup') : t('siTitle')) + '</h2><p>' + t('ac.demo') + '</p><form id="siForm" novalidate>' +
       (up ? '<input type="text" name="name" placeholder="' + t('ac.name') + '" aria-label="' + t('ac.name') + '" autocomplete="name">' : '') +
       '<input type="email" name="email" placeholder="' + t('email') + '" aria-label="' + t('email') + '" autocomplete="email"><input type="password" name="pw" placeholder="' + (up ? t('ac.pw8') : t('pass')) + '" aria-label="' + t('pass') + '" autocomplete="' + (up ? 'new-password' : 'current-password') + '">' +
-      (up ? '<label class="switch"><input type="checkbox" name="agree"><span>' + t('ac.consent') + '</span></label>' : '') +
+      (up ? '<label class="switch"><input type="checkbox" name="agree"><span>' + t('ac.consent') + ' (<a href="#/legal/terms" data-close-modal>' + t('foot.terms') + '</a> · <a href="#/legal/privacy" data-close-modal>' + t('foot.privacy') + '</a>)</span></label>' +
+        '<label class="switch"><input type="checkbox" name="marketing"><span>' + t('ac.marketing') + '</span></label>' : '') +
       '<p class="form-err" id="siErr" hidden></p><button class="btn primary block" type="submit">' + (up ? t('ac.signup') : t('siGo')) + '</button></form>' +
       '<p class="auth-switch"><button type="button" class="link" id="authSwap">' + (up ? t('ac.have') : t('ac.new')) + '</button></p>';
     if (!m.open) m.showModal();
@@ -714,7 +936,27 @@
       if (!/^\S+@\S+\.\S+$/.test(email) || (up && pw.length < 8) || (!up && !pw)) return fail('ac.err');
       if (up && (!f.name.value.trim() || !f.agree.checked)) return fail('ac.errName');
       user = { name: up ? f.name.value.trim() : (user && user.email === email ? user.name : email.split('@')[0]), email };
-      store.set('user', user); m.close(); refreshAccountBtn(); toast(up ? t('ac.signedUp') : t('siDone'));
+      store.set('user', user); if (up) { const pr = store.get('prefs', { notif: true, promo: false }); pr.promo = !!f.marketing.checked; pr.consentAt = f.marketing.checked ? Date.now() : null; store.set('prefs', pr); } m.close(); refreshAccountBtn(); toast(up ? t('ac.signedUp') : t('siDone'));
+    };
+  }
+  // Price alert by email: asks for the address and explicit, unticked consent before the alert is created.
+  function openAlert(it) {
+    const m = $('#modal');
+    m.innerHTML = '<button class="x" type="button" aria-label="Close" id="mx">×</button><h2>' + t('al.title') + '</h2><p>' + t('al.sub') + '</p><form id="alForm" novalidate>' +
+      '<label class="al-f"><span>' + t('al.target') + ' (' + esc(cur()) + ')</span><input type="number" name="target" min="1" step="1" inputmode="decimal" value="' + Math.floor(it.best.total * 0.95) + '"></label>' +
+      '<label class="al-f"><span>' + t('al.email') + '</span><input type="email" name="email" autocomplete="email" placeholder="name@example.com" value="' + esc(user ? user.email : '') + '"></label>' +
+      '<label class="switch"><input type="checkbox" name="consent"><span>' + t('al.consent') + ' (<a href="#/legal/privacy" data-close-modal>' + t('foot.privacy') + '</a>)</span></label>' +
+      '<p class="form-err" id="alErr" hidden></p><button class="btn primary block" type="submit">' + t('al.create') + '</button></form>';
+    if (!m.open) m.showModal();
+    $('#mx').onclick = () => m.close();
+    $('#alForm').onsubmit = e => {
+      e.preventDefault();
+      const f = e.target, err = $('#alErr'), target = Math.floor(+f.target.value), email = f.email.value.trim();
+      const fail = k => { err.textContent = t(k); err.hidden = false; };
+      if (!(target > 0)) return fail('al.errT');
+      if (!/^\S+@\S+\.\S+$/.test(email) || !f.consent.checked) return fail('al.err');
+      alerts[it.p.id] = { target, email, consent: { marketing: true, at: Date.now() } };
+      store.set('alerts', alerts); m.close(); updateCounts(); route(); toast(t('al.done'));
     };
   }
   function notFound() { return '<div class="page"><div class="wrap"><div class="empty"><h3>' + t('p.notFound') + '</h3><p><a href="#/">' + t('home') + '</a></p></div></div></div>'; }
@@ -737,6 +979,7 @@
       }
     } else if (seg[0] === 'deals') { title = t('dealsT') + ' | ' + brand; }
     else if (seg[0] === 'coupons') { title = t('cp.title') + ' | ' + brand; }
+    else if (seg[0] === 'about') { title = ABOUT[lang].title + ' | ' + brand; }
     else if (seg[0] === 'legal' && LEGAL[seg[1]]) { title = (LEGAL[seg[1]][lang] || LEGAL[seg[1]].en)[0] + ' | ' + brand; }
     document.title = title; md.content = desc;
     let can = $('link[rel=canonical]'); if (!can) { can = document.createElement('link'); can.rel = 'canonical'; document.head.appendChild(can); }
@@ -764,6 +1007,7 @@
     else if (seg[0] === 'favorites') { tab = 'favorites'; html = savedPage('fav'); }
     else if (seg[0] === 'alerts') { tab = 'alerts'; html = savedPage('alert'); }
     else if (seg[0] === 'coupons') { tab = 'search'; html = couponsPage(params.get('cat')); }
+    else if (seg[0] === 'about') { tab = 'home'; html = aboutPage(); }
     else if (seg[0] === 'legal') { tab = 'home'; html = legalPage(seg[1]); }
     else if (seg[0] === 'account') { tab = 'home'; html = accountPage(); }
     else html = notFound();
@@ -799,6 +1043,7 @@
   /* ---------- events ---------- */
   function init() {
     applyLang();
+    document.addEventListener('change', e => { if (e.target.id === 'sortSel') { F.sort = e.target.value; paintListing(); } });
     $('#marketSelect').addEventListener('change', e => {
       market = e.target.value; currency = null; store.set('market', market); store.set('currency', null); applyLang(); route();
     });
@@ -808,12 +1053,10 @@
     navMenu.init();
     $('#langBtn').addEventListener('click', () => { lang = lang === 'en' ? 'ar' : 'en'; store.set('lang', lang); applyLang(); route(); });
     $('#signInBtn').addEventListener('click', () => { if (user) location.hash = '#/account'; else openAuth('signin'); });
-    $('#modal').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.close(); });
+    $('#modal').addEventListener('click', e => { if (e.target === e.currentTarget || e.target.closest('[data-close-modal]')) e.currentTarget.close(); });
     document.addEventListener('click', e => {
       const v = e.target.closest('[data-visit]');
       if (v) { toast(t('redirect', { s: v.dataset.visit })); return; }
-      const so = e.target.closest('[data-sort]');
-      if (so) { F.sort = so.dataset.sort; paintListing(); return; }
       if (e.target.closest('#more')) { F.shown += 20; paintListing(); return; }
       if (e.target.closest('#fToggle')) { $('#filters').classList.toggle('open'); return; }
       if (e.target.closest('#clearF')) { const s = F.sort; F = freshF(); F.sort = s; route(); return; }
@@ -825,8 +1068,8 @@
       }
       if (e.target.closest('#alertBtn')) {
         const id = location.hash.split('/')[2], it = byId(id);
-        if (alerts[id]) delete alerts[id]; else alerts[id] = { target: Math.floor(it.best.total * 0.95) };
-        store.set('alerts', alerts); updateCounts(); route(); return;
+        if (alerts[id]) { delete alerts[id]; store.set('alerts', alerts); updateCounts(); route(); } else openAlert(it);
+        return;
       }
       const rm = e.target.closest('[data-rm]');
       if (rm) { delete alerts[rm.dataset.rm]; store.set('alerts', alerts); updateCounts(); route(); return; }

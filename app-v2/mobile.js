@@ -127,6 +127,7 @@
     heart: 'M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z',
     user: 'M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0',
     search: 'M11 4a7 7 0 110 14 7 7 0 010-14zM20 20l-4-4',
+    scan: 'M4 8V5a1 1 0 011-1h3M16 4h3a1 1 0 011 1v3M20 16v3a1 1 0 01-1 1h-3M8 20H5a1 1 0 01-1-1v-3M7 12h10M7 9v6M10 9v6M14 9v6M17 9v6',
     bell: 'M6 16V11a6 6 0 1112 0v5l2 2H4l2-2zM10 20a2 2 0 004 0',
     back: 'M15 5l-7 7 7 7',
     chevron: 'M9 6l6 6-6 6',
@@ -296,12 +297,30 @@
 
   // ---------- screens ----------
   // Each screen returns { html, bar (app bar), tab (active tab path), noTabs, bare (no app bar or tabs), dark (dark status bar), focus, search, after }.
+  // Decorative backdrop for the welcome screen: product photos, price tags, a discount badge, a cart and a barcode.
+  function welcomeBackdrop() {
+    const picks = ['iphone-17-pro', 'nike-af1', 'dyson-v15', 'ps5-pro', 'dior-sauvage', 'sony-wh1000xm6'];
+    const picked = picks.map(id => D.PRODUCTS.find(p => p.id === id)).filter(Boolean);
+    const spots = [['top:2%;inset-inline-end:-6%', 118, -8], ['top:15%;inset-inline-end:30%', 74, 7], ['top:30%;inset-inline-end:-9%', 84, 10],
+      ['top:44%;inset-inline-start:-8%', 92, -6], ['top:60%;inset-inline-end:-7%', 78, 8], ['top:74%;inset-inline-start:-6%', 70, 5]];
+    const photos = picked.slice(0, spots.length).map((p, i) => '<span class="wb-photo' + (i > 1 ? ' far' : '') + '" style="' + spots[i][0] + ';width:' + spots[i][1] + 'px;height:' + spots[i][1] + 'px;--r:' + spots[i][2] + 'deg;--d:' + (i * .4) + 's">' +
+      (p.photos[0] ? '<img src="' + D.photoUrl(p.photos[0].id, 240, 240) + '" alt="" width="' + spots[i][1] + '" height="' + spots[i][1] + '" decoding="async">' : '') + '</span>').join('');
+    const tag = (style, label, cls) => '<span class="wb-tag ' + (cls || '') + '" style="' + style + '">' + icon(ICONS.tag, 15) + label + '</span>';
+    return '<div class="welcome-bg" aria-hidden="true">' + photos +
+      '<span class="wb-badge" style="top:104px;inset-inline-end:3%">-30%</span>' +
+      '<span class="wb-badge sm far" style="top:90%;inset-inline-start:34%">%</span>' +
+      tag('top:21%;inset-inline-end:2%;--r:6deg', moneyText(1299, 'SAR'), 'save') +
+      tag('top:77%;inset-inline-end:3%;--r:5deg', '-15%', 'far') +
+      '<span class="wb-ic far" style="top:84%;inset-inline-start:6%">' + icon('M3 4h2l2.4 11h10.2L20 7H6.2M9 20h.01M17 20h.01', 26) + '</span>' +
+      '<span class="wb-ic bar" style="top:83%;inset-inline-end:8%"><svg viewBox="0 0 48 28" width="52" height="30"><path d="M3 2v24M8 2v24M12 2v24M19 2v24M23 2v24M30 2v24M34 2v24M40 2v24M45 2v24" stroke="currentColor" stroke-width="2.2" fill="none"/></svg></span></div>';
+  }
   function screenWelcome() {
     return {
       bare: true, dark: true,
-      html: '<div class="welcome">' +
+      html: '<div class="welcome">' + welcomeBackdrop() +
         '<img class="welcome-logo" src="logo-on-dark.svg" alt="DOABNO" width="146" height="28">' +
-        '<h1>' + t('welcome.title') + '</h1><p class="welcome-sub">' + t('welcome.sub') + '</p>' +
+        '<h1 class="tagline" aria-label="' + t('welcome.t1') + ' / ' + t('welcome.t2') + ' / ' + t('welcome.t3') + '"><span>' + t('welcome.t1') + '</span><span>' + t('welcome.t2') + '</span><span class="hl">' + t('welcome.t3') + '</span></h1>' +
+        '<p class="welcome-sub">' + t('welcome.sub') + '</p>' +
         '<ul class="welcome-list">' + [['search', 'app.f1'], ['bell', 'app.f2'], ['heart', 'app.f3']].map(([ic, k]) => '<li><span class="ic">' + icon(ICONS[ic], 20) + '</span>' + t(k) + '</li>').join('') + '</ul>' +
         '<h2>' + t('welcome.country') + '</h2><div class="countries">' + Object.keys(D.MARKETS).map(m =>
           '<button type="button" class="country" data-market="' + m + '" aria-pressed="' + (m === state.market) + '"><strong>' + t('market.' + m) + '</strong><small>' + D.MARKETS[m].currency + '</small></button>').join('') + '</div>' +
@@ -361,7 +380,8 @@
     const strip = priceStrip();
     return {
       tab: '', bar: appBar({ logo: true, actions: bellBtn() }), after: strip.ok ? runStrip : null,
-      html: '<a class="search-field" href="#/search">' + icon(ICONS.search, 20) + '<span>' + t('search.ph') + '</span></a>' +
+      html: '<div class="search-row"><a class="search-field" href="#/search">' + icon(ICONS.search, 20) + '<span>' + t('search.ph') + '</span></a>' +
+        '<button type="button" class="scan-btn" data-sheet="scan" aria-label="' + t('scan.btn') + '">' + icon(ICONS.scan, 24) + '</button></div>' +
         '<div class="intro"><h2>' + t('hero.title', { n: tp('n.trustedStores', D.STORES[state.market].length), m: t('market.in.' + state.market) }) + '</h2>' +
         '<p>' + t('about.2.d') + '</p><button type="button" class="market-chip" data-sheet="country">' + icon(ICONS.globe, 16) + t('market.' + state.market) + ' · ' + state.currency + icon(ICONS.chevron, 14, 'flip') + '</button></div>' + strip.html +
         '<section class="trend"><p class="trend-label">' + t('home.trending') + '</p><div class="hscroll">' + D.POPULAR.slice(0, 8).map(q => '<a class="chip" href="#/search?q=' + encodeURIComponent(q) + '">' + esc(q) + '</a>').join('') + '</div></section>' +
@@ -380,7 +400,8 @@
       noTabs: true, search: true, focus: q ? '' : '#searchQ',
       bar: backBtn() + '<form class="search-input" id="searchForm" role="search">' + icon(ICONS.search, 20) +
         '<input type="search" name="q" id="searchQ" value="' + esc(q) + '" placeholder="' + t('search.ph') + '" aria-label="' + t('search.ph') + '" autocomplete="off" enterkeyhint="search">' +
-        '<button type="button" class="clear-q" data-clear-q aria-label="' + t('act.clear') + '"' + (q ? '' : ' hidden') + '>' + icon(ICONS.close, 18) + '</button></form>',
+        '<button type="button" class="clear-q" data-clear-q aria-label="' + t('act.clear') + '"' + (q ? '' : ' hidden') + '>' + icon(ICONS.close, 18) + '</button>' +
+        '<button type="button" class="scan-in" data-sheet="scan" aria-label="' + t('scan.btn') + '">' + icon(ICONS.scan, 20) + '</button></form>',
       html: '<div class="sprog" id="sprog" hidden></div><div id="searchBody">' + searchBody(q) + '</div>'
     };
   }
@@ -590,6 +611,60 @@
   }
 
   // ---------- bottom sheets ----------
+  // ---------- visual and barcode search ----------
+  // Prototype: every demo product gets a stable EAN-13 (Saudi GS1 prefix 629). Production looks the code up in the product catalogue
+  // and sends the photo to an image-recognition service.
+  const eanOf = p => {
+    let h = 7; for (const ch of p.id) h = (h * 31 + ch.charCodeAt(0)) % 1000000007;
+    const d = '629' + String(h).padStart(9, '0').slice(0, 9);
+    let sum = 0; for (let i = 0; i < 12; i++) sum += +d[i] * (i % 2 ? 3 : 1);
+    return d + ((10 - sum % 10) % 10);
+  };
+  const scan = { stream: null, timer: 0 };
+  function stopCamera() {
+    clearInterval(scan.timer); scan.timer = 0;
+    if (scan.stream) { scan.stream.getTracks().forEach(tr => tr.stop()); scan.stream = null; }
+    const live = $('#scanLive'); if (live) live.hidden = true;
+  }
+  function scanResults(list, note) {
+    const out = $('#scanOut'); if (!out) return;
+    out.innerHTML = list.length
+      ? '<h3 class="opt-head">' + t('scan.found') + '</h3>' + (note || '') + '<div class="plist">' + list.map(p => productRow(p).replace('<a ', '<a data-scan-hit ')).join('') + '</div>'
+      : '<p class="sheet-text">' + t('scan.none') + '</p>';
+  }
+  function scanByCode(code) {
+    const c = String(code).replace(/\D/g, '');
+    if (c.length < 8 || c.length > 14) { const out = $('#scanOut'); if (out) out.innerHTML = '<p class="form-err">' + t('scan.badcode') + '</p>'; return; }
+    stopCamera();
+    scanResults(listed().filter(p => eanOf(p) === c || eanOf(p).endsWith(c) || c.endsWith(eanOf(p))));
+  }
+  function scanByPhoto(file) {
+    const out = $('#scanOut'); if (!out || !file) return;
+    stopCamera();
+    const url = URL.createObjectURL(file);
+    out.innerHTML = '<div class="scan-prev"><img src="' + url + '" alt=""><span class="scan-line"></span></div><p class="sheet-text">' + t('scan.analysing') + '</p>';
+    setTimeout(() => {
+      // Demo recognition: match words in the file name, otherwise suggest popular products.
+      const words = file.name.toLowerCase().replace(/\.[a-z0-9]+$/, '').split(/[^a-z0-9]+/).filter(w => w.length > 2);
+      let hits = listed().filter(p => words.some(w => matches(p, w)));
+      if (!hits.length) hits = listed().sort(byPopularity).slice(0, 3);
+      scanResults(hits.slice(0, 4), '<div class="scan-prev sm"><img src="' + url + '" alt=""></div>');
+    }, 1300);
+  }
+  async function scanLive() {
+    const live = $('#scanLive'), out = $('#scanOut');
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !('BarcodeDetector' in window)) { toast(t('scan.camera')); return; }
+    try {
+      scan.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      const v = $('#scanVideo'); v.srcObject = scan.stream; await v.play();
+      live.hidden = false; if (out) out.innerHTML = '';
+      const det = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128'] });
+      scan.timer = setInterval(async () => {
+        try { const r = await det.detect(v); if (r.length) scanByCode(r[0].rawValue); } catch (err) { /* keep trying */ }
+      }, 350);
+    } catch (err) { stopCamera(); toast(t('scan.camera')); }
+  }
+
   function openSheet(kind) {
     const opt = (name, value, label, on, extra) => '<label class="opt"><input type="' + (name === 'brand' ? 'checkbox' : 'radio') + '" name="' + name + '" value="' + esc(value) + '"' + (on ? ' checked' : '') + '><span>' + label + '</span>' + (extra || '') + '</label>';
     let title = '', body = '', foot = '';
@@ -617,8 +692,21 @@
         '<label class="field"><span>' + t('alert.target') + ' (' + D.CURRENCIES[state.currency][state.lang] + ')</span><input type="number" name="target" min="1" step="1" required inputmode="decimal" value="' +
           (s.count ? Math.floor(convert(s.min, s.cur) * 0.9) : '') + '"></label>' +
         '<label class="opt"><span>' + t('alert.push') + '</span><span class="switch"><input type="checkbox" name="push" checked><span class="switch-ui" aria-hidden="true"></span></span></label>' +
-        '<label class="opt"><span>' + t('alert.email') + '</span><span class="switch"><input type="checkbox" name="email"><span class="switch-ui" aria-hidden="true"></span></span></label>';
+        '<label class="opt"><span>' + t('alert.email') + '</span><span class="switch"><input type="checkbox" name="email"><span class="switch-ui" aria-hidden="true"></span></span></label>' +
+        '<div class="consent" id="emailConsent" hidden><label class="field"><span>' + t('consent.email') + '</span><input type="email" name="mail" autocomplete="email" inputmode="email" placeholder="name@example.com"></label>' +
+        '<label class="check"><input type="checkbox" name="consent"><span>' + t('consent.label') + ' <a href="../#/legal/privacy" target="_blank" rel="noopener">' + t('consent.more') + '</a></span></label>' +
+        '<p class="form-err" id="consentErr" hidden>' + t('consent.need') + '</p></div>';
       foot = '<button type="submit" class="btn btn-primary btn-block">' + t('alert.save') + '</button>';
+    } else if (kind === 'scan') {
+      title = t('scan.title');
+      body = '<div class="scan-opts"><label class="scan-opt"><span class="ic">' + icon('M4 8h3l2-3h6l2 3h3v11H4zM12 17a4 4 0 100-8 4 4 0 000 8z', 26) + '</span><strong>' + t('scan.photo') + '</strong><small>' + t('scan.photo.d') + '</small>' +
+          '<input type="file" id="scanFile" accept="image/*" capture="environment" hidden></label>' +
+        '<button type="button" class="scan-opt" data-scan-live><span class="ic">' + icon('M4 6v12M7 6v12M10 6v12M14 6v12M17 6v12M20 6v12', 26) + '</span><strong>' + t('scan.barcode') + '</strong><small>' + t('scan.barcode.d') + '</small></button></div>' +
+        '<div class="scan-live" id="scanLive" hidden><video id="scanVideo" playsinline muted></video><span class="scan-frame"></span><p>' + t('scan.live') + '</p><button type="button" class="btn btn-outline-light" data-scan-stop>' + t('scan.cancel') + '</button></div>' +
+        '<label class="field"><span>' + t('scan.entry') + '</span><div class="scan-entry"><input type="text" name="code" inputmode="numeric" pattern="[0-9 ]*" placeholder="' + t('scan.entry.ph') + '" autocomplete="off"><button type="submit" class="btn btn-secondary">' + t('scan.entry.go') + '</button></div></label>' +
+        '<p class="scan-sample-h">' + t('scan.sample') + '</p><div class="scan-samples">' + listed().sort(byPopularity).slice(0, 3).map(p => '<button type="button" class="scan-sample" data-scan-code="' + eanOf(p) + '">' +
+          icon('M4 6v12M7 6v12M10 6v12M14 6v12M17 6v12M20 6v12', 18) + '<span><strong>' + esc(L(p)) + '</strong><small>' + eanOf(p) + '</small></span></button>').join('') + '</div>' +
+        '<div id="scanOut"></div>';
     } else if (kind === 'country') {
       title = t('profile.country');
       body = Object.keys(D.MARKETS).map(m => opt('market', m, t('market.' + m), state.market === m, '<span class="cnt">' + D.MARKETS[m].currency + '</span>')).join('');
@@ -638,6 +726,7 @@
     if (first) first.focus({ preventScroll: true });
   }
   function closeSheet() {
+    stopCamera();
     $('#sheet').hidden = true;
     $('#sheetBackdrop').hidden = true;
   }
@@ -763,11 +852,15 @@
   }
 
   document.addEventListener('click', e => {
-    const el = e.target.closest('[data-back],[data-fav],[data-visit],[data-copy],[data-share],[data-sheet],[data-close-sheet],[data-filter-reset],[data-days],[data-free-only],' +
+    const el = e.target.closest('[data-back],[data-fav],[data-visit],[data-copy],[data-share],[data-sheet],[data-close-sheet],[data-scan-live],[data-scan-stop],[data-scan-code],[data-scan-hit],[data-filter-reset],[data-days],[data-free-only],' +
       '[data-deals-cat],[data-saved-tab],[data-unalert],[data-clear-searches],[data-clear-q],[data-retry],[data-simulate-error],[data-simulate-loading],[data-demo],[data-goto],[data-market],[data-lang],[data-start],[data-screen],.lang-toggle,#sheetBackdrop');
     if (!el) return;
     if (el.hasAttribute('data-back')) { if (navStack.length > 1) history.back(); else location.hash = parentOf(current.parts); }
     else if (el.dataset.fav) toggleFav(el.dataset.fav);
+    else if (el.hasAttribute('data-scan-live')) scanLive();
+    else if (el.hasAttribute('data-scan-stop')) stopCamera();
+    else if (el.dataset.scanCode) { const i = $('#sheet input[name="code"]'); if (i) i.value = el.dataset.scanCode; scanByCode(el.dataset.scanCode); }
+    else if (el.hasAttribute('data-scan-hit')) closeSheet();
     else if (el.dataset.visit) {
       // Production: the app opens /out/{trackingId}, which logs the click and redirects to the store. The prototype logs it for the admin click report.
       save('clicks', [{ id: el.dataset.visit, m: state.market, ts: Date.now() }].concat(load('clicks', [])).slice(0, 200));
@@ -811,7 +904,9 @@
   document.addEventListener('change', e => {
     const el = e.target;
     const form = el.closest('#sheetForm');
-    if (el.dataset.notify) { state.notify[el.dataset.notify] = el.checked; save('app.notify', state.notify); }
+    if (el.id === 'scanFile') scanByPhoto(el.files[0]);
+    else if (el.name === 'email' && form && form.dataset.kind === 'alert') { $('#emailConsent').hidden = !el.checked; if (el.checked) form.mail.focus(); }
+    else if (el.dataset.notify) { state.notify[el.dataset.notify] = el.checked; save('app.notify', state.notify); }
     else if (form && form.dataset.kind === 'sort') { ui.sort = el.value; closeSheet(); rerender(); }
     else if (form && form.dataset.kind === 'filter') {
       const fd = new FormData(form);
@@ -841,10 +936,13 @@
       ui.filters = { brand: fd.getAll('brand'), free: !!fd.get('free'), sale: !!fd.get('sale') };
       closeSheet(); rerender();
     }
+    else if (form.dataset.kind === 'scan') { scanByCode(form.code.value); }
     else if (form.dataset.kind === 'alert') {
       const id = current.parts[1];
+      if (form.email.checked && (!/^\S+@\S+\.\S+$/.test(form.mail.value.trim()) || !form.consent.checked)) { $('#consentErr').hidden = false; (form.consent.checked ? form.mail : form.consent).focus(); return; }
       state.alerts = state.alerts.filter(a => a.id !== id);
-      state.alerts.push({ id, target: +form.target.value, currency: state.currency, email: form.email.checked, push: form.push.checked });
+      state.alerts.push({ id, target: +form.target.value, currency: state.currency, email: form.email.checked, push: form.push.checked,
+        mail: form.email.checked ? form.mail.value.trim() : '', consent: form.email.checked ? { marketing: true, at: Date.now() } : null });
       save('alerts', state.alerts);
       closeSheet(); toast(t('alert.saved'));
       const bb = $('[data-sheet="alert"]'); if (bb) { bb.classList.remove('pulse'); void bb.offsetWidth; bb.classList.add('pulse'); }
