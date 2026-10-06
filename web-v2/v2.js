@@ -29,6 +29,11 @@
       'sa.chart': '30-day price', 'sa.alert': 'Price alert reached', 'sa.target': 'Target {x}',
       'about.sec': 'About DOABNO', 'about.stat1': 'markets', 'about.stat2': 'languages', 'about.stat3': 'to use', 'about.free': 'Free', 'about.h': 'Made for smarter shoppers', 'about.more': 'Learn more about us', 'about.mission': 'Our mission', 'about.vision': 'Our vision', 'about.promise': 'What we stand for',
       'promo.pill': 'Smart shopping', 'promo.title': 'Compare. Buy. Save.', 'promo.text': 'Check every store before you check out. DOABNO shows the lowest total price, delivery included, so the best deal is never a guess.', 'promo.cta': 'See today’s deals', 'promo.cta2': 'About DOABNO', 'pn.drop': 'Price dropped', 'pn.code': 'Promo code', 'pn.free': 'Free delivery', 'pn.best': 'Best price', 'promo.alt': 'A smiling shopper holding a phone with offers appearing from the screen',
+      'foot.imprint': 'Legal notice', 'foot.prices': 'Price information', 'foot.access': 'Accessibility', 'foot.privReq': 'Privacy request', 'toc': 'On this page',
+      'pr.title': 'Privacy request', 'pr.sub': 'Use this form to access, correct or delete your data, or to use any other privacy right. We reply within 30 days.', 'pr.type': 'What would you like to do?',
+      'pr.t.access': 'Access my data', 'pr.t.correct': 'Correct my data', 'pr.t.delete': 'Delete my data', 'pr.t.restrict': 'Restrict processing', 'pr.t.port': 'Get a portable copy', 'pr.t.object': 'Object to processing or marketing', 'pr.t.consent': 'Withdraw my consent', 'pr.t.optout': 'Opt out of sale or sharing',
+      'pr.name': 'Full name', 'pr.email': 'Email address on your account', 'pr.details': 'Details (optional)', 'pr.confirm': 'I confirm these details are correct and that I am the person the request is about.', 'pr.send': 'Send request',
+      'pr.err': 'Enter your name, a valid email address and tick the confirmation.', 'pr.doneT': 'Request received', 'pr.doneP': 'Your reference is {r}. We will reply to {e} within 30 days. We may ask you to confirm your identity first.', 'pr.demo': 'Prototype: requests are stored in this browser only.', 'pr.link': 'Make a privacy request',
       'usually': 'Usually {x}', 'lessN': '{n}% less', 'viz.buy': 'Buy {p} at {s}', 'viz.buyNow': 'Buy now', 'viz.view': 'View product and buy', 'foot.aboutUs': 'About us', 'foot.disclaimer': 'Disclaimer', 'about.crumb': 'About us',
       'ac.marketing': 'Yes, email me deals, coupons and product updates. I can unsubscribe at any time. (optional)', 'trust.1': 'Verified prices', 'trust.2': 'Delivery included', 'trust.3': 'Price history', 'trust.4': 'Price-drop alerts',
       stores: '{n} stores', store1: '1 store', bestPrice: 'Best price', compareN: 'Comparing {n} stores', live: 'Live price comparison', cmpN: '{n} stores compared', bestTotal: 'Best total price', moreStores: '+ {n} more stores', viewFull: 'View full comparison', 'sec.brands': 'Popular brands', 'p.similar': 'Similar and alternative products', coupons: 'Coupons',
@@ -73,6 +78,11 @@
       'sa.chart': 'السعر خلال 30 يومًا', 'sa.alert': 'وصل تنبيه السعر', 'sa.target': 'المستهدف {x}',
       'about.sec': 'عن دوابنو', 'about.stat1': 'أسواق', 'about.stat2': 'لغتان', 'about.stat3': 'للاستخدام', 'about.free': 'مجاني', 'about.h': 'صُنع لمتسوّق أذكى', 'about.more': 'اعرف المزيد عنا', 'about.mission': 'رسالتنا', 'about.vision': 'رؤيتنا', 'about.promise': 'ما نؤمن به',
       'promo.pill': 'تسوّق بذكاء', 'promo.title': 'قارن. اشترِ. وفّر.', 'promo.text': 'تحقق من كل المتاجر قبل أن تدفع. يعرض دوابنو أقل سعر إجمالي شاملًا التوصيل، فلا يبقى أفضل عرض مجرد تخمين.', 'promo.cta': 'شاهد عروض اليوم', 'promo.cta2': 'عن دوابنو', 'pn.drop': 'انخفض السعر', 'pn.code': 'كود الخصم', 'pn.free': 'توصيل مجاني', 'pn.best': 'أفضل سعر', 'promo.alt': 'متسوقة مبتسمة تمسك هاتفًا وتظهر منه العروض',
+      'foot.imprint': 'الإشعار القانوني', 'foot.prices': 'معلومات الأسعار', 'foot.access': 'إمكانية الوصول', 'foot.privReq': 'طلب خصوصية', 'toc': 'في هذه الصفحة',
+      'pr.title': 'طلب خصوصية', 'pr.sub': 'استخدم هذا النموذج للاطلاع على بياناتك أو تصحيحها أو حذفها أو لممارسة أي حق آخر في الخصوصية. نرد خلال 30 يومًا.', 'pr.type': 'ماذا تريد أن تفعل؟',
+      'pr.t.access': 'الاطلاع على بياناتي', 'pr.t.correct': 'تصحيح بياناتي', 'pr.t.delete': 'حذف بياناتي', 'pr.t.restrict': 'تقييد المعالجة', 'pr.t.port': 'الحصول على نسخة قابلة للنقل', 'pr.t.object': 'الاعتراض على المعالجة أو التسويق', 'pr.t.consent': 'سحب موافقتي', 'pr.t.optout': 'إيقاف البيع أو المشاركة',
+      'pr.name': 'الاسم الكامل', 'pr.email': 'البريد الإلكتروني المرتبط بحسابك', 'pr.details': 'تفاصيل (اختياري)', 'pr.confirm': 'أؤكد أن هذه البيانات صحيحة وأنني الشخص المعني بالطلب.', 'pr.send': 'إرسال الطلب',
+      'pr.err': 'أدخل اسمك وبريدًا إلكترونيًا صحيحًا وضع علامة التأكيد.', 'pr.doneT': 'تم استلام الطلب', 'pr.doneP': 'رقمك المرجعي {r}. سنرد على {e} خلال 30 يومًا. وقد نطلب منك تأكيد هويتك أولًا.', 'pr.demo': 'نموذج أولي: تُحفظ الطلبات في هذا المتصفح فقط.', 'pr.link': 'قدّم طلب خصوصية',
       'usually': 'عادةً {x}', 'lessN': 'أقل بنسبة {n}%', 'viz.buy': 'اشترِ {p} من {s}', 'viz.buyNow': 'اشترِ الآن', 'viz.view': 'عرض المنتج والشراء', 'foot.aboutUs': 'من نحن', 'foot.disclaimer': 'إخلاء المسؤولية', 'about.crumb': 'من نحن',
       'ac.marketing': 'نعم، أرسلوا لي العروض والكوبونات وتحديثات المنتجات عبر البريد. يمكنني إلغاء الاشتراك في أي وقت. (اختياري)', 'trust.1': 'أسعار موثّقة', 'trust.2': 'التوصيل مشمول', 'trust.3': 'سجل الأسعار', 'trust.4': 'تنبيهات انخفاض السعر',
       stores: '{n} متاجر', store1: 'متجر واحد', bestPrice: 'أفضل سعر', compareN: 'مقارنة {n} متاجر', live: 'مقارنة أسعار مباشرة', cmpN: 'تمت مقارنة {n} متاجر', bestTotal: 'أفضل سعر إجمالي', moreStores: '+ {n} متاجر أخرى', viewFull: 'عرض المقارنة الكاملة', 'sec.brands': 'ماركات شائعة', 'p.similar': 'منتجات مشابهة وبدائل', coupons: 'الكوبونات',
@@ -207,64 +217,98 @@
   // recipients, transfers, retention, rights, contact) and are adapted to the Saudi PDPL, GDPR / UK GDPR and CCPA. They are drafts for legal review.
   const LEGAL = {
     privacy: {
-      en: ['Privacy policy', [
-        ['1. Who is responsible', 'DOABNO (doabno.com, “DOABNO”, “we”) operates a price-comparison website and mobile app for Saudi Arabia, the Gulf, the United States and the United Kingdom. DOABNO is the controller of your personal data. Contact: privacy@doabno.com.'],
-        ['2. What this policy covers', 'This policy explains which personal data we process when you visit doabno.com, use the DOABNO app, create an account, save products, set price alerts or contact us, why we process it, and what rights you have.'],
-        ['3. Data we process', 'Usage data: pages and products viewed, searches, the stores you open through our links, device and browser type, approximate location (country or city from your IP address), language, market and currency. Account data: name, email address and password (stored hashed). Saved items: favourites and price alerts with target prices. Photo and barcode searches: images or codes you submit to find a product. Communication data: messages you send us and your marketing consent choices.'],
-        ['4. Why we process it and on what basis', 'To provide the comparison service you request (contract / performance of a service). To send price-drop alerts you set up (contract). To send marketing emails and product updates only if you gave explicit consent, which you can withdraw at any time (consent). To measure outbound clicks and settle commissions with partner stores, keep the service secure and prevent fraud, and improve DOABNO through analytics (legitimate interests, or consent where the law requires it for cookies). To meet legal duties (legal obligation).'],
-        ['5. Marketing emails and consent', 'We email price-drop alerts only for products you chose. We send marketing emails, offers and product news only if you tick the consent box when you create an account or turn on email alerts. The box is never pre-ticked. Every email contains an unsubscribe link, and you can withdraw consent in your profile or by writing to us. Withdrawing consent does not affect the lawfulness of earlier processing.'],
-        ['6. Photo and barcode search', 'Images and barcodes you submit are used only to identify the product and show matching offers. We do not use them to identify people. Photos are not kept after the search is complete unless you save the result.'],
-        ['7. Cookies and similar technologies', 'We use essential cookies and storage to remember your market, language, currency, saved products and cookie choice. Analytics and partner cookies are set only if you choose “Accept all”. See the Cookie policy for details.'],
-        ['8. Who receives your data', 'Hosting and infrastructure providers, email-delivery providers, analytics providers (only with your consent where required), and partner stores and affiliate networks, which receive a click identifier when you open a store through our links but not your name or email. Authorities where we are legally required to disclose. We do not sell your personal data for money.'],
-        ['9. International transfers', 'Some providers are located outside Saudi Arabia, the EEA or the UK. Where required, we rely on adequacy decisions, standard contractual clauses or the transfer mechanisms approved under the PDPL.'],
-        ['10. How long we keep data', 'Account data until you delete your account. Price alerts and favourites until you remove them or delete your account. Usage and click data for up to 25 months in an aggregated or pseudonymised form. Marketing consent records for as long as needed to prove consent.'],
-        ['11. Your rights', 'Under the Saudi Personal Data Protection Law (PDPL), the GDPR / UK GDPR and the CCPA you can ask for access to your data, correction, deletion, restriction, a portable copy, and you can object to processing, withdraw consent, and opt out of any sale or sharing of personal information. You can also complain to your data-protection authority (in Saudi Arabia, SDAIA). Use your profile page or email privacy@doabno.com; we reply within 30 days.'],
-        ['12. Children', 'DOABNO is not directed at children under 16 and we do not knowingly collect their data.'],
-        ['13. Security', 'We protect data with encryption in transit, access controls and regular reviews. No online service can be guaranteed to be completely secure.'],
-        ['14. Changes', 'We may update this policy. The date of the latest version is shown below, and we will tell you about important changes in the service or by email if you have an account.']]],
-      ar: ['سياسة الخصوصية', [
-        ['1. الجهة المسؤولة', 'يدير دوابنو (doabno.com، «دوابنو» أو «نحن») موقعًا وتطبيقًا لمقارنة الأسعار في السعودية والخليج والولايات المتحدة والمملكة المتحدة. دوابنو هو المتحكم في بياناتك الشخصية. للتواصل: privacy@doabno.com.'],
-        ['2. نطاق هذه السياسة', 'توضح هذه السياسة البيانات الشخصية التي نعالجها عند زيارتك doabno.com أو استخدامك التطبيق أو إنشاء حساب أو حفظ منتجات أو ضبط تنبيهات الأسعار أو التواصل معنا، وسبب معالجتها، وحقوقك.'],
-        ['3. البيانات التي نعالجها', 'بيانات الاستخدام: الصفحات والمنتجات التي تعرضها وعمليات البحث والمتاجر التي تفتحها عبر روابطنا ونوع الجهاز والمتصفح والموقع التقريبي (الدولة أو المدينة من عنوان IP) واللغة والسوق والعملة. بيانات الحساب: الاسم والبريد الإلكتروني وكلمة المرور (تُخزَّن مشفّرة). العناصر المحفوظة: المفضلة وتنبيهات الأسعار مع الأسعار المستهدفة. البحث بالصورة والباركود: الصور أو الأرقام التي ترسلها للعثور على منتج. بيانات التواصل: رسائلك وخياراتك بشأن الموافقة التسويقية.'],
-        ['4. أسباب المعالجة وأساسها', 'لتقديم خدمة المقارنة التي تطلبها (تنفيذ الخدمة). لإرسال تنبيهات انخفاض الأسعار التي تضبطها (تنفيذ الخدمة). لإرسال رسائل تسويقية وأخبار المنتجات فقط إذا منحتنا موافقتك الصريحة ويمكنك سحبها في أي وقت (الموافقة). لقياس النقرات الخارجية وتسوية العمولات مع المتاجر الشريكة وحماية الخدمة ومنع الاحتيال وتحسين دوابنو عبر التحليلات (المصلحة المشروعة أو الموافقة حين يشترطها النظام لملفات الارتباط). ولالتزامنا بالأنظمة (الالتزام النظامي).'],
-        ['5. الرسائل التسويقية والموافقة', 'نرسل تنبيهات انخفاض الأسعار فقط للمنتجات التي اخترتها. ولا نرسل رسائل تسويقية أو عروضًا أو أخبار منتجات إلا إذا وضعت علامة الموافقة عند إنشاء حساب أو تفعيل تنبيهات البريد. لا تكون الخانة محددة مسبقًا أبدًا. تحتوي كل رسالة على رابط لإلغاء الاشتراك، ويمكنك سحب موافقتك من ملفك الشخصي أو بمراسلتنا. لا يؤثر سحب الموافقة على مشروعية المعالجة السابقة.'],
-        ['6. البحث بالصورة والباركود', 'نستخدم الصور والباركود التي ترسلها فقط للتعرف على المنتج وعرض العروض المطابقة، ولا نستخدمها للتعرف على الأشخاص. لا نحتفظ بالصور بعد انتهاء البحث ما لم تحفظ النتيجة.'],
-        ['7. ملفات الارتباط والتقنيات المشابهة', 'نستخدم ملفات ارتباط وتخزينًا أساسيًا لتذكّر السوق واللغة والعملة والمنتجات المحفوظة واختيارك. لا نفعّل ملفات التحليلات والشركاء إلا إذا اخترت «قبول الكل». راجع سياسة ملفات الارتباط للتفاصيل.'],
-        ['8. من يستلم بياناتك', 'مزودو الاستضافة والبنية التقنية ومزودو إرسال البريد ومزودو التحليلات (بموافقتك حيث يلزم) والمتاجر الشريكة وشبكات الإحالة التي تستلم معرّف نقرة عند فتحك متجرًا عبر روابطنا دون اسمك أو بريدك. كما قد نفصح للجهات الرسمية عند وجود التزام نظامي. لا نبيع بياناتك الشخصية مقابل مال.'],
-        ['9. النقل الدولي', 'يقع بعض المزودين خارج السعودية والمنطقة الاقتصادية الأوروبية والمملكة المتحدة. وعند اللزوم نعتمد على قرارات الملاءمة أو البنود التعاقدية النموذجية أو آليات النقل المعتمدة بموجب نظام حماية البيانات الشخصية.'],
-        ['10. مدة الاحتفاظ', 'بيانات الحساب حتى تحذف حسابك. تنبيهات الأسعار والمفضلة حتى تزيلها أو تحذف حسابك. بيانات الاستخدام والنقرات حتى 25 شهرًا بصورة مجمّعة أو بأسماء مستعارة. سجلات الموافقة التسويقية للمدة اللازمة لإثبات الموافقة.'],
-        ['11. حقوقك', 'بموجب نظام حماية البيانات الشخصية السعودي (PDPL) واللائحة الأوروبية GDPR والبريطانية وقانون CCPA يحق لك طلب الاطلاع على بياناتك وتصحيحها وحذفها وتقييد معالجتها والحصول على نسخة منها، والاعتراض على المعالجة وسحب الموافقة وإيقاف أي بيع أو مشاركة للمعلومات الشخصية. ويحق لك تقديم شكوى إلى جهة حماية البيانات (في السعودية: سدايا). استخدم صفحة ملفك أو راسلنا على privacy@doabno.com، وسنرد خلال 30 يومًا.'],
-        ['12. الأطفال', 'دوابنو غير موجّه للأطفال دون 16 عامًا ولا نجمع بياناتهم عن علم.'],
-        ['13. الأمان', 'نحمي البيانات بالتشفير أثناء النقل وضوابط الوصول ومراجعات دورية. ولا يمكن ضمان أمان أي خدمة إلكترونية بشكل مطلق.'],
-        ['14. التغييرات', 'قد نحدّث هذه السياسة، ويظهر تاريخ آخر نسخة أدناه، وسنبلغك بالتغييرات المهمة في الخدمة أو بالبريد إذا كان لديك حساب.']]]
+      en: ['Privacy policy', [['1. Controller and data protection officer', 'DOABNO (doabno.com, the DOABNO app, “DOABNO”, “we”) is responsible for processing your personal data. Company details are in the Legal notice. Data protection officer and privacy contact: privacy@doabno.com.'],
+        ['2. What this policy covers', 'This policy explains which personal data we process when you visit doabno.com, use the DOABNO app, create an account, save products, set price alerts, search by photo or barcode, sign up to emails or contact us; why we process it; who receives it; how long we keep it; and what rights you have.'],
+        ['3. Providing our service', 'When you open DOABNO we process technical and usage data: IP address, device and browser type, language, market and currency, pages and products viewed, searches and the stores you open through our links. We need this to show you the service, remember your choices and keep it running. Legal basis: performance of the service you request and our legitimate interest in operating a secure, working service.'],
+        ['4. Customer account, favourites and price alerts', 'If you create an account we process your name, email address and password (stored hashed), your favourites and your price alerts with target prices, so we can show them on all your devices and notify you when a price is reached. Legal basis: performance of the service. You can delete your account at any time in your profile.'],
+        ['5. Sign in with Apple or Google', 'If you sign in with Apple or Google we receive the name and email address you choose to share and a unique identifier from that provider. We do not receive your password. Legal basis: performance of the service.'],
+        ['6. Newsletters and marketing emails', 'We send price-drop alerts you set up as part of the service. We send marketing emails, offers and product news only if you tick the consent box when you create an account or turn on email alerts. The box is never pre-ticked. We record when and how you consented. You can withdraw consent at any time through the unsubscribe link in every email, in your profile or by writing to us. Legal basis: your consent.'],
+        ['7. Photo and barcode search', 'Photos and barcodes you submit are used only to identify the product and show matching offers. We do not use them to identify people. Photos are not kept after the search unless you save the result. Legal basis: performance of the service.'],
+        ['8. Feedback and enquiries', 'If you write to us or send feedback we process your message, your contact details and any attachments to answer you and improve DOABNO. Legal basis: our legitimate interest and, where you ask a question about your account, performance of the service.'],
+        ['9. IT security and fraud prevention', 'We process log data and technical identifiers to protect DOABNO from misuse, attacks, automated scraping and fraud, and to find and fix errors. Legal basis: our legitimate interest in the security of our service.'],
+        ['10. Billing with partner stores', 'When you open a store through our links, the store or its affiliate network receives a click identifier so that the visit can be credited to DOABNO and the commission or cost per click can be settled. This identifier does not contain your name or email address. Legal basis: our legitimate interest in being paid for referrals.'],
+        ['11. Legal obligations', 'We process data where the law requires it, for example for accounting, tax, answering lawful requests from authorities and proving your consent. Legal basis: legal obligation.'],
+        ['12. Analytics and measuring advertising', 'With your consent we analyse how DOABNO is used (pages, features, errors) and measure whether our own campaigns work, using cookies or similar identifiers. Without your consent we only use essential storage. You can change your choice at any time under “Cookie settings”. Legal basis: your consent.'],
+        ['13. Personalised recommendations and advertising', 'With your consent we may show recommendations based on products you viewed or saved and measure advertising on other websites. We do not sell your personal data. If you opt out under “Do not sell or share my personal information”, we stop any sharing for advertising. Legal basis: your consent.'],
+        ['14. Our service providers and partners', 'We use carefully selected providers who process data on our instructions: hosting and infrastructure, email delivery, analytics, customer support and error monitoring. We also work with affiliate networks and partner stores. A current list of providers is available on request at privacy@doabno.com.'],
+        ['15. Disclosure to other third parties', 'We disclose personal data only where needed: to authorities and public bodies where the law requires it or to protect rights; to group companies and professional advisers under confidentiality; to IT service providers acting as processors; and to affiliate networks as described above.'],
+        ['16. Transfers outside Saudi Arabia, the EEA and the UK', 'Some providers are located or process data outside Saudi Arabia, the European Economic Area or the United Kingdom. Where required we rely on an adequacy decision, standard contractual clauses or another transfer mechanism approved under the PDPL, the GDPR or the UK GDPR, and we take additional measures where needed.'],
+        ['17. Where the data comes from', 'Most data comes from you or from your device when you use DOABNO. Product, price and store data come from store feeds and partners; it is not personal data.'],
+        ['18. Our social media pages', 'We may run pages on social networks. When you interact with them, the network is responsible for its own processing and we receive statistics and your public interactions. Please read the network’s privacy policy.'],
+        ['19. Storage periods', 'Account data until you delete your account. Favourites and price alerts until you remove them or delete your account. Technical logs up to 90 days. Usage and click data up to 25 months, aggregated or pseudonymised. Marketing consent records for as long as needed to prove consent. Data needed for tax or accounting for the period the law requires.'],
+        ['20. Automated decisions and profiling', 'We do not make decisions based solely on automated processing that have legal or similarly significant effects on you. Ranking offers by total price is not such a decision.'],
+        ['21. Your rights', 'Under the Saudi PDPL, the GDPR and UK GDPR and the CCPA you have the right to: be informed; access your data and receive a copy; have inaccurate data corrected; have data deleted; restrict processing; receive your data in a portable format; object to processing based on legitimate interests and to direct marketing at any time; withdraw consent at any time without affecting earlier processing; and opt out of any sale or sharing of personal information. We will not treat you worse for using your rights.'],
+        ['22. How to use your rights and complain', 'Use the privacy request form, your profile page, or email privacy@doabno.com. We reply within 30 days. You can also complain to a data protection authority, for example SDAIA in Saudi Arabia, the supervisory authority in your EU country, the Information Commissioner’s Office in the UK, or the California Privacy Protection Agency.'],
+        ['23. Children', 'DOABNO is not directed at children under 16 and we do not knowingly collect their data. If you think a child has given us data, contact us and we will delete it.'],
+        ['24. Security', 'We protect data with encryption in transit, access controls and regular reviews. No online service can be guaranteed to be completely secure.'],
+        ['25. Changes to this policy', 'We may update this policy. The date of the latest version is shown at the bottom, and we will tell you about important changes in the service or by email if you have an account.']]],
+      ar: ['سياسة الخصوصية', [['1. المتحكم ومسؤول حماية البيانات', 'دوابنو (doabno.com وتطبيق دوابنو، «دوابنو» أو «نحن») مسؤول عن معالجة بياناتك الشخصية. بيانات الشركة في الإشعار القانوني. مسؤول حماية البيانات وجهة الاتصال للخصوصية: privacy@doabno.com.'],
+        ['2. نطاق هذه السياسة', 'توضح هذه السياسة البيانات الشخصية التي نعالجها عند زيارتك doabno.com أو استخدامك التطبيق أو إنشاء حساب أو حفظ منتجات أو ضبط تنبيهات الأسعار أو البحث بالصورة أو الباركود أو الاشتراك في الرسائل أو التواصل معنا، وسبب المعالجة، ومن يستلم البيانات، ومدة الاحتفاظ بها، وحقوقك.'],
+        ['3. تقديم خدمتنا', 'عند فتحك دوابنو نعالج بيانات تقنية وبيانات استخدام: عنوان IP ونوع الجهاز والمتصفح واللغة والسوق والعملة والصفحات والمنتجات التي تعرضها وعمليات البحث والمتاجر التي تفتحها عبر روابطنا. نحتاجها لعرض الخدمة وتذكّر خياراتك وتشغيلها. الأساس: تنفيذ الخدمة التي تطلبها ومصلحتنا المشروعة في تشغيل خدمة آمنة وفعّالة.'],
+        ['4. الحساب والمفضلة وتنبيهات الأسعار', 'عند إنشاء حساب نعالج اسمك وبريدك الإلكتروني وكلمة مرورك (مشفّرة) ومفضلتك وتنبيهات الأسعار والأسعار المستهدفة، لنعرضها على جميع أجهزتك وننبهك عند بلوغ السعر. الأساس: تنفيذ الخدمة. يمكنك حذف حسابك في أي وقت من ملفك الشخصي.'],
+        ['5. تسجيل الدخول بحساب Apple أو Google', 'عند تسجيل الدخول بحساب Apple أو Google نستلم الاسم والبريد الذي تختار مشاركته ومعرّفًا فريدًا من ذلك المزوّد، ولا نستلم كلمة مرورك. الأساس: تنفيذ الخدمة.'],
+        ['6. النشرات والرسائل التسويقية', 'نرسل تنبيهات انخفاض الأسعار التي تضبطها كجزء من الخدمة. ولا نرسل رسائل تسويقية أو عروضًا أو أخبارًا إلا إذا وضعت علامة الموافقة عند إنشاء حساب أو تفعيل تنبيهات البريد. لا تكون الخانة محددة مسبقًا أبدًا. نسجّل وقت موافقتك وطريقتها. ويمكنك سحبها في أي وقت عبر رابط إلغاء الاشتراك في كل رسالة أو من ملفك الشخصي أو بمراسلتنا. الأساس: موافقتك.'],
+        ['7. البحث بالصورة والباركود', 'نستخدم الصور والباركود التي ترسلها فقط للتعرف على المنتج وعرض العروض المطابقة، ولا نستخدمها للتعرف على الأشخاص. لا نحتفظ بالصور بعد البحث ما لم تحفظ النتيجة. الأساس: تنفيذ الخدمة.'],
+        ['8. الملاحظات والاستفسارات', 'إذا راسلتنا أو أرسلت ملاحظات فإننا نعالج رسالتك وبيانات التواصل والمرفقات للرد عليك وتحسين دوابنو. الأساس: مصلحتنا المشروعة، وتنفيذ الخدمة عند السؤال عن حسابك.'],
+        ['9. أمن المعلومات ومنع الاحتيال', 'نعالج سجلات ومعرّفات تقنية لحماية دوابنو من إساءة الاستخدام والهجمات والسحب الآلي للبيانات والاحتيال، ولاكتشاف الأخطاء وإصلاحها. الأساس: مصلحتنا المشروعة في أمن خدمتنا.'],
+        ['10. المحاسبة مع المتاجر الشريكة', 'عند فتحك متجرًا عبر روابطنا يستلم المتجر أو شبكة الإحالة معرّف نقرة لينسب الزيارة إلى دوابنو وتُسوّى العمولة أو تكلفة النقرة. لا يحتوي المعرّف على اسمك أو بريدك. الأساس: مصلحتنا المشروعة في الحصول على مقابل الإحالات.'],
+        ['11. الالتزامات النظامية', 'نعالج البيانات حيث يوجب النظام ذلك، مثل المحاسبة والضرائب والرد على طلبات الجهات الرسمية النظامية وإثبات موافقتك. الأساس: الالتزام النظامي.'],
+        ['12. التحليلات وقياس الإعلانات', 'بموافقتك نحلّل كيفية استخدام دوابنو (الصفحات والميزات والأخطاء) ونقيس نجاح حملاتنا باستخدام ملفات ارتباط أو معرّفات مشابهة. وبدون موافقتك نستخدم التخزين الأساسي فقط. ويمكنك تغيير اختيارك في أي وقت من «إعدادات ملفات الارتباط». الأساس: موافقتك.'],
+        ['13. التوصيات والإعلانات المخصّصة', 'بموافقتك قد نعرض توصيات مبنية على المنتجات التي شاهدتها أو حفظتها ونقيس الإعلانات على مواقع أخرى. لا نبيع بياناتك الشخصية. وإذا اخترت «لا تبيع أو تشارك معلوماتي الشخصية» أوقفنا أي مشاركة لأغراض إعلانية. الأساس: موافقتك.'],
+        ['14. مزودو الخدمات والشركاء', 'نستعين بمزودين مختارين بعناية يعالجون البيانات بتعليماتنا: الاستضافة والبنية التقنية وإرسال البريد والتحليلات ودعم العملاء ومراقبة الأخطاء. ونعمل أيضًا مع شبكات الإحالة والمتاجر الشريكة. تتوفر قائمة محدّثة بالمزودين عند الطلب على privacy@doabno.com.'],
+        ['15. الإفصاح لأطراف أخرى', 'لا نفصح عن البيانات الشخصية إلا عند الحاجة: للجهات الرسمية حيث يوجب النظام ذلك أو لحماية الحقوق، وللشركات التابعة والمستشارين المهنيين بسرية، ولمزودي تقنية المعلومات بصفتهم معالجين، ولشبكات الإحالة كما ورد أعلاه.'],
+        ['16. النقل خارج السعودية والمنطقة الاقتصادية الأوروبية والمملكة المتحدة', 'يقع بعض المزودين أو يعالج البيانات خارج السعودية أو المنطقة الاقتصادية الأوروبية أو المملكة المتحدة. وعند اللزوم نعتمد على قرار ملاءمة أو بنود تعاقدية نموذجية أو آلية نقل أخرى معتمدة بموجب نظام حماية البيانات الشخصية أو اللائحة الأوروبية أو البريطانية، ونتخذ إجراءات إضافية عند الحاجة.'],
+        ['17. مصدر البيانات', 'تأتي معظم البيانات منك أو من جهازك عند استخدام دوابنو. أما بيانات المنتجات والأسعار والمتاجر فتأتي من خلاصات المتاجر والشركاء وليست بيانات شخصية.'],
+        ['18. صفحاتنا في وسائل التواصل', 'قد ندير صفحات على شبكات التواصل. وعند تفاعلك معها تكون الشبكة مسؤولة عن معالجتها الخاصة ونستلم إحصاءات وتفاعلاتك العامة. يرجى قراءة سياسة خصوصية الشبكة.'],
+        ['19. مدد الاحتفاظ', 'بيانات الحساب حتى تحذف حسابك. المفضلة وتنبيهات الأسعار حتى تزيلها أو تحذف حسابك. السجلات التقنية حتى 90 يومًا. بيانات الاستخدام والنقرات حتى 25 شهرًا بصورة مجمّعة أو بأسماء مستعارة. سجلات الموافقة التسويقية للمدة اللازمة لإثباتها. والبيانات اللازمة للضرائب والمحاسبة للمدة التي يوجبها النظام.'],
+        ['20. القرارات الآلية والتنميط', 'لا نتخذ قرارات مبنية على المعالجة الآلية وحدها يكون لها أثر نظامي أو مماثل عليك. وترتيب العروض حسب السعر الإجمالي ليس قرارًا من هذا النوع.'],
+        ['21. حقوقك', 'بموجب نظام حماية البيانات الشخصية السعودي واللائحة الأوروبية والبريطانية وقانون CCPA يحق لك: أن تُبلَّغ؛ والاطلاع على بياناتك والحصول على نسخة؛ وتصحيح البيانات غير الدقيقة؛ وحذف البيانات؛ وتقييد المعالجة؛ ونقل بياناتك بصيغة قابلة للنقل؛ والاعتراض على المعالجة المبنية على المصلحة المشروعة وعلى التسويق المباشر في أي وقت؛ وسحب الموافقة في أي وقت دون أن يؤثر ذلك على المعالجة السابقة؛ وإيقاف أي بيع أو مشاركة للمعلومات الشخصية. ولن نعاملك بصورة أسوأ لممارستك حقوقك.'],
+        ['22. كيف تمارس حقوقك وتقدّم شكوى', 'استخدم نموذج طلب الخصوصية أو صفحة ملفك أو راسلنا على privacy@doabno.com. نرد خلال 30 يومًا. ويمكنك أيضًا تقديم شكوى إلى جهة حماية البيانات، مثل سدايا في السعودية أو الجهة الإشرافية في بلدك الأوروبي أو مكتب مفوض المعلومات في المملكة المتحدة أو وكالة حماية الخصوصية في كاليفورنيا.'],
+        ['23. الأطفال', 'دوابنو غير موجّه للأطفال دون 16 عامًا ولا نجمع بياناتهم عن علم. وإن ظننت أن طفلًا قدّم لنا بيانات فراسلنا وسنحذفها.'],
+        ['24. الأمان', 'نحمي البيانات بالتشفير أثناء النقل وضوابط الوصول ومراجعات دورية. ولا يمكن ضمان أمان أي خدمة إلكترونية بشكل مطلق.'],
+        ['25. تغييرات هذه السياسة', 'قد نحدّث هذه السياسة، ويظهر تاريخ آخر نسخة في أسفل الصفحة، وسنبلغك بالتغييرات المهمة في الخدمة أو بالبريد إذا كان لديك حساب.']]]
     },
     terms: {
-      en: ['Terms of use', [
-        ['1. Scope', 'These terms govern your use of doabno.com and the DOABNO app. By using the service you agree to them. If you do not agree, please do not use it.'],
-        ['2. What DOABNO is', 'DOABNO is a price-comparison service. We show prices, delivery costs and availability collected from stores and product feeds. We are not a seller, we do not handle orders or payments, and no sales contract is made with us. When you click “Visit store” you leave DOABNO and buy from the store under its own terms.'],
-        ['3. Accuracy of information', 'Prices, delivery costs, stock, promo codes and product details come from third parties and can change at any moment. We work to keep them current and show when they were last updated, but we cannot guarantee they are complete or error-free. Always confirm the final price and conditions on the store’s website before you buy.'],
-        ['4. Ranking and sponsored placements', 'Offers are ranked by total price including delivery unless you choose another sort. We may earn a commission or a fee per click when you visit a store through our links; this does not change the price you pay. Any paid or promoted placement is labelled.'],
-        ['5. Your account', 'You are responsible for the accuracy of your account details and for keeping your password secure. You can delete your account at any time from your profile. We may suspend accounts that break these terms.'],
-        ['6. Price alerts and notifications', 'Price alerts are sent on a best-effort basis and may be delayed or missed if store data is unavailable. Email marketing is sent only with your consent, which you can withdraw at any time.'],
-        ['7. Acceptable use', 'Do not scrape or copy the service in bulk, use bots, interfere with its operation or security, attempt unauthorised access, upload unlawful content, or use DOABNO for any unlawful purpose.'],
-        ['8. Intellectual property', 'The DOABNO name, logo, design, software and compilation of data are owned by DOABNO or its licensors. Store names, logos and product images belong to their owners and are shown to identify offers. You receive a personal, non-transferable right to use the service.'],
-        ['9. Third-party links', 'We are not responsible for the content, availability, policies or practices of third-party websites reached through DOABNO.'],
-        ['10. Liability', 'To the extent permitted by law, DOABNO is not liable for losses arising from reliance on information shown, from purchases made on third-party sites, or from temporary unavailability of the service. Nothing here limits liability that cannot be limited by law, including for intent or gross negligence, or your statutory consumer rights.'],
-        ['11. Changes to the service and terms', 'We may change the service or these terms. Continued use after a change means you accept the new terms. We will give notice of material changes.'],
-        ['12. Governing law and disputes', 'These terms are governed by the laws of the Kingdom of Saudi Arabia. Consumers in other markets keep the mandatory protections of the law of the country where they live. Disputes are subject to the competent courts, unless mandatory law says otherwise.']]],
-      ar: ['شروط الاستخدام', [
-        ['1. النطاق', 'تنظم هذه الشروط استخدامك doabno.com وتطبيق دوابنو. باستخدامك الخدمة فإنك توافق عليها. وإن لم توافق فيرجى عدم استخدامها.'],
-        ['2. ما هو دوابنو', 'دوابنو خدمة لمقارنة الأسعار. نعرض الأسعار وتكاليف التوصيل والتوفر المجمّعة من المتاجر وخلاصات المنتجات. نحن لسنا بائعًا ولا نتعامل مع الطلبات أو المدفوعات ولا ينشأ معنا عقد بيع. وعند الضغط على «زيارة المتجر» تغادر دوابنو وتشتري من المتجر وفق شروطه.'],
-        ['3. دقة المعلومات', 'تأتي الأسعار وتكاليف التوصيل والمخزون وأكواد الخصم وتفاصيل المنتجات من أطراف ثالثة وقد تتغير في أي لحظة. نحرص على تحديثها ونعرض وقت آخر تحديث، لكن لا نضمن اكتمالها أو خلوها من الأخطاء. تأكد دائمًا من السعر النهائي والشروط على موقع المتجر قبل الشراء.'],
-        ['4. الترتيب والمواضع المدعومة', 'تُرتَّب العروض حسب السعر الإجمالي شاملًا التوصيل ما لم تختر ترتيبًا آخر. قد نحصل على عمولة أو مبلغ عن كل نقرة عند زيارتك متجرًا عبر روابطنا، ولا يغيّر ذلك السعر الذي تدفعه. ويُوضَّح أي موضع مدفوع أو مُروَّج له.'],
-        ['5. حسابك', 'أنت مسؤول عن صحة بيانات حسابك وعن حماية كلمة المرور. يمكنك حذف حسابك في أي وقت من ملفك الشخصي. وقد نعلّق الحسابات المخالفة لهذه الشروط.'],
-        ['6. تنبيهات الأسعار والإشعارات', 'تُرسل تنبيهات الأسعار بأفضل جهد وقد تتأخر أو تفوت إذا لم تتوفر بيانات المتجر. ولا تُرسل الرسائل التسويقية إلا بموافقتك ويمكنك سحبها في أي وقت.'],
-        ['7. الاستخدام المقبول', 'يُمنع سحب بيانات الخدمة أو نسخها بكميات كبيرة أو استخدام برامج آلية أو التشويش على تشغيلها وأمنها أو محاولة الدخول غير المصرح به أو رفع محتوى غير نظامي أو استخدام دوابنو لأي غرض غير قانوني.'],
-        ['8. الملكية الفكرية', 'اسم دوابنو وشعاره وتصميمه وبرمجياته وتجميع بياناته مملوكة لدوابنو أو لمرخّصيه. أما أسماء المتاجر وشعاراتها وصور المنتجات فهي لأصحابها وتُعرض لتعريف العروض. تحصل على حق شخصي غير قابل للتحويل لاستخدام الخدمة.'],
-        ['9. روابط الأطراف الثالثة', 'لسنا مسؤولين عن محتوى مواقع الأطراف الثالثة التي تصل إليها عبر دوابنو أو توفرها أو سياساتها أو ممارساتها.'],
-        ['10. المسؤولية', 'بالقدر الذي يسمح به النظام، لا يتحمل دوابنو مسؤولية الخسائر الناتجة عن الاعتماد على المعلومات المعروضة أو عن المشتريات من مواقع الأطراف الثالثة أو عن عدم توفر الخدمة مؤقتًا. ولا يقيّد شيء هنا مسؤولية لا يجوز تقييدها نظامًا، ومنها العمد والإهمال الجسيم، ولا حقوقك النظامية كمستهلك.'],
-        ['11. تغيير الخدمة والشروط', 'قد نغيّر الخدمة أو هذه الشروط. ويعني استمرارك في الاستخدام بعد التغيير قبولك الشروط الجديدة. وسنخطرك بالتغييرات الجوهرية.'],
-        ['12. القانون الواجب التطبيق والنزاعات', 'تخضع هذه الشروط لأنظمة المملكة العربية السعودية. ويحتفظ المستهلكون في الأسواق الأخرى بالحماية الإلزامية لنظام بلد إقامتهم. وتختص المحاكم المختصة بالنزاعات ما لم ينص نظام إلزامي على خلاف ذلك.']]]
+      en: ['Terms of use', [['1. Scope', 'These terms apply to your use of doabno.com and the DOABNO app (the “Services”). By using the Services you agree to them. If you do not agree, please do not use them.'],
+        ['2. What DOABNO is', 'DOABNO is a price-comparison service. We show prices, delivery costs and availability collected from stores and product feeds. We are not a seller and do not handle orders or payments.'],
+        ['3. Contractual relationships', 'No sales contract is made with DOABNO. When you click “Visit store” or “Buy now” you leave DOABNO and buy from the store under its own terms. Questions about orders, delivery, returns, warranty and payment go to that store.'],
+        ['4. Accuracy of information', 'Prices, delivery costs, stock, promo codes and product details come from third parties and can change at any moment. We work to keep them current and show when they were last updated, but we cannot guarantee they are complete or free of errors. Always confirm the final price and conditions on the store’s website before you buy.'],
+        ['5. Ranking and sponsored placements', 'Offers are ranked by total price including delivery unless you choose another sort. We may earn a commission or a fee per click when you visit a store through our links; this does not change the price you pay. Any paid or promoted placement is labelled.'],
+        ['6. Registration and your account', 'You can use most of DOABNO without an account. If you register, give correct information, keep your password secret and tell us if you suspect misuse. You can delete your account at any time in your profile. We may suspend accounts that break these terms.'],
+        ['7. Price alerts and notifications', 'Price alerts are sent on a best-effort basis and may be delayed or missed if store data is unavailable. Marketing emails are sent only with your consent, which you can withdraw at any time.'],
+        ['8. User contributions', 'If you send feedback, reviews or other content, you confirm that it is yours, lawful and does not infringe the rights of others. You give DOABNO a free, non-exclusive right to use it to operate and improve the Services. We may remove content that breaks these terms.'],
+        ['9. Indemnification for user contributions', 'You are responsible for your contributions. If a third party brings a claim against DOABNO because of unlawful content you submitted, you will release DOABNO from the claim to the extent the law permits, including reasonable legal costs.'],
+        ['10. Acceptable use', 'Do not scrape or copy the Services in bulk, use bots, interfere with their operation or security, attempt unauthorised access, upload unlawful content, or use DOABNO for any unlawful purpose.'],
+        ['11. Intellectual property', 'The DOABNO name, logo, design, software and compilation of data are owned by DOABNO or its licensors. Store names, logos and product images belong to their owners and are shown to identify offers. You receive a personal, non-transferable right to use the Services.'],
+        ['12. Third-party links', 'We are not responsible for the content, availability, policies or practices of third-party websites reached through DOABNO.'],
+        ['13. Advertising on DOABNO and partner stores', 'Stores can take part in our partner programme under separate agreements. Advertising and sponsored listings do not change how organic offers are ranked and are always labelled. To become a partner or advertise, contact partners@doabno.com.'],
+        ['14. Availability and changes to the Services', 'We aim for continuous service but do not guarantee uninterrupted or error-free operation. We may change, suspend or stop features, including photo and barcode search and alerts, for technical or legal reasons.'],
+        ['15. Liability', 'To the extent permitted by law, DOABNO is not liable for losses arising from reliance on information shown, from purchases on third-party sites, or from temporary unavailability. Nothing here limits liability that cannot be limited by law, including for intent or gross negligence, personal injury, or your statutory consumer rights.'],
+        ['16. Changes to these terms', 'We may change these terms. Continued use after a change means you accept the new terms. We will give notice of material changes in the Services or by email.'],
+        ['17. Governing law', 'These terms are governed by the laws of the Kingdom of Saudi Arabia. Consumers in other markets keep the mandatory protections of the law of the country where they live.'],
+        ['18. Jurisdiction', 'Disputes are subject to the competent courts, unless mandatory law gives you the right to bring a claim in the courts of your home country.'],
+        ['19. Severability', 'If a provision of these terms is or becomes invalid, the rest stays in force and the invalid provision is replaced by a valid one that comes closest to its purpose.'],
+        ['20. Contact', 'Questions about these terms: legal@doabno.com. Full company details are in the Legal notice.']]],
+      ar: ['شروط الاستخدام', [['1. النطاق', 'تنطبق هذه الشروط على استخدامك doabno.com وتطبيق دوابنو («الخدمات»). باستخدامك الخدمات فإنك توافق عليها. وإن لم توافق فيرجى عدم استخدامها.'],
+        ['2. ما هو دوابنو', 'دوابنو خدمة لمقارنة الأسعار. نعرض الأسعار وتكاليف التوصيل والتوفر المجمّعة من المتاجر وخلاصات المنتجات. نحن لسنا بائعًا ولا نتعامل مع الطلبات أو المدفوعات.'],
+        ['3. العلاقات التعاقدية', 'لا ينشأ مع دوابنو أي عقد بيع. وعند الضغط على «زيارة المتجر» أو «اشترِ الآن» تغادر دوابنو وتشتري من المتجر وفق شروطه. وتُوجَّه الأسئلة عن الطلبات والتوصيل والإرجاع والضمان والدفع إلى ذلك المتجر.'],
+        ['4. دقة المعلومات', 'تأتي الأسعار وتكاليف التوصيل والمخزون وأكواد الخصم وتفاصيل المنتجات من أطراف ثالثة وقد تتغير في أي لحظة. نحرص على تحديثها ونعرض وقت آخر تحديث، لكن لا نضمن اكتمالها أو خلوها من الأخطاء. تأكد دائمًا من السعر النهائي والشروط على موقع المتجر قبل الشراء.'],
+        ['5. الترتيب والمواضع المدعومة', 'تُرتَّب العروض حسب السعر الإجمالي شاملًا التوصيل ما لم تختر ترتيبًا آخر. قد نحصل على عمولة أو مبلغ عن كل نقرة عند زيارتك متجرًا عبر روابطنا، ولا يغيّر ذلك السعر الذي تدفعه. ويُوضَّح أي موضع مدفوع أو مُروَّج له.'],
+        ['6. التسجيل وحسابك', 'يمكنك استخدام معظم دوابنو دون حساب. وإذا سجّلت فقدّم معلومات صحيحة واحفظ كلمة المرور سرًا وأخبرنا إن اشتبهت بإساءة استخدام. يمكنك حذف حسابك في أي وقت من ملفك الشخصي. وقد نعلّق الحسابات المخالفة لهذه الشروط.'],
+        ['7. تنبيهات الأسعار والإشعارات', 'تُرسل تنبيهات الأسعار بأفضل جهد وقد تتأخر أو تفوت إذا لم تتوفر بيانات المتجر. ولا تُرسل الرسائل التسويقية إلا بموافقتك ويمكنك سحبها في أي وقت.'],
+        ['8. مساهمات المستخدم', 'إذا أرسلت ملاحظات أو تقييمات أو أي محتوى آخر فإنك تؤكد أنه ملكك ومشروع ولا ينتهك حقوق الغير. وتمنح دوابنو حقًا مجانيًا غير حصري في استخدامه لتشغيل الخدمات وتحسينها. وقد نزيل المحتوى المخالف لهذه الشروط.'],
+        ['9. التعويض عن مساهمات المستخدم', 'أنت مسؤول عن مساهماتك. وإذا رفع طرف ثالث مطالبة ضد دوابنو بسبب محتوى غير مشروع قدّمته فإنك تُبرئ دوابنو من المطالبة بالقدر الذي يسمح به النظام، بما في ذلك تكاليف التقاضي المعقولة.'],
+        ['10. الاستخدام المقبول', 'يُمنع سحب بيانات الخدمات أو نسخها بكميات كبيرة أو استخدام برامج آلية أو التشويش على تشغيلها وأمنها أو محاولة الدخول غير المصرح به أو رفع محتوى غير نظامي أو استخدام دوابنو لأي غرض غير قانوني.'],
+        ['11. الملكية الفكرية', 'اسم دوابنو وشعاره وتصميمه وبرمجياته وتجميع بياناته مملوكة لدوابنو أو لمرخّصيه. أما أسماء المتاجر وشعاراتها وصور المنتجات فهي لأصحابها وتُعرض لتعريف العروض. تحصل على حق شخصي غير قابل للتحويل لاستخدام الخدمات.'],
+        ['12. روابط الأطراف الثالثة', 'لسنا مسؤولين عن محتوى مواقع الأطراف الثالثة التي تصل إليها عبر دوابنو أو توفرها أو سياساتها أو ممارساتها.'],
+        ['13. الإعلان في دوابنو والمتاجر الشريكة', 'يمكن للمتاجر المشاركة في برنامج الشركاء بموجب اتفاقيات منفصلة. ولا يغيّر الإعلان والقوائم المدعومة طريقة ترتيب العروض الطبيعية، ويُوضَّحان دائمًا. للانضمام شريكًا أو للإعلان راسل partners@doabno.com.'],
+        ['14. توفر الخدمات وتغييرها', 'نسعى لتقديم خدمة متواصلة لكن لا نضمن تشغيلًا دون انقطاع أو أخطاء. وقد نغيّر الميزات أو نعلّقها أو نوقفها، ومنها البحث بالصورة والباركود والتنبيهات، لأسباب تقنية أو نظامية.'],
+        ['15. المسؤولية', 'بالقدر الذي يسمح به النظام، لا يتحمل دوابنو مسؤولية الخسائر الناتجة عن الاعتماد على المعلومات المعروضة أو عن المشتريات من مواقع الأطراف الثالثة أو عن عدم التوفر المؤقت. ولا يقيّد شيء هنا مسؤولية لا يجوز تقييدها نظامًا، ومنها العمد والإهمال الجسيم والإصابة الشخصية، ولا حقوقك النظامية كمستهلك.'],
+        ['16. تغيير هذه الشروط', 'قد نغيّر هذه الشروط. ويعني استمرارك في الاستخدام بعد التغيير قبولك الشروط الجديدة. وسنخطرك بالتغييرات الجوهرية في الخدمات أو بالبريد.'],
+        ['17. القانون الواجب التطبيق', 'تخضع هذه الشروط لأنظمة المملكة العربية السعودية. ويحتفظ المستهلكون في الأسواق الأخرى بالحماية الإلزامية لنظام بلد إقامتهم.'],
+        ['18. الاختصاص القضائي', 'تختص المحاكم المختصة بالنزاعات، ما لم ينص نظام إلزامي على حقك في رفع الدعوى أمام محاكم بلد إقامتك.'],
+        ['19. قابلية الفصل', 'إذا كان أي حكم في هذه الشروط باطلًا أو أصبح كذلك فتبقى بقية الأحكام سارية ويُستبدل الحكم الباطل بحكم صحيح أقرب ما يكون إلى غرضه.'],
+        ['20. التواصل', 'للاستفسار عن هذه الشروط: legal@doabno.com. وبيانات الشركة الكاملة في الإشعار القانوني.']]]
     },
     disclaimer: {
       en: ['Disclaimer', [
@@ -297,6 +341,62 @@
         ['ملفات التحليلات', 'اختيارية. تساعدنا على فهم الصفحات والمتاجر التي يستخدمها الناس لتحسين دوابنو. لا تُفعَّل إلا إذا اخترت «قبول الكل».'],
         ['معرّفات الشركاء والإعلانات', 'اختيارية. عند فتحك متجرًا عبر روابطنا قد يضع المتجر أو شبكة الإحالة ملف ارتباط خاصًا به لاحتساب عمولتنا. لا يُفعَّل إلا إذا اخترت «قبول الكل» ولا يُباع لأطراف ثالثة.'],
         ['اختيارك', 'يمكنك تغيير اختيارك في أي وقت عبر «إعدادات ملفات الارتباط» في أسفل الصفحة أو بحذف الملفات من إعدادات المتصفح. ونحترم إشارة Global Privacy Control.']]]
+    },
+    imprint: {
+      en: ['Legal notice', [['Company', '[Company legal name and legal form, to be completed]'],
+        ['Registered office', '[Street, city, postcode, country, to be completed]'],
+        ['Commercial registration and VAT', 'Commercial registration no.: [to be completed]. VAT registration no.: [to be completed].'],
+        ['Authorised representatives', '[Names of managing directors or authorised persons, to be completed]'],
+        ['Contact', 'Email: hello@doabno.com. Phone: [to be completed]. Postal address as above.'],
+        ['Data protection officer', 'privacy@doabno.com. You can also use the privacy request form.'],
+        ['Press enquiries', 'press@doabno.com'],
+        ['Store registration and partner programme', 'Stores that would like to be listed or join the affiliate programme: partners@doabno.com.'],
+        ['Advertising on DOABNO', 'advertising@doabno.com. Advertising and sponsored placements are always labelled.'],
+        ['Technical support', 'support@doabno.com, for problems with the website or the app.'],
+        ['Youth protection', 'DOABNO is not directed at children. Questions about youth protection: legal@doabno.com.'],
+        ['Security', 'To report a security vulnerability: security@doabno.com. Please give us time to fix an issue before sharing it publicly.'],
+        ['Supervisory and complaints authorities', 'Data protection: SDAIA (Saudi Arabia) and the authorities named in the privacy policy. Consumer matters: the competent consumer protection authority in your country.']]],
+      ar: ['الإشعار القانوني', [['الشركة', '[الاسم النظامي للشركة وشكلها النظامي، يُستكمل لاحقًا]'],
+        ['المقر المسجّل', '[الشارع والمدينة والرمز البريدي والدولة، تُستكمل لاحقًا]'],
+        ['السجل التجاري وضريبة القيمة المضافة', 'رقم السجل التجاري: [يُستكمل لاحقًا]. رقم التسجيل الضريبي: [يُستكمل لاحقًا].'],
+        ['الممثلون المفوّضون', '[أسماء المديرين أو المفوّضين، تُستكمل لاحقًا]'],
+        ['التواصل', 'البريد الإلكتروني: hello@doabno.com. الهاتف: [يُستكمل لاحقًا]. العنوان البريدي كما أعلاه.'],
+        ['مسؤول حماية البيانات', 'privacy@doabno.com. ويمكنك أيضًا استخدام نموذج طلب الخصوصية.'],
+        ['الاستفسارات الصحفية', 'press@doabno.com'],
+        ['تسجيل المتاجر وبرنامج الشركاء', 'للمتاجر الراغبة في الإدراج أو الانضمام إلى برنامج الإحالة: partners@doabno.com.'],
+        ['الإعلان في دوابنو', 'advertising@doabno.com. ويُوضَّح الإعلان والمواضع المدعومة دائمًا.'],
+        ['الدعم الفني', 'support@doabno.com لمشكلات الموقع أو التطبيق.'],
+        ['حماية القاصرين', 'دوابنو غير موجّه للأطفال. للاستفسار عن حماية القاصرين: legal@doabno.com.'],
+        ['الأمان', 'للإبلاغ عن ثغرة أمنية: security@doabno.com. نرجو منحنا وقتًا لإصلاح المشكلة قبل نشرها علنًا.'],
+        ['جهات الإشراف والشكاوى', 'حماية البيانات: سدايا (السعودية) والجهات المذكورة في سياسة الخصوصية. شؤون المستهلك: جهة حماية المستهلك المختصة في بلدك.']]]
+    },
+    prices: {
+      en: ['Price information', [['Prices and currency', 'Prices are shown in the currency you choose and converted using our exchange rates, which may differ slightly from the store’s own price. Prices include VAT where the store shows them with VAT. Delivery costs are shown separately and added to the total price we rank by.'],
+        ['Changes and timing', 'All prices, rankings, delivery times and shipping costs may change between our last update and your visit. We show when each offer was last verified. The price on the store’s website at the time of purchase is the one that applies.'],
+        ['Availability', 'Stock status comes from the store and may be out of date. A product shown as in stock can sell out.'],
+        ['Ratings and reviews', 'Ratings shown come from stores and public sources. DOABNO does not verify whether a rating comes from someone who bought or used the product.'],
+        ['Commissions', 'DOABNO may earn a commission or a fee per click when we refer you to a partner store. This does not increase the price you pay. Sponsored placements are labelled.'],
+        ['Savings and “usually” prices', 'Our “usually” price and percentage savings compare today’s lowest total price with the recent average we recorded for that product. They are an indication, not a promise of a discount from the store.']]],
+      ar: ['معلومات الأسعار', [['الأسعار والعملة', 'تُعرض الأسعار بالعملة التي تختارها وتُحوَّل بأسعار صرف نعتمدها وقد تختلف قليلًا عن سعر المتجر نفسه. وتشمل الأسعار ضريبة القيمة المضافة حيث يعرضها المتجر شاملة لها. وتُعرض تكاليف التوصيل منفصلة وتُضاف إلى السعر الإجمالي الذي نرتّب به.'],
+        ['التغيّر والتوقيت', 'قد تتغير جميع الأسعار والترتيب ومدد التوصيل وتكاليف الشحن بين آخر تحديث وزيارتك. ونعرض وقت آخر تحقق من كل عرض. والسعر المعتمد هو السعر على موقع المتجر وقت الشراء.'],
+        ['التوفر', 'تأتي حالة المخزون من المتجر وقد تكون قديمة. وقد ينفد منتج معروض على أنه متوفر.'],
+        ['التقييمات والمراجعات', 'تأتي التقييمات المعروضة من المتاجر ومصادر عامة. ولا يتحقق دوابنو مما إذا كان التقييم من شخص اشترى المنتج أو استخدمه.'],
+        ['العمولات', 'قد يحصل دوابنو على عمولة أو مبلغ عن كل نقرة عند إحالتك إلى متجر شريك. ولا يزيد ذلك السعر الذي تدفعه. وتُوضَّح المواضع المدعومة.'],
+        ['الوفورات وأسعار «عادةً»', 'يقارن سعر «عادةً» ونسب التوفير أقل سعر إجمالي اليوم بمتوسط الأسعار الأخيرة المسجّلة لذلك المنتج. وهي مؤشر وليست وعدًا بخصم من المتجر.']]]
+    },
+    accessibility: {
+      en: ['Accessibility statement', [['Our commitment', 'We want everyone to be able to compare prices on DOABNO, including people who use screen readers, keyboards only, magnification or other assistive technology, in both Arabic (right to left) and English.'],
+        ['Conformance status', 'We aim to meet the Web Content Accessibility Guidelines (WCAG) 2.1 level AA. DOABNO currently partially conforms. This prototype has not yet had an independent accessibility audit.'],
+        ['What we already do', 'Pages use headings, landmarks and labelled controls; interactive elements can be used with a keyboard and show a visible focus; animations stop for people who prefer reduced motion; text and controls follow colour-contrast targets; layouts work in right-to-left languages and at larger text sizes.'],
+        ['Known limitations', 'Some product photos come from stores and may lack a full text description. The animated price comparison on the home page is decorative and has a text alternative. Photo and barcode search needs a camera or an image file; you can always type a product name or barcode number instead.'],
+        ['Feedback and contact', 'If you find a barrier or need information in another format, write to accessibility@doabno.com. We reply within 14 days.'],
+        ['Competent authority', 'If you are not satisfied with our reply you can contact the competent accessibility or consumer authority in your country. The correct authority will be confirmed with legal counsel before launch.']]],
+      ar: ['بيان إمكانية الوصول', [['التزامنا', 'نريد أن يتمكن الجميع من مقارنة الأسعار في دوابنو، ومنهم مستخدمو قارئات الشاشة ولوحة المفاتيح فقط والتكبير وغيرها من التقنيات المساعدة، بالعربية (من اليمين إلى اليسار) والإنجليزية.'],
+        ['حالة المطابقة', 'نهدف إلى استيفاء إرشادات إمكانية الوصول إلى محتوى الويب (WCAG) 2.1 المستوى AA. ويطابق دوابنو حاليًا جزئيًا. ولم يخضع هذا النموذج الأولي بعد لتدقيق مستقل لإمكانية الوصول.'],
+        ['ما نفعله حاليًا', 'تستخدم الصفحات عناوين ومعالم وعناصر تحكم مسمّاة؛ ويمكن استخدام العناصر التفاعلية بلوحة المفاتيح مع تركيز مرئي؛ وتتوقف الحركات لمن يفضّلون تقليل الحركة؛ وتراعي النصوص وعناصر التحكم أهداف التباين اللوني؛ وتعمل التخطيطات باللغات من اليمين إلى اليسار وبأحجام النص الأكبر.'],
+        ['قيود معروفة', 'تأتي بعض صور المنتجات من المتاجر وقد تفتقر إلى وصف نصي كامل. والمقارنة السعرية المتحركة في الصفحة الرئيسية زخرفية ولها بديل نصي. ويحتاج البحث بالصورة والباركود إلى كاميرا أو ملف صورة، ويمكنك دائمًا كتابة اسم المنتج أو رقم الباركود بدلًا من ذلك.'],
+        ['الملاحظات والتواصل', 'إذا وجدت عائقًا أو احتجت المعلومات بصيغة أخرى فراسل accessibility@doabno.com. نرد خلال 14 يومًا.'],
+        ['الجهة المختصة', 'إذا لم تقتنع بردنا يمكنك التواصل مع جهة إمكانية الوصول أو حماية المستهلك المختصة في بلدك. وسيُؤكَّد اسم الجهة الصحيحة مع المستشار القانوني قبل الإطلاق.']]]
     },
     ccpa: {
       en: ['Do not sell or share my personal information', [['Your California privacy choices', 'DOABNO does not sell your personal information for money. Sharing data with advertising partners (for example outbound click identifiers) may count as “sharing” under the CCPA.'],
@@ -361,7 +461,7 @@
     const a = (h, k) => '<a href="' + h + '">' + t(k) + '</a>';
     f.innerHTML = '<div class="wrap"><div class="foot-grid"><div class="foot-brand"><img src="assets/brand/doabno-logo-primary.svg" alt="DOABNO" width="120" height="23"><p>' + t('foot.about') + '</p></div>' +
       '<div><h2>' + t('foot.explore') + '</h2>' + a('#/about', 'foot.aboutUs') + a('#/deals', 'deals') + a('#/coupons', 'coupons') + a('#/alerts', 'alerts') + a('#/favorites', 'favsNav') + '</div>' +
-      '<div><h2>' + t('foot.legal') + '</h2>' + a('#/legal/privacy', 'foot.privacy') + a('#/legal/terms', 'foot.terms') + a('#/legal/disclaimer', 'foot.disclaimer') + a('#/legal/cookies', 'foot.cookies') + a('#/legal/ccpa', 'foot.ccpa') + '<button type="button" class="foot-link" data-cookie-reset>' + t('foot.cookieSet') + '</button></div></div>' +
+      '<div><h2>' + t('foot.legal') + '</h2>' + a('#/legal/privacy', 'foot.privacy') + a('#/legal/terms', 'foot.terms') + a('#/legal/disclaimer', 'foot.disclaimer') + a('#/legal/prices', 'foot.prices') + a('#/legal/cookies', 'foot.cookies') + a('#/legal/accessibility', 'foot.access') + a('#/legal/imprint', 'foot.imprint') + a('#/privacy-request', 'foot.privReq') + a('#/legal/ccpa', 'foot.ccpa') + '<button type="button" class="foot-link" data-cookie-reset>' + t('foot.cookieSet') + '</button></div></div>' +
       '<p class="foot-note">' + t('foot.note') + '</p></div>';
   }
   function updateCounts() {
@@ -843,10 +943,23 @@
   function legalPage(id) {
     const d = LEGAL[id]; if (!d) return notFound();
     const [title, secs] = d[lang] || d.en;
-    return '<div class="page"><div class="wrap legal"><div class="crumbs"><a href="#/">' + t('home') + '</a> / ' + esc(title) + '</div><h1>' + esc(title) + '</h1>' +
-      secs.map(s => '<h2>' + esc(s[0]) + '</h2><p>' + esc(s[1]) + '</p>').join('') +
+    const toc = secs.length > 8 ? '<nav class="toc" aria-label="' + esc(t('toc')) + '"><b>' + t('toc') + '</b><ol>' + secs.map((x, i) => '<li><button type="button" data-toc="s' + i + '">' + esc(x[0]) + '</button></li>').join('') + '</ol></nav>' : '';
+    return '<div class="page"><div class="wrap legal"><div class="crumbs"><a href="#/">' + t('home') + '</a> / ' + esc(title) + '</div><h1>' + esc(title) + '</h1>' + toc +
+      secs.map((x, i) => '<h2 id="s' + i + '">' + esc(x[0]) + '</h2><p>' + esc(x[1]) + '</p>').join('') +
+      (id === 'privacy' ? '<p><a class="btn primary" href="#/privacy-request">' + t('pr.link') + '</a></p>' : '') +
       (id === 'ccpa' ? '<label class="switch"><input type="checkbox" id="optOut"' + (store.get('optout', false) ? ' checked' : '') + '><span>' + esc(title) + '</span></label>' : '') +
       '<p class="muted small">' + (lang === 'ar' ? 'آخر تحديث: أكتوبر 2026. ' : 'Last updated: October 2026. ') + (lang === 'ar' ? 'نص تجريبي للمراجعة، يُستبدل بنص يعتمده المستشار القانوني قبل الإطلاق.' : 'Prototype text for review. Replace with copy approved by legal counsel before launch.') + '</p></div></div>';
+  }
+  // Privacy request (data subject rights) form; the prototype keeps requests in this browser only.
+  function privacyRequestPage() {
+    const types = ['access', 'correct', 'delete', 'restrict', 'port', 'object', 'consent', 'optout'];
+    return '<div class="page"><div class="wrap legal"><div class="crumbs"><a href="#/">' + t('home') + '</a> / <a href="#/legal/privacy">' + t('foot.privacy') + '</a> / ' + t('pr.title') + '</div><h1>' + t('pr.title') + '</h1><p>' + t('pr.sub') + '</p>' +
+      '<form class="pr-form" id="prForm" novalidate><label class="al-f"><span>' + t('pr.type') + '</span><select name="type">' + types.map(k => '<option value="' + k + '">' + t('pr.t.' + k) + '</option>').join('') + '</select></label>' +
+      '<label class="al-f"><span>' + t('pr.name') + '</span><input type="text" name="name" autocomplete="name" value="' + esc(user ? user.name : '') + '"></label>' +
+      '<label class="al-f"><span>' + t('pr.email') + '</span><input type="email" name="email" autocomplete="email" value="' + esc(user ? user.email : '') + '"></label>' +
+      '<label class="al-f"><span>' + t('pr.details') + '</span><textarea name="details" rows="4"></textarea></label>' +
+      '<label class="switch"><input type="checkbox" name="confirm"><span>' + t('pr.confirm') + '</span></label>' +
+      '<p class="form-err" id="prErr" hidden></p><button class="btn primary" type="submit">' + t('pr.send') + '</button><p class="muted small">' + t('pr.demo') + '</p></form></div></div>';
   }
   // Extra copy for the redesigned About page (the long text itself stays in ABOUT).
   const ABOUT_UI = {
@@ -980,6 +1093,7 @@
     } else if (seg[0] === 'deals') { title = t('dealsT') + ' | ' + brand; }
     else if (seg[0] === 'coupons') { title = t('cp.title') + ' | ' + brand; }
     else if (seg[0] === 'about') { title = ABOUT[lang].title + ' | ' + brand; }
+    else if (seg[0] === 'privacy-request') { title = t('pr.title') + ' | ' + brand; }
     else if (seg[0] === 'legal' && LEGAL[seg[1]]) { title = (LEGAL[seg[1]][lang] || LEGAL[seg[1]].en)[0] + ' | ' + brand; }
     document.title = title; md.content = desc;
     let can = $('link[rel=canonical]'); if (!can) { can = document.createElement('link'); can.rel = 'canonical'; document.head.appendChild(can); }
@@ -1008,6 +1122,7 @@
     else if (seg[0] === 'alerts') { tab = 'alerts'; html = savedPage('alert'); }
     else if (seg[0] === 'coupons') { tab = 'search'; html = couponsPage(params.get('cat')); }
     else if (seg[0] === 'about') { tab = 'home'; html = aboutPage(); }
+    else if (seg[0] === 'privacy-request') { tab = 'home'; html = privacyRequestPage(); }
     else if (seg[0] === 'legal') { tab = 'home'; html = legalPage(seg[1]); }
     else if (seg[0] === 'account') { tab = 'home'; html = accountPage(); }
     else html = notFound();
@@ -1043,6 +1158,16 @@
   /* ---------- events ---------- */
   function init() {
     applyLang();
+    document.addEventListener('click', e => { const b = e.target.closest('[data-toc]'); if (b) { const el = document.getElementById(b.dataset.toc); if (el) el.scrollIntoView({ block: 'start' }); } });
+    document.addEventListener('submit', e => {
+      if (e.target.id !== 'prForm') return;
+      e.preventDefault();
+      const f = e.target, err = $('#prErr'), email = f.email.value.trim();
+      if (!f.name.value.trim() || !/^\S+@\S+\.\S+$/.test(email) || !f.confirm.checked) { err.textContent = t('pr.err'); err.hidden = false; return; }
+      const ref = 'PR-' + Date.now().toString(36).toUpperCase();
+      const all = store.get('privacyRequests', []); all.push({ ref, type: f.type.value, name: f.name.value.trim(), email, details: f.details.value.trim(), at: Date.now() }); store.set('privacyRequests', all);
+      f.outerHTML = '<div class="pr-done"><h2>' + t('pr.doneT') + '</h2><p>' + t('pr.doneP', { r: '<b>' + ref + '</b>', e: esc(email) }) + '</p></div>';
+    });
     document.addEventListener('change', e => { if (e.target.id === 'sortSel') { F.sort = e.target.value; paintListing(); } });
     $('#marketSelect').addEventListener('change', e => {
       market = e.target.value; currency = null; store.set('market', market); store.set('currency', null); applyLang(); route();
