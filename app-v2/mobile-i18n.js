@@ -33,6 +33,7 @@ window.APP_I18N = {
     'profile.version': 'Version {v} · prototype',
 
     'welcome.t1': 'Compare', 'welcome.t2': 'Buy', 'welcome.t3': 'Save',
+    'show.label': 'Best prices right now', 'show.sorting': 'Sorting {n} stores by total price…', 'show.sorted': 'Cheapest first, delivery included', 'show.save': 'Save {x}',
     'scan.title': 'Search by photo or barcode', 'scan.photo': 'Search by photo', 'scan.photo.d': 'Take or choose a picture of a product to find it.',
     'scan.barcode': 'Scan a barcode', 'scan.barcode.d': 'Point your camera at the barcode on the box.',
     'scan.entry': 'Or type the barcode number', 'scan.entry.ph': 'e.g. 6291234567895', 'scan.entry.go': 'Find',
@@ -79,6 +80,7 @@ window.APP_I18N = {
     'profile.version': 'الإصدار {v} · نموذج أولي',
 
     'welcome.t1': 'قارن', 'welcome.t2': 'اشترِ', 'welcome.t3': 'وفّر',
+    'show.label': 'أفضل الأسعار الآن', 'show.sorting': 'جارٍ ترتيب {n} متاجر حسب السعر الإجمالي…', 'show.sorted': 'الأرخص أولًا، شاملًا التوصيل', 'show.save': 'وفّر {x}',
     'scan.title': 'ابحث بالصورة أو الباركود', 'scan.photo': 'البحث بالصورة', 'scan.photo.d': 'التقط صورة لمنتج أو اخترها لنجده لك.',
     'scan.barcode': 'مسح الباركود', 'scan.barcode.d': 'وجّه الكاميرا نحو الباركود على العلبة.',
     'scan.entry': 'أو اكتب رقم الباركود', 'scan.entry.ph': 'مثال: 6291234567895', 'scan.entry.go': 'بحث',

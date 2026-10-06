@@ -29,6 +29,8 @@
       'sa.chart': '30-day price', 'sa.alert': 'Price alert reached', 'sa.target': 'Target {x}',
       'about.sec': 'About DOABNO', 'about.stat1': 'markets', 'about.stat2': 'languages', 'about.stat3': 'to use', 'about.free': 'Free', 'about.h': 'Made for smarter shoppers', 'about.more': 'Learn more about us', 'about.mission': 'Our mission', 'about.vision': 'Our vision', 'about.promise': 'What we stand for',
       'promo.pill': 'Smart shopping', 'promo.title': 'Compare. Buy. Save.', 'promo.text': 'Check every store before you check out. DOABNO shows the lowest total price, delivery included, so the best deal is never a guess.', 'promo.cta': 'See today’s deals', 'promo.cta2': 'About DOABNO', 'pn.drop': 'Price dropped', 'pn.code': 'Promo code', 'pn.free': 'Free delivery', 'pn.best': 'Best price', 'promo.alt': 'A smiling shopper holding a phone with offers appearing from the screen',
+      'sv.favsSub': 'Products you saved, with the lowest total price today.', 'sv.nSaved': '{n} saved', 'sv.nDrops': '{n} with price drops', 'sv.lowest': 'Lowest {x}', 'sv.browse': 'Browse deals', 'sv.nAlerts': '{n} active alerts', 'sv.nReached': '{n} reached', 'sv.closest': 'Closest to target: {p}',
+      'al.reachedT': 'Target reached', 'al.below': 'Now {x} below your target', 'al.above': '{x} above your target', 'al.view': 'View product', 'sv.emptyF': 'No saved products yet', 'sv.emptyA': 'No price alerts yet', 'sv.emptyFd': 'Tap the heart on any product to keep it here and watch its price.', 'sv.emptyAd': 'Open a product and tap “Set price alert”. We will tell you when it drops.', 'sv.unsave': 'Remove from saved',
       'foot.imprint': 'Legal notice', 'foot.prices': 'Price information', 'foot.access': 'Accessibility', 'foot.privReq': 'Privacy request', 'toc': 'On this page',
       'pr.title': 'Privacy request', 'pr.sub': 'Use this form to access, correct or delete your data, or to use any other privacy right. We reply within 30 days.', 'pr.type': 'What would you like to do?',
       'pr.t.access': 'Access my data', 'pr.t.correct': 'Correct my data', 'pr.t.delete': 'Delete my data', 'pr.t.restrict': 'Restrict processing', 'pr.t.port': 'Get a portable copy', 'pr.t.object': 'Object to processing or marketing', 'pr.t.consent': 'Withdraw my consent', 'pr.t.optout': 'Opt out of sale or sharing',
@@ -42,7 +44,7 @@
       'ac.signup': 'Create account', 'ac.name': 'Full name', 'ac.have': 'Already have an account? Sign in', 'ac.new': 'New to DOABNO? Create an account', 'ac.title': 'My profile', 'ac.prefs': 'Notifications', 'ac.notif': 'Email me when a price alert triggers', 'ac.promo': 'Send me deals and coupons',
       'ac.data': 'Your data', 'ac.dataD': 'You can download everything we keep about you, or delete your account. In production this also removes server-side records (PDPL, GDPR and CCPA rights).', 'ac.export': 'Download my data', 'ac.delete': 'Delete my account', 'ac.signout': 'Sign out', 'ac.deleted': 'Account deleted', 'ac.saved': 'Saved',
       'ac.consent': 'I agree to the Terms of use and Privacy policy', 'ac.hello': 'Hello, {n}', 'ac.confirmDel': 'Delete your account and all saved data from this browser?', 'ac.pw8': 'Password (8+ characters)', 'ac.err': 'Enter a valid email and a password of 8+ characters.', 'ac.errName': 'Enter your name and accept the terms.', 'ac.signedUp': 'Welcome to DOABNO', 'ac.demo': 'Demo only: accounts are stored in this browser and nothing is sent.', 'viz.s0': 'Searching…', 'viz.s1': 'Checking {n} stores…', 'viz.s2': 'Comparing total prices…', 'viz.s3': 'Lowest price found', 'viz.s4': 'Price history · 30 days',
-      'viz.low': 'Lowest total price', 'viz.save': 'Save {x}', 'viz.more': '+ {n} more stores', 'viz.drop': '↓ {n}% below 30-day average', 'viz.today': 'Best price today', 'viz.alt': 'Example: {p} compared across {n} stores, lowest total {x}.', 'app.soon': 'Coming soon', 'app.pill': 'Coming soon', 'app.title': 'Compare prices wherever you go.', 'app.text': 'The DOABNO app is coming soon for iPhone and Android.',
+      'viz.low': 'Lowest total price', 'viz.save': 'Save {x}', 'viz.more': '+ {n} more stores', 'viz.drop': '↓ {n}% below 30-day average', 'viz.today': 'Best price today', 'viz.alt': 'Example: {p} compared across {n} stores, lowest total {x}.', 'app.soon': 'Coming soon', 'app.pill': 'Coming soon', 'app.title2': 'Get the DOABNO app', 'app.alerts': 'Price alerts', 'app.target': 'Target {x}', 'app.hit': 'Target reached', 'app.deals': 'Today’s drops', 'app.title': 'Compare prices wherever you go.', 'app.text': 'The DOABNO app is coming soon for iPhone and Android.',
       'app.f1': '<b>Compare prices</b> across every store we track', 'app.f2': '<b>Get notified</b> when a price drops', 'app.f3': '<b>Keep saved products</b> in sync',
       'app.mock.search': 'Search products', 'app.mock.alert': 'Price dropped', 'app.mock.now': 'Now {p} at {s}', 'app.mock.saved': 'Saved',
       'sec.cats': 'Popular categories', 'sec.drops': 'Biggest price drops today', 'sec.pop': 'Popular comparisons', 'sec.how': 'How DOABNO works', 'sec.stores': 'Trusted stores in {m}',
@@ -78,6 +80,8 @@
       'sa.chart': 'السعر خلال 30 يومًا', 'sa.alert': 'وصل تنبيه السعر', 'sa.target': 'المستهدف {x}',
       'about.sec': 'عن دوابنو', 'about.stat1': 'أسواق', 'about.stat2': 'لغتان', 'about.stat3': 'للاستخدام', 'about.free': 'مجاني', 'about.h': 'صُنع لمتسوّق أذكى', 'about.more': 'اعرف المزيد عنا', 'about.mission': 'رسالتنا', 'about.vision': 'رؤيتنا', 'about.promise': 'ما نؤمن به',
       'promo.pill': 'تسوّق بذكاء', 'promo.title': 'قارن. اشترِ. وفّر.', 'promo.text': 'تحقق من كل المتاجر قبل أن تدفع. يعرض دوابنو أقل سعر إجمالي شاملًا التوصيل، فلا يبقى أفضل عرض مجرد تخمين.', 'promo.cta': 'شاهد عروض اليوم', 'promo.cta2': 'عن دوابنو', 'pn.drop': 'انخفض السعر', 'pn.code': 'كود الخصم', 'pn.free': 'توصيل مجاني', 'pn.best': 'أفضل سعر', 'promo.alt': 'متسوقة مبتسمة تمسك هاتفًا وتظهر منه العروض',
+      'sv.favsSub': 'المنتجات التي حفظتها مع أقل سعر إجمالي اليوم.', 'sv.nSaved': '{n} محفوظ', 'sv.nDrops': '{n} بانخفاض في السعر', 'sv.lowest': 'الأقل {x}', 'sv.browse': 'تصفّح العروض', 'sv.nAlerts': '{n} تنبيهات نشطة', 'sv.nReached': '{n} وصلت للمستهدف', 'sv.closest': 'الأقرب للمستهدف: {p}',
+      'al.reachedT': 'وصل للمستهدف', 'al.below': 'السعر الآن أقل بـ {x} من المستهدف', 'al.above': 'أعلى بـ {x} من المستهدف', 'al.view': 'عرض المنتج', 'sv.emptyF': 'لا توجد منتجات محفوظة بعد', 'sv.emptyA': 'لا توجد تنبيهات أسعار بعد', 'sv.emptyFd': 'اضغط على القلب في أي منتج لتحتفظ به هنا وتتابع سعره.', 'sv.emptyAd': 'افتح منتجًا واضغط «فعّل تنبيه السعر». سنخبرك عند انخفاضه.', 'sv.unsave': 'إزالة من المحفوظات',
       'foot.imprint': 'الإشعار القانوني', 'foot.prices': 'معلومات الأسعار', 'foot.access': 'إمكانية الوصول', 'foot.privReq': 'طلب خصوصية', 'toc': 'في هذه الصفحة',
       'pr.title': 'طلب خصوصية', 'pr.sub': 'استخدم هذا النموذج للاطلاع على بياناتك أو تصحيحها أو حذفها أو لممارسة أي حق آخر في الخصوصية. نرد خلال 30 يومًا.', 'pr.type': 'ماذا تريد أن تفعل؟',
       'pr.t.access': 'الاطلاع على بياناتي', 'pr.t.correct': 'تصحيح بياناتي', 'pr.t.delete': 'حذف بياناتي', 'pr.t.restrict': 'تقييد المعالجة', 'pr.t.port': 'الحصول على نسخة قابلة للنقل', 'pr.t.object': 'الاعتراض على المعالجة أو التسويق', 'pr.t.consent': 'سحب موافقتي', 'pr.t.optout': 'إيقاف البيع أو المشاركة',
@@ -91,7 +95,7 @@
       'ac.signup': 'إنشاء حساب', 'ac.name': 'الاسم الكامل', 'ac.have': 'لديك حساب؟ سجّل الدخول', 'ac.new': 'جديد في دوابنو؟ أنشئ حسابًا', 'ac.title': 'ملفي الشخصي', 'ac.prefs': 'الإشعارات', 'ac.notif': 'أرسل لي بريدًا عند تفعيل تنبيه سعر', 'ac.promo': 'أرسل لي العروض والكوبونات',
       'ac.data': 'بياناتك', 'ac.dataD': 'يمكنك تنزيل كل ما نحتفظ به عنك أو حذف حسابك. في النسخة الفعلية يشمل ذلك السجلات على الخادم (حقوق PDPL وGDPR وCCPA).', 'ac.export': 'تنزيل بياناتي', 'ac.delete': 'حذف حسابي', 'ac.signout': 'تسجيل الخروج', 'ac.deleted': 'تم حذف الحساب', 'ac.saved': 'تم الحفظ',
       'ac.consent': 'أوافق على شروط الاستخدام وسياسة الخصوصية', 'ac.hello': 'مرحبًا، {n}', 'ac.confirmDel': 'هل تريد حذف حسابك وكل البيانات المحفوظة في هذا المتصفح؟', 'ac.pw8': 'كلمة المرور (8 أحرف فأكثر)', 'ac.err': 'أدخل بريدًا صحيحًا وكلمة مرور من 8 أحرف فأكثر.', 'ac.errName': 'أدخل اسمك ووافق على الشروط.', 'ac.signedUp': 'أهلاً بك في دوابنو', 'ac.demo': 'نسخة تجريبية: الحسابات تُحفظ في هذا المتصفح ولا يُرسل شيء.', 'viz.s0': 'جارٍ البحث…', 'viz.s1': 'فحص {n} متاجر…', 'viz.s2': 'مقارنة الأسعار الإجمالية…', 'viz.s3': 'تم العثور على أقل سعر', 'viz.s4': 'سجل الأسعار · 30 يومًا',
-      'viz.low': 'أقل سعر إجمالي', 'viz.save': 'وفّر {x}', 'viz.more': '+ {n} متاجر أخرى', 'viz.drop': '↓ {n}% أقل من متوسط 30 يومًا', 'viz.today': 'أفضل سعر اليوم', 'viz.alt': 'مثال: مقارنة {p} عبر {n} متاجر، أقل سعر إجمالي {x}.', 'app.soon': 'قريبًا', 'app.pill': 'قريبًا', 'app.title': 'قارن الأسعار أينما كنت.', 'app.text': 'تطبيق دوابنو قادم قريبًا لأجهزة iPhone وAndroid.',
+      'viz.low': 'أقل سعر إجمالي', 'viz.save': 'وفّر {x}', 'viz.more': '+ {n} متاجر أخرى', 'viz.drop': '↓ {n}% أقل من متوسط 30 يومًا', 'viz.today': 'أفضل سعر اليوم', 'viz.alt': 'مثال: مقارنة {p} عبر {n} متاجر، أقل سعر إجمالي {x}.', 'app.soon': 'قريبًا', 'app.pill': 'قريبًا', 'app.title2': 'حمّل تطبيق دوابنو', 'app.alerts': 'تنبيهات الأسعار', 'app.target': 'المستهدف {x}', 'app.hit': 'وصل للمستهدف', 'app.deals': 'انخفاضات اليوم', 'app.title': 'قارن الأسعار أينما كنت.', 'app.text': 'تطبيق دوابنو قادم قريبًا لأجهزة iPhone وAndroid.',
       'app.f1': '<b>قارن الأسعار</b> بين كل المتاجر التي نتابعها', 'app.f2': '<b>احصل على تنبيه</b> عند انخفاض السعر', 'app.f3': '<b>حافظ على منتجاتك المحفوظة</b> متزامنة',
       'app.mock.search': 'ابحث عن منتج', 'app.mock.alert': 'انخفض السعر', 'app.mock.now': 'الآن {p} لدى {s}', 'app.mock.saved': 'تم الحفظ',
       'sec.cats': 'الأقسام الشائعة', 'sec.drops': 'أكبر انخفاضات الأسعار اليوم', 'sec.pop': 'مقارنات شائعة', 'sec.how': 'كيف يعمل دوابنو', 'sec.stores': 'متاجر موثوقة في {m}',
@@ -647,22 +651,31 @@
   function appDemoStop() { appDemo.token++; if (appDemo.io) { appDemo.io.disconnect(); appDemo.io = null; } }
   function appBanner() {
     const feat = items().find(i => i.p.id === 'iphone-17-pro') || items()[0];
+    // Middle phone: the app's product page (photo, lowest total price, other stores, price trend, visit button).
     const phone = feat ? (function () {
-      const rows = feat.offers.filter(o => o.inStock).slice(0, 4).sort((x, y) => y.total - x.total);
-      const best = rows.reduce((m, o) => (o.total < m.total ? o : m), rows[0]);
-      const prod = (cls) => '<div class="' + cls + '"><span class="pd-img">' + thumb(feat.p, 44, 44) + '</span><div><b dir="auto">' + esc(nm(feat.p)) + '</b><small>' + t('from') + ' <b class="money">' + moneyText(best.total) + '</b></small></div></div>';
-      return '<div class="phone" id="phone" data-s="0"><div class="phone-screen">' +
-        '<div class="pd-top"><img class="phone-logo" src="assets/brand/doabno-logo-primary.svg" alt="" width="84" height="16"><span class="pd-heart" id="pdHeart">' + icon.heart(false) + '</span></div>' +
-        '<div class="pd-layer pd-s1"><div class="pd-search">' + icon.search.replace('width="20" height="20"', 'width="14" height="14"') + '<span class="pd-ph">' + t('app.mock.search') + '</span><span class="pd-q" id="pdQ"></span><i class="pd-caret"></i></div>' + prod('pd-sugg') + '</div>' +
-        '<div class="pd-layer pd-s2"><div class="pd-prod"><span class="pd-img">' + thumb(feat.p, 44, 44) + '</span><div><b dir="auto">' + esc(nm(feat.p)) + '</b><small>' + t('from') + ' <b class="money">' + moneyText(best.total) + '</b></small><small>' + storesLabel(feat.n) + ' · ' + t('verified', { n: best.updatedMin }) + '</small></div></div>' +
-        '<ul class="pd-rows">' + rows.map((o, i) => '<li class="' + (o === best ? 'best' : '') + '" style="--i:' + i + '">' + dot(o.store) + '<span class="ps">' + esc(o.store.name) + '</span><span class="pp money">' + moneyText(o.total) + '</span><span class="pm">' + icon.check + '</span></li>').join('') + '</ul></div>' +
-        '<div class="pd-layer pd-s3"><div class="pd-notif"><span class="ic">' + icon.bell + '</span><div><b>' + t('app.mock.alert') + '</b><small dir="auto">' + esc(nm(feat.p)) + '</small><small>' + t('app.mock.now', { p: moneyText(best.total), s: esc(best.store.name) }) + '</small></div></div></div>' +
-        '<div class="pd-layer pd-s4">' + prod('pd-sugg') + '<div class="pd-saved">' + icon.heart(true) + t('app.mock.saved') + '</div></div></div></div>';
+      const rows = feat.offers.filter(o => o.inStock).slice().sort((x, y) => x.total - y.total).slice(0, 4);
+      const best = rows[0];
+      const hist = D.historyFor(feat.p, market, 30), mn = Math.min.apply(null, hist), mx = Math.max.apply(null, hist), rg = (mx - mn) || 1;
+      const path = hist.map((x, i) => (i ? 'L' : 'M') + (i * 200 / (hist.length - 1)).toFixed(1) + ' ' + (4 + (1 - (x - mn) / rg) * 36).toFixed(1)).join(' ');
+      return '<div class="phone main"><div class="phone-screen mp">' +
+        '<div class="pd-top"><img class="phone-logo" src="assets/brand/doabno-logo-primary.svg" alt="" width="84" height="16"><span class="pd-heart on">' + icon.heart(true) + '</span></div>' +
+        '<div class="mp-hero">' + thumb(feat.p, 320, 320) + (feat.p.drop >= 3 ? '<span class="mp-drop">↓ ' + Math.round(feat.p.drop) + '%</span>' : '') + '</div>' +
+        '<b class="mp-name" dir="auto">' + esc(nm(feat.p)) + '</b><small class="mp-meta">' + storesLabel(feat.n) + ' · ' + t('verified', { n: best.updatedMin }) + '</small>' +
+        '<div class="mp-best"><small>' + t('viz.low') + '</small><div class="mp-bp"><b class="money">' + moneyText(best.total) + '</b>' + dot(best.store) + '</div><span>' + esc(best.store.name) + ' · ' + t('bestTag') + '</span></div>' +
+        '<ul class="mp-rows">' + rows.slice(1).map(o => '<li>' + dot(o.store) + '<span>' + esc(o.store.name) + '</span><b class="money">' + moneyText(o.total) + '</b></li>').join('') + '</ul>' +
+        '<div class="mp-chart"><svg viewBox="0 0 200 44" preserveAspectRatio="none"><path d="' + path + ' L200 44 L0 44 Z" fill="rgba(31,169,113,.12)"/><path d="' + path + '" fill="none" stroke="#1FA971" stroke-width="2" vector-effect="non-scaling-stroke"/></svg></div>' +
+        '<span class="mp-btn">' + t('p.visit', { s: esc(best.store.name) }) + '</span></div></div>';
     })() : '';
-    return '<section class="sec app-sec"><div class="wrap"><div class="app-promo"><div class="app-copy"><span class="app-pill">' + t('app.pill') + '</span><h2>' + t('app.title') + '</h2><p class="app-text">' + t('app.text') + '</p>' +
-      '<ul class="app-features">' + ['app.f1', 'app.f2', 'app.f3'].map(k => '<li>' + icon.check + '<span>' + t(k) + '</span></li>').join('') + '</ul>' +
-      '<div class="store-badges"><span class="store-badge">' + storeLogo(APPLE) + '<span><small>' + t('app.soon') + '</small>App Store</span></span><span class="store-badge">' + storeLogo(PLAY) + '<span><small>' + t('app.soon') + '</small>Google Play</span></span></div></div>' +
-      '<div class="app-visual" aria-hidden="true">' + phone + '</div></div></div></section>';
+    // side phones: static screens of the app (price alerts on one side, today's drops on the other)
+    const pool = items().filter(i => i.p.photos && i.p.photos[0]);
+    const alertsPh = '<div class="phone side"><div class="phone-screen"><div class="pd-top"><img class="phone-logo" src="assets/brand/doabno-logo-primary.svg" alt="" width="84" height="16"></div><h4 class="sp-h">' + t('app.alerts') + '</h4>' +
+      pool.slice(1, 5).map((i, k) => '<div class="sp-row"><span class="sp-img">' + thumb(i.p, 40, 40) + '</span><span class="sp-t"><b dir="auto">' + esc(nm(i.p)) + '</b><small>' + (k === 0 ? '<em>' + t('app.hit') + '</em>' : t('app.target', { x: moneyText(i.best.total * 0.9) })) + '</small></span></div>').join('') + '</div></div>';
+    const dealsPh = '<div class="phone side"><div class="phone-screen"><div class="pd-top"><img class="phone-logo" src="assets/brand/doabno-logo-primary.svg" alt="" width="84" height="16"></div><h4 class="sp-h">' + t('app.deals') + '</h4>' +
+      pool.slice().sort((a, b) => b.p.drop - a.p.drop).slice(0, 4).map(i => '<div class="sp-row"><span class="sp-img">' + thumb(i.p, 40, 40) + '</span><span class="sp-t"><b dir="auto">' + esc(nm(i.p)) + '</b><small><strong class="money">' + moneyText(i.best.total) + '</strong><em class="dn">↓ ' + Math.round(i.p.drop) + '%</em></small></span></div>').join('') + '</div></div>';
+    return '<section class="sec app-sec"><div class="wrap"><div class="app-promo2"><span class="app-pill">' + t('app.pill') + '</span>' +
+      '<h2>' + t('app.title') + '<span>' + t('app.title2') + '</span></h2><p class="app-text">' + t('app.text') + '</p>' +
+      '<div class="store-badges"><span class="store-badge">' + storeLogo(APPLE) + '<span><small>' + t('app.soon') + '</small>App Store</span></span><span class="store-badge">' + storeLogo(PLAY) + '<span><small>' + t('app.soon') + '</small>Google Play</span></span></div>' +
+      '<div class="app-phones" aria-hidden="true">' + alertsPh + phone + dealsPh + '</div></div></div></section>';
   }
   function appDemoInit() {
     appDemoStop();
@@ -788,7 +801,7 @@
   function home() {
     const all = items();
     const feat = all.find(i => i.p.id === 'iphone-17-pro') || all[0];
-    const popularRows = all.slice().sort((a, b) => b.p.reviews - a.p.reviews).slice(0, 6);
+    const popularRows = all.slice().sort((a, b) => b.p.reviews - a.p.reviews).slice(0, 8);
     const drops = all.slice().sort((a, b) => b.p.drop - a.p.drop).slice(0, 4);
     const vizHtml = '<div class="viz-wrap"><div class="viz" id="viz"></div><p class="sr" id="vizAlt"></p><a class="viz-cta" id="vizCta" href="#/p/' + feat.p.id + '"></a></div>';
     const trust = ['trust.1', 'trust.2', 'trust.3', 'trust.4'].map(k => '<li>' + icon.check + t(k) + '</li>').join('');
@@ -813,7 +826,7 @@
       '<section class="sec tight"><div class="wrap"><h2 class="sr">' + t('sec.cats') + '</h2><div class="circles">' + D.CATEGORIES.flatMap(c => c.subs.map(s => ({ c, s, it: all.find(i => i.p.cat === c.id && i.p.sub === s.id) }))).map(({ c, s, it }) =>
         '<a class="circle" href="#/c/' + c.id + '/' + s.id + '"><span class="circle-img" style="--tint:' + c.tint + '">' + (it ? thumb(it.p, 144, 144) : '') + '</span><span class="circle-label">' + esc(nm(s)) + '</span></a>').join('') + '</div></div></section>' +
       '<section class="sec alt"><div class="wrap"><div class="sec-h"><h2>' + t('sec.drops') + '</h2><a href="#/deals">' + t('all') + '</a></div><div class="grid4">' + drops.map(productCard).join('') + '</div></div></section>' +
-      '<section class="sec"><div class="wrap"><div class="sec-h"><h2>' + t('sec.pop') + '</h2></div><div class="cmplist">' + popularRows.map(rowItem).join('') + '</div></div></section>' +
+      '<section class="sec"><div class="wrap"><div class="sec-h"><h2>' + t('sec.pop') + '</h2></div><div class="sq-grid pop">' + popularRows.map(listCard).join('') + '</div></div></section>' +
       '<section class="sec alt"><div class="wrap"><div class="sec-h"><h2>' + t('sec.how') + '</h2></div><div class="steps">' + [1, 2, 3].map(n => '<div class="step"><div class="n">' + n + '</div><h3>' + t('how.' + n) + '</h3><p>' + t('how.' + n + 'd') + '</p></div>').join('') + '</div></div></section>' +
       aboutSection() +
       '<section class="sec"><div class="wrap"><div class="sec-h"><h2>' + t('sec.stores', { m: esc(nm(MK[market])) }) + '</h2></div><div class="tiles">' + D.STORES[market].slice(0, 12).map(s => '<a class="tile" href="#/search?q=' + encodeURIComponent(s.name) + '">' + dot(s, true) + '<span>' + esc(s.name) + '</span></a>').join('') + '</div></div></section>' +
@@ -923,12 +936,33 @@
   }
 
   function savedPage(kind) {
-    const ids = kind === 'fav' ? favs : Object.keys(alerts);
-    const list = ids.map(byId).filter(Boolean);
-    const head = '<div class="page"><div class="wrap"><div class="page-h"><div><h1>' + (kind === 'fav' ? t('favsT') : t('alertsT')) + '</h1>' + (kind === 'alert' ? '<p>' + t('alertsD') + '</p>' : '') + '</div></div>';
-    if (!list.length) return head + '<div class="empty"><h3>' + (kind === 'fav' ? t('favsE') : t('alertsE')) + '</h3></div></div></div>';
-    return head + '<div class="rows">' + list.map(i => kind === 'fav' ? rowItem(i) :
-      '<div class="row"><div class="im">' + thumb(i.p, 84, 84) + '</div><div><h3 dir="auto"><a href="#/p/' + i.p.id + '">' + esc(nm(i.p)) + '</a></h3><div class="meta"><span>' + t('target', { x: moneyText(alerts[i.p.id].target) }) + '</span><span>' + t('now', { x: moneyText(i.best.total) }) + '</span></div></div><div class="end"><button class="btn ghost sm" type="button" data-rm="' + i.p.id + '">' + t('remove') + '</button></div></div>').join('') + '</div></div></div>';
+    const isFav = kind === 'fav';
+    const list = (isFav ? favs : Object.keys(alerts)).map(byId).filter(Boolean);
+    const heartI = '<svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>';
+    const bellI = '<svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M6 16V11a6 6 0 1112 0v5l2 2H4l2-2zM10 20a2 2 0 004 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>';
+    if (!list.length) {
+      return '<div class="page"><div class="wrap"><div class="sv-hero"><div><h1>' + (isFav ? t('favsT') : t('alertsT')) + '</h1><p>' + (isFav ? t('sv.favsSub') : t('alertsD')) + '</p></div></div>' +
+        '<div class="sv-empty"><span class="sv-empty-ic">' + (isFav ? heartI : bellI) + '</span><h3>' + (isFav ? t('sv.emptyF') : t('sv.emptyA')) + '</h3><p>' + (isFav ? t('sv.emptyFd') : t('sv.emptyAd')) + '</p><a class="btn primary" href="#/deals">' + t('sv.browse') + '</a></div></div></div>';
+    }
+    let stats, body;
+    if (isFav) {
+      const drops = list.filter(i => i.p.drop >= 3).length, low = list.reduce((m, i) => (i.best.total < m.best.total ? i : m), list[0]);
+      stats = [['↓', t('sv.nDrops', { n: drops })], ['★', t('sv.lowest', { x: moneyText(low.best.total) })]];
+      body = '<div class="sq-grid sv-grid">' + list.map(i => '<div class="sq-wrap">' + listCard(i) + '<button class="sq-heart" type="button" data-rmfav="' + i.p.id + '" aria-label="' + esc(t('sv.unsave')) + '" title="' + esc(t('sv.unsave')) + '">' +
+        '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z" fill="currentColor"/></svg></button></div>').join('') + '</div>';
+    } else {
+      const rows = list.map(i => { const tg = alerts[i.p.id].target, now = i.best.total; return { i, tg, now, hit: now <= tg, gap: Math.abs(now - tg), pc: Math.max(6, Math.min(100, tg / now * 100)) }; });
+      const reached = rows.filter(r => r.hit).length, open = rows.filter(r => !r.hit).sort((x, y) => x.gap / x.now - y.gap / y.now)[0];
+      stats = [['✓', t('sv.nReached', { n: reached })]].concat(open ? [['◎', t('sv.closest', { p: esc(nm(open.i.p)).slice(0, 26) })]] : []);
+      body = '<div class="al-grid">' + rows.map(r => '<article class="al-card' + (r.hit ? ' hit' : '') + '"><a class="al-im" href="#/p/' + r.i.p.id + '">' + thumb(r.i.p, 140, 140) + '</a><div class="al-b">' +
+        '<div class="al-top"><h3 dir="auto"><a href="#/p/' + r.i.p.id + '">' + esc(nm(r.i.p)) + '</a></h3><span class="al-st">' + (r.hit ? t('al.reachedT') : '↓ ' + esc(moneyText(r.gap))) + '</span></div>' +
+        '<div class="al-px"><div><small>' + t('now', { x: '' }).trim() + '</small><b>' + money(r.now) + '</b></div><div><small>' + t('target', { x: '' }).replace(/\s*$/, '') + '</small><b class="tg">' + money(r.tg) + '</b></div></div>' +
+        '<div class="al-bar" role="progressbar" aria-valuenow="' + Math.round(r.pc) + '" aria-valuemin="0" aria-valuemax="100"><i style="width:' + r.pc.toFixed(0) + '%"></i></div>' +
+        '<p class="al-note">' + (r.hit ? t('al.below', { x: moneyText(r.gap) }) : t('al.above', { x: moneyText(r.gap) })) + (alerts[r.i.p.id].email ? ' · ' + esc(alerts[r.i.p.id].email) : '') + '</p>' +
+        '<div class="al-act"><a class="btn primary sm" href="#/p/' + r.i.p.id + '">' + t('al.view') + '</a><button class="btn ghost sm" type="button" data-rm="' + r.i.p.id + '">' + t('remove') + '</button></div></div></article>').join('') + '</div>';
+    }
+    return '<div class="page"><div class="wrap"><div class="sv-hero"><div><h1>' + (isFav ? t('favsT') : t('alertsT')) + '</h1><p>' + (isFav ? t('sv.favsSub') : t('alertsD')) + '</p></div>' +
+      '<div class="sv-stats"><span class="sv-stat main"><b>' + list.length + '</b>' + (isFav ? t('sv.nSaved', { n: '' }).trim() : t('sv.nAlerts', { n: '' }).trim()) + '</span>' + stats.map(x => '<span class="sv-stat"><i>' + x[0] + '</i>' + x[1] + '</span>').join('') + '</div></div>' + body + '</div></div>';
   }
   function couponsPage(cat) {
     const list = D.COUPONS.filter(c => c.market === market && c.active !== false && c.days >= 0);
@@ -1156,7 +1190,21 @@
   }
 
   /* ---------- events ---------- */
+  // Demo data: on the first visit, fill Favorites and Price alerts so the pages are not empty (runs once; users can remove items).
+  function seedDemo() {
+    if (store.get('demoSeeded', false)) return;
+    store.set('demoSeeded', true);
+    if (!favs.length) { favs = ['sony-wh1000xm6', 'dyson-v15', 'nike-af1', 'dior-sauvage', 'nespresso-vertuo'].filter(id => byId(id)); store.set('favs', favs); }
+    if (!Object.keys(alerts).length) {
+      // one alert already reached (target above today's price), the others waiting below it
+      [['ps5-pro', 1.03], ['iphone-17-pro', .92], ['airpods-pro-3', .9], ['galaxy-s26-ultra', .88], ['apple-watch-11', .93]].forEach(([id, k]) => {
+        const it = byId(id); if (it) alerts[id] = { target: Math.floor(it.best.total * k) };
+      });
+      store.set('alerts', alerts);
+    }
+  }
   function init() {
+    seedDemo();
     applyLang();
     document.addEventListener('click', e => { const b = e.target.closest('[data-toc]'); if (b) { const el = document.getElementById(b.dataset.toc); if (el) el.scrollIntoView({ block: 'start' }); } });
     document.addEventListener('submit', e => {
@@ -1196,6 +1244,8 @@
         if (alerts[id]) { delete alerts[id]; store.set('alerts', alerts); updateCounts(); route(); } else openAlert(it);
         return;
       }
+      const rf = e.target.closest('[data-rmfav]');
+      if (rf) { e.preventDefault(); e.stopPropagation(); favs = favs.filter(x => x !== rf.dataset.rmfav); store.set('favs', favs); updateCounts(); route(); return; }
       const rm = e.target.closest('[data-rm]');
       if (rm) { delete alerts[rm.dataset.rm]; store.set('alerts', alerts); updateCounts(); route(); return; }
       const cp = e.target.closest('[data-copy]');

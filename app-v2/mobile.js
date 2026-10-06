@@ -373,17 +373,71 @@
     run();
   }
 
+  // Home showcase: a "price race". Stores line up with price bars, the rows re-sort themselves cheapest first,
+  // the winner turns green and the highest price is struck through to the lowest. Then the next product plays.
+  const rk = { token: 0, timers: [], raf: 0, i: 0 };
+  const RK_ROW = 46;
+  function showcaseProducts() {
+    return listed().filter(p => p.photos && p.photos[0] && offersOf(p).length >= 4).sort((a, b) => b.drop - a.drop).slice(0, 5);
+  }
+  function showcase() {
+    const list = showcaseProducts();
+    if (!list.length) return { html: '', ok: false };
+    return { ok: true, html: '<a class="rk" id="rk" href="#/p/' + list[0].id + '" aria-label="' + esc(t('show.label')) + '"><div class="rk-stage" id="rkStage"></div></a>' };
+  }
+  function rkStop() { rk.token++; rk.timers.forEach(clearTimeout); rk.timers = []; cancelAnimationFrame(rk.raf); }
+  function rkCount(el, from, to, cur, ms, token) {
+    const t0 = performance.now();
+    (function step(now) {
+      if (token !== rk.token || !el.isConnected) return;
+      const k = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - k, 3);
+      el.textContent = moneyText(from + (to - from) * e, cur);
+      if (k < 1) rk.raf = requestAnimationFrame(step);
+    })(t0);
+  }
+  function rkPlay(p) {
+    const root = $('#rk'), st = $('#rkStage'); if (!root || !st) return;
+    rkStop(); const token = rk.token;
+    root.href = '#/p/' + p.id;
+    const sm = summary(p), cur = sm.cur;
+    const sorted = sm.offers.slice().sort((a, b) => a.total - b.total).slice(0, 5);
+    const best = sorted[0], hi = sorted[sorted.length - 1];
+    // start in a scrambled order: most expensive first, then the rest shuffled by store name
+    const start = sorted.slice().sort((a, b) => (b === hi) - (a === hi) || a.store.name.localeCompare(b.store.name));
+    const lo = best.total, span = (hi.total - lo) || 1;
+    const rows = sorted.map(o => '<div class="rk-row' + (o === best ? ' best' : '') + '" data-to="' + sorted.indexOf(o) + '" style="top:' + start.indexOf(o) * RK_ROW + 'px;--w:' + Math.round(38 + 62 * (o.total - lo) / span) + '%">' +
+      storeLogo(o.store) + '<span class="rk-name">' + esc(o.store.name) + '</span><span class="rk-bar"><i></i></span><b class="rk-px">' + money(o.total, o.currency) + '</b><em>' + t('o.best') + '</em></div>').join('');
+    st.innerHTML = '<div class="rk-head"><span class="rk-ph">' + photo(p, 48, 48, 0, false) + '</span><span class="rk-h"><b>' + esc(L(p)) + '</b><small id="rkStatus">' + t('show.sorting', { n: sorted.length }) + '</small></span></div>' +
+      '<div class="rk-list" style="height:' + sorted.length * RK_ROW + 'px">' + rows + '</div>' +
+      '<div class="rk-foot"><span class="rk-pr"><span class="rk-was" id="rkWas">' + moneyText(hi.total, hi.currency) + '</span><b class="rk-now" id="rkNow">' + moneyText(hi.total, hi.currency) + '</b></span><span class="rk-save">' + t('show.save', { x: moneyText(hi.total - lo, cur) }) + '</span></div>';
+    st.className = 'rk-stage';
+    const at = (ms, fn) => rk.timers.push(setTimeout(() => { if (token === rk.token && st.isConnected) fn(); }, ms));
+    const finish = () => { $$('.rk-row', st).forEach(r => { r.style.top = (+r.dataset.to * RK_ROW) + 'px'; }); };
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { finish(); st.className = 'rk-stage p1 p2 p3'; $('#rkNow').textContent = moneyText(lo, cur); $('#rkStatus').textContent = t('show.sorted'); return; }
+    at(80, () => st.classList.add('p1'));                       // rows slide in, bars grow
+    at(1500, () => { st.classList.add('p2'); finish(); });      // rows re-sort cheapest first
+    at(2700, () => {                                             // winner, strike-through, saving
+      st.classList.add('p3'); $('#rkStatus').textContent = t('show.sorted');
+      rkCount($('#rkNow'), hi.total, lo, cur, 900, token);
+    });
+    at(6000, () => st.classList.add('out'));
+    at(6600, () => { const l = showcaseProducts(); rk.i = (rk.i + 1) % l.length; rkPlay(l[rk.i]); });
+  }
+  function runShowcase() {
+    const list = showcaseProducts(); if (!list.length) return;
+    rk.i = 0; rkPlay(list[0]);
+  }
   function screenHome() {
     const deals = dealOffers('').slice(0, 10);
     const recent = state.recent.map(productById).filter(p => p && offersOf(p).length).slice(0, 10);
     const popular = listed().sort(byPopularity).slice(0, 5);
-    const strip = priceStrip();
+    const sc = showcase();
     return {
-      tab: '', bar: appBar({ logo: true, actions: bellBtn() }), after: strip.ok ? runStrip : null,
+      tab: '', bar: appBar({ logo: true, actions: bellBtn() }), after: sc.ok ? runShowcase : null,
       html: '<div class="search-row"><a class="search-field" href="#/search">' + icon(ICONS.search, 20) + '<span>' + t('search.ph') + '</span></a>' +
         '<button type="button" class="scan-btn" data-sheet="scan" aria-label="' + t('scan.btn') + '">' + icon(ICONS.scan, 24) + '</button></div>' +
         '<div class="intro"><h2>' + t('hero.title', { n: tp('n.trustedStores', D.STORES[state.market].length), m: t('market.in.' + state.market) }) + '</h2>' +
-        '<p>' + t('about.2.d') + '</p><button type="button" class="market-chip" data-sheet="country">' + icon(ICONS.globe, 16) + t('market.' + state.market) + ' · ' + state.currency + icon(ICONS.chevron, 14, 'flip') + '</button></div>' + strip.html +
+        '<button type="button" class="market-chip" data-sheet="country">' + icon(ICONS.globe, 16) + t('market.' + state.market) + ' · ' + state.currency + icon(ICONS.chevron, 14, 'flip') + '</button></div>' + sc.html +
         '<section class="trend"><p class="trend-label">' + t('home.trending') + '</p><div class="hscroll">' + D.POPULAR.slice(0, 8).map(q => '<a class="chip" href="#/search?q=' + encodeURIComponent(q) + '">' + esc(q) + '</a>').join('') + '</div></section>' +
         '<section class="section tight">' + sectionHead(t('home.cats'), '#/categories') + '<div class="hscroll fade-x">' + D.CATEGORIES.map(c =>
           '<a class="cat-chip" href="#/c/' + c.id + '"><span class="ic">' + icon(c.icon, 24) + '</span>' + L(c) + '</a>').join('') + '</div></section>' +
@@ -1012,6 +1066,19 @@
   // A photo that fails to load falls back to the illustration underneath it.
   document.addEventListener('error', e => { if (e.target.tagName === 'IMG' && e.target.closest('.ph')) e.target.remove(); }, true);
 
+  // Demo data: on the first visit, fill Saved (favourites and price alerts) so the screens are not empty (runs once).
+  if (!load('app.demoSeeded', false)) {
+    save('app.demoSeeded', true);
+    if (!state.favs.length) { state.favs = ['sony-wh1000xm6', 'dyson-v15', 'nike-af1', 'dior-sauvage', 'nespresso-vertuo'].filter(id => productById(id) && offersOf(productById(id)).length); save('favs', state.favs); }
+    if (!state.alerts.length) {
+      [['ps5-pro', 1.03], ['iphone-17-pro', .92], ['airpods-pro-3', .9], ['galaxy-s26-ultra', .88], ['apple-watch-11', .93]].forEach(([id, k]) => {
+        const p = productById(id); if (!p || !offersOf(p).length) return;
+        const s = summary(p);
+        state.alerts.push({ id, target: Math.floor(convert(s.min, s.cur) * k), currency: state.currency, push: true, email: false });
+      });
+      save('alerts', state.alerts);
+    }
+  }
   window.addEventListener('hashchange', route);
   window.addEventListener('resize', fit);
   frameQuery.addEventListener('change', fit);
