@@ -543,12 +543,12 @@ a.prod-cell:hover strong, a.prod-cell:hover > span { text-decoration: underline;
   .side-promo > p { display: none; }
   .side-promo { padding: 12px 14px; }
 }
-/* below that the sidebar keeps the same look: the "See it live" card sits right under the menu,
-   the user stays at the bottom, and only the menu list scrolls when the screen is too short */
-.app:not(.side-collapsed) .sidebar { overflow: hidden; }
-.app:not(.side-collapsed) .nav { flex: 0 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .15) transparent; }
+/* the "See it live" card is part of the menu, right under Settings: on short screens it comes into view
+   when you scroll the sidebar, and the user block stays pinned at the bottom */
+.app:not(.side-collapsed) .sidebar { overflow-y: auto; overflow-x: hidden; }
+.app:not(.side-collapsed) .nav { flex: none; }
 .app:not(.side-collapsed) .side-promo { margin-top: 0; flex: none; }
-.app:not(.side-collapsed) .side-user { flex: none; margin-top: auto; }
+.app:not(.side-collapsed) .side-user { flex: none; margin-top: auto; position: sticky; bottom: 0;  background: linear-gradient(rgba(255, 255, 255, .06), rgba(255, 255, 255, .06)), var(--navy); z-index: 2; box-shadow: 0 14px 0 var(--navy), 0 -10px 12px -4px var(--navy); }
 /* ---------- collapsed sidebar (desktop): an icon rail, the logo expands it again ---------- */
 @media (min-width: 901px) {
   .app { transition: grid-template-columns .26s cubic-bezier(.2, 0, 0, 1); }
