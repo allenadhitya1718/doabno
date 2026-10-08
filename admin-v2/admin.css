@@ -518,23 +518,12 @@ a.prod-cell:hover strong, a.prod-cell:hover > span { text-decoration: underline;
   .side-promo > p { display: none; }
   .side-promo { padding: 12px 14px; }
 }
-@media (max-height: 860px) {
-  .nav a { padding-block: 7px; }
-  .nav-group { margin: 8px 10px 4px; }
-  .side-promo { padding: 0; background: none; }
-  .side-promo > strong { display: none; }
-  .side-promo-btn { margin-top: 0; height: 36px; border-radius: 12px; background: rgba(255, 255, 255, .08); color: #fff; font-weight: 600; }
-}
-@media (max-height: 760px) {
-  .sidebar { gap: 8px; padding-block: 12px; }
-  .side-search input { height: 38px; }
-  .nav a { padding-block: 6px; font-size: 13.5px; }
-  .side-promo { display: none; }
-}
-@media (max-height: 680px) {
-  .nav a { padding-block: 5px; }
-  .nav-group { margin: 6px 10px 3px; }
-}
+/* below that the sidebar keeps the same look: only the menu list scrolls, the brand, search,
+   "See it live" card and user stay in place */
+.app:not(.side-collapsed) .sidebar { overflow: hidden; }
+.app:not(.side-collapsed) .nav { flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .15) transparent; }
+.app:not(.side-collapsed) .side-promo { margin-top: 0; flex: none; }
+.app:not(.side-collapsed) .side-user { flex: none; }
 /* ---------- collapsed sidebar (desktop): an icon rail, the logo expands it again ---------- */
 @media (min-width: 901px) {
   .app { transition: grid-template-columns .26s cubic-bezier(.2, 0, 0, 1); }
