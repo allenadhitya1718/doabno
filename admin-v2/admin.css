@@ -543,12 +543,12 @@ a.prod-cell:hover strong, a.prod-cell:hover > span { text-decoration: underline;
   .side-promo > p { display: none; }
   .side-promo { padding: 12px 14px; }
 }
-/* below that the sidebar keeps the same look: only the menu list scrolls, the brand, search,
-   "See it live" card and user stay in place */
+/* below that the sidebar keeps the same look: the "See it live" card sits right under the menu,
+   the user stays at the bottom, and only the menu list scrolls when the screen is too short */
 .app:not(.side-collapsed) .sidebar { overflow: hidden; }
-.app:not(.side-collapsed) .nav { flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .15) transparent; }
+.app:not(.side-collapsed) .nav { flex: 0 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .15) transparent; }
 .app:not(.side-collapsed) .side-promo { margin-top: 0; flex: none; }
-.app:not(.side-collapsed) .side-user { flex: none; }
+.app:not(.side-collapsed) .side-user { flex: none; margin-top: auto; }
 /* ---------- collapsed sidebar (desktop): an icon rail, the logo expands it again ---------- */
 @media (min-width: 901px) {
   .app { transition: grid-template-columns .26s cubic-bezier(.2, 0, 0, 1); }
