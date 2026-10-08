@@ -460,6 +460,31 @@ a.prod-cell:hover strong, a.prod-cell:hover > span { text-decoration: underline;
 .drawer-head h2 { font-size: 18px; }
 .drawer-body { flex: 1; overflow-y: auto; padding: 22px; }
 .drawer-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 22px; border-top: 1px solid var(--line-2); }
+/* user account drawer */
+.kv { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; margin: 0; padding: 14px 16px; border-radius: var(--radius-sm); background: var(--soft); }
+.kv dt { font-size: 12px; color: var(--muted); }
+.kv dd { margin: 2px 0 0; font-size: 14px; font-weight: 600; color: var(--navy); overflow-wrap: anywhere; }
+.drawer-acts { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 14px; border-top: 1px solid var(--line-2); }
+
+/* settings: tabs, switch rows and the permissions table */
+.set-tabs { display: flex; flex-wrap: wrap; width: fit-content; max-width: 100%; margin-bottom: 18px; }
+.set-tabs + .card, .set-tabs + .grid { margin-top: 0; }
+.set-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line-2); }
+.set-row:first-child { padding-top: 0; }
+.set-label { font-size: 14px; font-weight: 600; color: var(--navy); }
+.set-row .hint { margin-top: 2px; }
+.set-row .switch { flex: none; }
+.set-form .field { align-content: start; }
+.set-row input:disabled + .switch-ui { opacity: .55; cursor: not-allowed; }
+.perm-table th:not(:first-child), .perm-table td:not(:first-child) { text-align: center; }
+.perm-table input { width: 17px; height: 17px; accent-color: var(--navy); cursor: pointer; }
+.perm-table input:disabled { cursor: not-allowed; }
+
+/* privacy requests */
+.due-soon { color: var(--warn); font-weight: 600; }
+.req-table td { white-space: nowrap; }
+.req-table .actions { display: flex; gap: 6px; justify-content: flex-end; }
+.page-note { margin-top: 12px; }
 .dialog { position: fixed; inset: 0; z-index: 95; display: grid; place-items: center; padding: 16px; background: rgba(14, 42, 71, .45); }
 .dialog-card { width: min(440px, 100%); background: var(--surface); border-radius: 20px; padding: 24px; box-shadow: var(--shadow-lg); }
 .dialog-card p { font-size: 15px; color: var(--ink); }

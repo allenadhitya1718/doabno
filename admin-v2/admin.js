@@ -132,7 +132,8 @@
     bell: 'M6 16V11a6 6 0 1112 0v5l2 2H4l2-2zM10 20a2 2 0 004 0',
     trendUp: 'M3 17l6-6 4 4 7-7M14 8h6v6',
     trendDown: 'M3 7l6 6 4-4 7 7M14 16h6v-6',
-    updown: 'M8 9l4-4 4 4M8 15l4 4 4-4'
+    updown: 'M8 9l4-4 4 4M8 15l4 4 4-4',
+    privacy: 'M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6l8-3zM9 12l2 2 4-4'
   };
   const KEBAB = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="5" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="19" r="1.8" fill="currentColor"/></svg>';
   function icon(path, size = 20) {
@@ -176,7 +177,7 @@
     ok: ['good', 'ok'], active: ['good', 'ok'], verified: ['good', 'ok'],
     warning: ['warn', 'alert'], expiring: ['warn', 'alert'], check: ['warn', 'alert'],
     error: ['bad', 'error'], out: ['bad', 'error'],
-    paused: ['muted', 'info'], hidden: ['muted', 'info'], expired: ['muted', 'info'], unverified: ['muted', 'info'], running: ['info', 'refresh']
+    suspended: ['bad', 'error'], paused: ['muted', 'info'], hidden: ['muted', 'info'], expired: ['muted', 'info'], unverified: ['muted', 'info'], running: ['info', 'refresh']
   };
   const badge = (kind, text) => '<span class="badge badge-' + BADGES[kind][0] + '">' + icon(ICONS[BADGES[kind][1]], 14) + text + '</span>';
 
@@ -1052,11 +1053,20 @@
   }
 
   // ---------- users ----------
+  // Admin actions on shopper accounts (suspend, note, delete) are kept per user id in this browser.
+  const userStatus = u => (u.suspended ? 'suspended' : u.verified ? 'verified' : 'unverified');
+  function liveUsers() {
+    const edits = load('users', {});
+    return users().filter(u => !(edits[u.id] && edits[u.id].deleted)).map(u => Object.assign({}, u, {
+      marketing: D.seeded(u.id + 'consent')() < 0.46, suspended: false, note: '' }, edits[u.id] || {}));
+  }
+  const liveUserById = id => liveUsers().find(u => u.id === id);
+
   function pageUsers(params) {
     const base = '/users';
     const q = (params.q || '').trim().toLowerCase();
-    const all = users().filter(u => inScope(u.market));
-    const list = all.filter(u => (!q || (u.name + ' ' + u.email).toLowerCase().includes(q)) && (!params.status || (params.status === 'verified') === u.verified));
+    const all = liveUsers().filter(u => inScope(u.market));
+    const list = all.filter(u => (!q || (u.name + ' ' + u.email).toLowerCase().includes(q)) && (!params.status || params.status === userStatus(u)));
     const sp = Object.assign({ sort: 'joined', dir: 'desc' }, params);
     const sorted = sortList(list, sp, { name: u => u.name, joined: u => u.joined.getTime(), alerts: u => u.alerts, favs: u => u.favs });
     const pg = paged(sorted, params);
@@ -1069,19 +1079,269 @@
       statTile(t('users.unverified'), num(all.filter(u => !u.verified).length), { icon: 'alert', tone: 'orange' }) + '</section>' +
       '<section class="card card-flush">' + toolbar(base,
         searchField(params.q, t('users.search')) +
-        '<select name="status" aria-label="' + t('col.status') + '">' + selectOpts([['', t('filter.allStatus')], ['verified', t('status.verified')], ['unverified', t('status.unverified')]], params.status) + '</select>') +
+        '<select name="status" aria-label="' + t('col.status') + '">' + selectOpts([['', t('filter.allStatus')], ['verified', t('status.verified')], ['unverified', t('status.unverified')], ['suspended', t('status.suspended')]], params.status) + '</select>') +
       (pg.rows.length ? '<div class="table-wrap"><table class="table"><thead><tr>' + sortHead(t('col.name'), 'name', sp, base, 'asc') + '<th>' + t('col.email') + '</th><th>' + t('field.market') + '</th><th>' + t('col.language') + '</th>' +
-        sortHead(t('col.joined'), 'joined', sp, base, 'desc') + sortHead(t('col.alerts'), 'alerts', sp, base, 'desc', 'num') + sortHead(t('col.favs'), 'favs', sp, base, 'desc', 'num') + '<th>' + t('col.status') + '</th></tr></thead><tbody>' +
-        pg.rows.map(u => '<tr><td><span class="user-cell"><span class="avatar">' + esc(u.name.charAt(0)) + '</span>' + esc(u.name) + '</span></td><td class="muted">' + esc(u.email) + '</td><td>' + t('market.' + u.market) + '</td>' +
+        sortHead(t('col.joined'), 'joined', sp, base, 'desc') + sortHead(t('col.alerts'), 'alerts', sp, base, 'desc', 'num') + sortHead(t('col.favs'), 'favs', sp, base, 'desc', 'num') + '<th>' + t('col.status') + '</th><th><span class="sr-only">' + t('col.actions') + '</span></th></tr></thead><tbody>' +
+        pg.rows.map(u => '<tr' + (u.suspended ? ' class="row-muted"' : '') + '><td><span class="user-cell"><span class="avatar">' + esc(u.name.charAt(0)) + '</span>' + esc(u.name) + '</span></td><td class="muted">' + esc(u.email) + '</td><td>' + t('market.' + u.market) + '</td>' +
           '<td>' + t('lang.' + u.lang) + '</td><td>' + fmtDate(u.joined, { day: 'numeric', month: 'short', year: 'numeric' }) + '</td><td class="num">' + num(u.alerts) + '</td><td class="num">' + num(u.favs) + '</td>' +
-          '<td>' + badge(u.verified ? 'verified' : 'unverified', t('status.' + (u.verified ? 'verified' : 'unverified'))) + '</td></tr>').join('') +
+          '<td>' + badge(userStatus(u), t('status.' + userStatus(u))) + '</td>' +
+          '<td class="actions"><button type="button" class="row-act" data-user="' + u.id + '" title="' + t('users.open') + '" aria-label="' + t('users.open') + ': ' + esc(u.name) + '">' + icon(ICONS.edit, 17) + '</button></td></tr>').join('') +
         '</tbody></table></div>' + pager(pg, base, params, sorted.length) : empty(t('empty.filters'))) + '</section>';
   }
 
+  // One shopper: account details, consent, admin note and the support / privacy actions.
+  function userForm(id) {
+    const u = liveUserById(id);
+    if (!u) return;
+    const row = (k, v) => '<div><dt>' + k + '</dt><dd>' + v + '</dd></div>';
+    openDrawer(u.name,
+      '<form id="userForm" data-id="' + u.id + '" class="form-stack">' +
+      '<dl class="kv">' + row(t('col.email'), esc(u.email)) + row(t('users.id'), u.id) + row(t('field.market'), t('market.' + u.market)) + row(t('col.language'), t('lang.' + u.lang)) +
+        row(t('col.joined'), fmtDate(u.joined, YMD)) + row(t('col.alerts'), num(u.alerts)) + row(t('col.favs'), num(u.favs)) +
+        row(t('users.email'), badge(u.verified ? 'verified' : 'unverified', t('status.' + (u.verified ? 'verified' : 'unverified')))) +
+        row(t('users.marketing'), u.marketing ? t('users.consentYes') : t('users.consentNo')) + '</dl>' +
+      '<label class="check"><input type="checkbox" name="suspended"' + (u.suspended ? ' checked' : '') + '><span>' + t('users.suspend') + '</span></label>' +
+      '<p class="hint">' + t('users.suspendHint') + '</p>' +
+      '<label class="field"><span>' + t('users.note') + '</span><textarea name="note" rows="3" placeholder="' + t('users.notePh') + '">' + esc(u.note || '') + '</textarea></label>' +
+      '<div class="drawer-acts"><button type="button" class="btn btn-ghost btn-sm" data-user-export="' + u.id + '">' + icon(ICONS.download, 16) + t('users.export') + '</button>' +
+      '<button type="button" class="btn btn-ghost btn-sm btn-danger" data-user-delete="' + u.id + '">' + icon(ICONS.trash, 16) + t('users.delete') + '</button></div>' +
+      '<p class="hint">' + t('users.privacyHint') + '</p></form>', 'userForm');
+  }
+
+  function saveUser(form) {
+    const edits = load('users', {});
+    const id = form.dataset.id, u = liveUserById(id);
+    edits[id] = Object.assign(edits[id] || {}, { suspended: form.suspended.checked, note: form.note.value.trim() });
+    save('users', edits);
+    logActivity(form.suspended.checked !== u.suspended ? (form.suspended.checked ? 'log.userSuspended' : 'log.userRestored') : 'log.userNote', { u: u.email });
+    closeDrawer();
+    toast(t('toast.saved'));
+    rerender();
+  }
+
+  // Everything held about a shopper, as one JSON file (data access request).
+  function exportUser(id) {
+    const u = liveUserById(id);
+    const data = { id: u.id, name: u.name, email: u.email, market: u.market, language: u.lang, joined: u.joined.toISOString(), emailVerified: u.verified,
+      marketingConsent: u.marketing, suspended: u.suspended, priceAlerts: u.alerts, favorites: u.favs, exportedAt: new Date().toISOString() };
+    download(JSON.stringify(data, null, 2), 'application/json', 'doabno-user-' + u.id + '.json');
+    logActivity('log.userExport', { u: u.email });
+    toast(t('toast.userExported'));
+  }
+
+  function deleteUser(id) {
+    const u = liveUserById(id);
+    confirmDialog(t('users.confirmDelete', { u: u.email }), t('users.delete'), () => {
+      const edits = load('users', {});
+      edits[id] = { deleted: true };
+      save('users', edits);
+      delete cache.users;
+      logActivity('log.userDeleted', { u: u.email });
+      closeDrawer();
+      toast(t('toast.userDeleted'));
+      rerender();
+    });
+  }
+
+  function download(text, type, name) {
+    const url = URL.createObjectURL(new Blob([text], { type: type + ';charset=utf-8' }));
+    const a = document.createElement('a');
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  // ---------- privacy requests ----------
+  // Requests sent from the site's privacy form (access, deletion, correction, do-not-sell). The legal deadline
+  // is 45 days under the CCPA (US) and 30 days elsewhere (UK GDPR, Saudi PDPL, UAE PDPL).
+  const REQ_TYPES = ['access', 'delete', 'correct', 'optout'];
+  const reqDays = m => (m === 'us' ? 45 : 30);
+  function requests() {
+    const done = load('requests', {});
+    return memo('requests', () => {
+      const rnd = D.seeded('doabno-requests');
+      const people = users();
+      return Array.from({ length: 16 }, (_, i) => {
+        const u = people[Math.floor(rnd() * people.length)];
+        const received = new Date(); received.setHours(9 + Math.floor(rnd() * 9), Math.floor(rnd() * 60), 0, 0);
+        received.setDate(received.getDate() - Math.floor(rnd() * 40));
+        const type = u.market === 'us' && rnd() < 0.5 ? 'optout' : REQ_TYPES[Math.floor(rnd() * 3)];
+        const age = (Date.now() - received) / 86400000;
+        return { id: 'PR-' + (2401 + i), email: u.email, userId: u.id, market: u.market, type, received,
+          status: age > 27 ? 'done' : age > 6 && rnd() < 0.5 ? 'progress' : 'open' };
+      }).sort((a, b) => b.received - a.received);
+    }).map(r => Object.assign({}, r, done[r.id] ? { status: done[r.id] } : {}));
+  }
+  const reqDue = r => { const d = new Date(r.received); d.setDate(d.getDate() + reqDays(r.market)); return d; };
+  const reqLeft = r => Math.ceil((reqDue(r) - Date.now()) / 86400000);
+  const openRequests = () => requests().filter(r => r.status !== 'done' && inScope(r.market)).length;
+
+  function pageRequests(params) {
+    const all = requests().filter(r => inScope(r.market));
+    const list = all.filter(r => (!params.status || r.status === params.status) && (!params.type || r.type === params.type));
+    const open = all.filter(r => r.status !== 'done');
+    const soon = open.filter(r => reqLeft(r) <= 7).length;
+    const status = r => r.status === 'done' ? badge('ok', t('req.done')) : r.status === 'progress' ? badge('running', t('req.progress')) : badge('warning', t('req.open'));
+    const due = r => {
+      if (r.status === 'done') return '<span class="muted">—</span>';
+      const left = reqLeft(r);
+      return left < 0 ? badge('error', t('req.overdue')) : '<span class="' + (left <= 7 ? 'due-soon' : 'muted') + '">' + fmtDate(reqDue(r)) + ' · ' + tp('n.daysLeft', left) + '</span>';
+    };
+    return pageHead(t('nav.privacy'), t('req.sub')) +
+      '<section class="tiles tiles-4">' +
+      statTile(t('req.openTile'), num(open.length), { icon: 'info', tone: open.length ? 'orange' : '' }) +
+      statTile(t('req.soonTile'), num(soon), { icon: 'alert', tone: soon ? 'orange' : '', sub: t('req.soonSub') }) +
+      statTile(t('req.doneTile'), num(all.length - open.length), { icon: 'ok' }) +
+      statTile(t('req.deadline'), t('req.deadlineVal'), { icon: 'bell', sub: t('req.deadlineSub') }) + '</section>' +
+      '<section class="card card-flush">' + toolbar('/privacy',
+        '<select name="status" aria-label="' + t('col.status') + '">' + selectOpts([['', t('filter.allStatus')], ['open', t('req.open')], ['progress', t('req.progress')], ['done', t('req.done')]], params.status) + '</select>' +
+        '<select name="type" aria-label="' + t('req.type') + '">' + selectOpts([['', t('req.allTypes')]].concat(REQ_TYPES.map(k => [k, t('req.t.' + k)])), params.type) + '</select>') +
+      (list.length ? '<div class="table-wrap"><table class="table req-table"><thead><tr><th>' + t('req.id') + '</th><th>' + t('col.email') + '</th><th>' + t('req.type') + '</th><th>' + t('field.market') + '</th><th>' + t('req.received') + '</th><th>' + t('req.due') + '</th><th>' + t('col.status') + '</th><th><span class="sr-only">' + t('col.actions') + '</span></th></tr></thead><tbody>' +
+        list.map(r => '<tr' + (r.status === 'done' ? ' class="row-muted"' : '') + '><td><b>' + r.id + '</b></td><td class="muted">' + esc(r.email) + '</td><td>' + t('req.t.' + r.type) + '</td><td>' + t('market.' + r.market) + '</td>' +
+          '<td class="muted">' + fmtDate(r.received, YMD) + '</td><td>' + due(r) + '</td><td>' + status(r) + '</td>' +
+          '<td class="actions">' + (r.status === 'done' ? '' : (r.status === 'open' ? '<button type="button" class="btn btn-ghost btn-sm" data-req="' + r.id + '/progress">' + t('req.start') + '</button>' : '') +
+            '<button type="button" class="btn btn-primary btn-sm" data-req="' + r.id + '/done">' + t('req.complete') + '</button>') + '</td></tr>').join('') +
+        '</tbody></table></div>' : empty(t('empty.filters'))) + '</section>' +
+      '<p class="hint page-note">' + t('req.note') + '</p>';
+  }
+
+  function setRequest(id, status) {
+    const done = load('requests', {});
+    done[id] = status;
+    save('requests', done);
+    logActivity(status === 'done' ? 'log.reqDone' : 'log.reqStarted', { r: id });
+    toast(t(status === 'done' ? 'toast.reqDone' : 'toast.reqStarted', { r: id }));
+    rerender();
+  }
+
   // ---------- settings ----------
-  function pageSettings() {
-    const used = c => MARKETS.filter(m => D.MARKETS[m].currency === c).map(m => t('market.' + m)).join(', ') || '—';
+  // Platform settings saved in this browser for the demo; production stores them in the back end.
+  const ROLES = ['owner', 'catalog', 'partners', 'analyst'];
+  const AREAS = ['catalog', 'stores', 'reports', 'users', 'privacy', 'settings'];
+  const PERMS = { catalog: ['catalog', 'reports'], partners: ['stores', 'reports'], analyst: ['reports'] };
+  const SET_DEFAULTS = Object.assign({
+    geo: true, picker: true, soon: 'Qatar, Kuwait, Bahrain, Oman',
+    alertsEmail: true, alertsPush: true, alertCheck: 'hourly', alertDrop: 5, alertMax: 3, digest: true, doubleOptIn: true,
+    fromName: 'DOABNO', fromEmail: 'alerts@doabno.com', replyTo: 'support@doabno.com',
+    heroEn: 'Compare before you buy.', heroAr: 'قارن قبل أن تشتري.', subEn: 'Find the lowest total price across trusted stores, delivery included.', subAr: 'اعثر على أقل سعر إجمالي في المتاجر الموثوقة، شاملًا التوصيل.',
+    appLive: false, iosUrl: '', androidUrl: '', minIos: '1.0.0', minAndroid: '1.0.0', forceUpdate: false,
+    maint: false, maintEn: 'DOABNO is getting an update. We’ll be back shortly.', maintAr: 'نُحدّث دوابنو الآن، وسنعود قريبًا.',
+    supportEmail: 'support@doabno.com', privacyEmail: 'privacy@doabno.com', policyDate: '2026-10-01', cookieBanner: true, consentMonths: 12,
+    tagSa: 'doabno-21', tagAe: 'doabnoae-21', tagUs: 'doabno-20', tagUk: 'doabno0f-21', noonId: '', awinId: '', impactId: '',
+    attribution: 30, utm: 'doabno', botFilter: true,
+    twoFactor: true, sso: false, session: '8h', adminDomain: 'doabno.com'
+  }, ...MARKETS.map(m => ({ ['on_' + m]: true, ['lang_' + m]: m === 'sa' || m === 'ae' ? 'ar' : 'en' })),
+  ...ROLES.slice(1).flatMap(r => AREAS.map(a => ({ ['perm_' + r + '_' + a]: PERMS[r].includes(a) }))));
+  const settings = () => Object.assign({}, SET_DEFAULTS, load('settings', {}));
+  const TABS = ['general', 'notifications', 'content', 'tracking', 'security', 'log'];
+
+  // Small builders for the settings forms; every field's name is its settings key.
+  const sw = (name, label, hint, opts = {}) => { const s = settings(); return '<div class="set-row"><div><p class="set-label">' + label + '</p>' + (hint ? '<p class="hint">' + hint + '</p>' : '') + '</div>' +
+    '<label class="switch"><input type="checkbox" role="switch" name="' + name + '"' + (opts.locked || s[name] ? ' checked' : '') + (opts.locked ? ' disabled' : '') + '><span class="switch-ui" aria-hidden="true"></span><span class="sr-only">' + label + '</span></label></div>'; };
+  const fld = (name, label, opts = {}) => { const v = settings()[name]; return '<label class="field"><span>' + label + '</span>' +
+    (opts.area ? '<textarea name="' + name + '" rows="' + opts.area + '"' + (opts.dir ? ' dir="' + opts.dir + '"' : '') + '>' + esc(v) + '</textarea>'
+      : opts.options ? '<select name="' + name + '">' + selectOpts(opts.options, v) + '</select>'
+      : '<input name="' + name + '" type="' + (opts.type || 'text') + '" value="' + esc(v) + '"' + (opts.dir ? ' dir="' + opts.dir + '"' : '') + (opts.min !== undefined ? ' min="' + opts.min + '"' : '') + (opts.ph ? ' placeholder="' + esc(opts.ph) + '"' : '') + (opts.req ? ' required' : '') + '>') +
+    (opts.hint ? '<small class="hint">' + opts.hint + '</small>' : '') + '</label>'; };
+  const setForm = (key, body) => '<form class="form-stack set-form" data-set="' + key + '">' + body + '<div><button class="btn btn-primary" type="submit">' + t('act.save') + '</button></div></form>';
+
+  function pageSettings(params) {
+    const tab = TABS.includes(params.tab) ? params.tab : 'general';
     return pageHead(t('nav.settings'), t('settings.sub')) +
+      '<nav class="seg set-tabs" aria-label="' + t('nav.settings') + '">' + TABS.map(k => '<a href="#/settings' + (k === 'general' ? '' : '?tab=' + k) + '"' + (k === tab ? ' aria-current="page"' : '') + '>' + t('set.tab.' + k) + '</a>').join('') + '</nav>' +
+      ({ general: setGeneral, notifications: setNotifications, content: setContent, tracking: setTracking, security: setSecurity, log: setLog })[tab]();
+  }
+
+  function setNotifications() {
+    return '<div class="grid grid-2">' +
+      card(t('set.alerts'), setForm('alerts',
+        sw('alertsEmail', t('set.alertsEmail'), t('set.alertsEmailHint')) + sw('alertsPush', t('set.alertsPush'), t('set.alertsPushHint')) + sw('digest', t('set.digest'), t('set.digestHint')) +
+        '<div class="form-grid">' + fld('alertCheck', t('set.alertCheck'), { options: [['hourly', t('schedule.hourly')], ['six', t('schedule.six')], ['daily', t('schedule.daily')]] }) +
+        fld('alertDrop', t('set.alertDrop'), { type: 'number', min: 1, hint: t('set.alertDropHint') }) + fld('alertMax', t('set.alertMax'), { type: 'number', min: 1, hint: t('set.alertMaxHint') }) + '</div>'), { icon: 'bell', tone: 'orange' }) +
+      card(t('set.sender'), setForm('sender',
+        fld('fromName', t('set.fromName'), { req: true }) + fld('fromEmail', t('set.fromEmail'), { type: 'email', req: true, hint: t('set.fromEmailHint') }) + fld('replyTo', t('set.replyTo'), { type: 'email', req: true }) +
+        sw('doubleOptIn', t('set.doubleOptIn'), t('set.doubleOptInHint')) + sw('consentLocked', t('set.consent'), t('set.consentHint'), { locked: true })), { icon: 'info' }) +
+      '</div>';
+  }
+
+  function setContent() {
+    return '<div class="grid grid-2">' +
+      card(t('set.hero'), setForm('hero',
+        fld('heroEn', t('set.heroEn'), { req: true }) + fld('heroAr', t('set.heroAr'), { req: true, dir: 'rtl' }) +
+        fld('subEn', t('set.subEn'), { area: 2 }) + fld('subAr', t('set.subAr'), { area: 2, dir: 'rtl' }) + '<p class="hint">' + t('set.heroHint') + '</p>'), { icon: 'dashboard' }) +
+      '<div class="stack">' +
+      card(t('set.app'), setForm('app',
+        sw('appLive', t('set.appLive'), t('set.appLiveHint')) +
+        '<div class="form-grid">' + fld('iosUrl', t('set.iosUrl'), { type: 'url', ph: 'https://apps.apple.com/…' }) + fld('androidUrl', t('set.androidUrl'), { type: 'url', ph: 'https://play.google.com/…' }) +
+        fld('minIos', t('set.minIos')) + fld('minAndroid', t('set.minAndroid')) + '</div>' +
+        sw('forceUpdate', t('set.forceUpdate'), t('set.forceUpdateHint'))), { icon: 'products' }) +
+      card(t('set.maint'), setForm('maint',
+        sw('maint', t('set.maintOn'), t('set.maintHint')) + fld('maintEn', t('set.maintEn'), { area: 2 }) + fld('maintAr', t('set.maintAr'), { area: 2, dir: 'rtl' })), { icon: 'alert', tone: 'orange' }) +
+      '</div></div>' +
+      card(t('set.legal'), setForm('legal',
+        '<div class="form-grid">' + fld('policyDate', t('set.policyDate'), { type: 'date', hint: t('set.policyDateHint') }) + fld('consentMonths', t('set.consentMonths'), { type: 'number', min: 1, hint: t('set.consentMonthsHint') }) +
+        fld('privacyEmail', t('set.privacyEmail'), { type: 'email', req: true, hint: t('set.privacyEmailHint') }) + fld('supportEmail', t('set.supportEmail'), { type: 'email', req: true }) + '</div>' +
+        sw('cookieBanner', t('set.cookieBanner'), t('set.cookieBannerHint'))), { icon: 'info', sub: t('set.legalSub') });
+  }
+
+  function setTracking() {
+    return '<div class="grid grid-2">' +
+      card(t('set.affiliate'), setForm('affiliate',
+        '<div class="form-grid">' + MARKETS.map(m => fld('tag' + m.charAt(0).toUpperCase() + m.slice(1), t('set.amazonTag', { m: t('market.' + m) }))).join('') +
+        fld('noonId', t('set.noonId')) + fld('awinId', t('set.awinId')) + fld('impactId', t('set.impactId')) + '</div><p class="hint">' + t('set.affiliateHint') + '</p>'), { icon: 'stores' }) +
+      card(t('set.clicks'), setForm('clicks',
+        fld('attribution', t('set.attribution'), { type: 'number', min: 1, hint: t('set.attributionHint') }) + fld('utm', t('set.utm'), { req: true, hint: t('set.utmHint') }) +
+        sw('botFilter', t('set.botFilter'), t('set.botFilterHint'))), { icon: 'click' }) +
+      '</div>';
+  }
+
+  function setSecurity() {
+    const s = settings();
+    return card(t('set.signin'), setForm('signin',
+        sw('twoFactor', t('set.twoFactor'), t('set.twoFactorHint')) + sw('sso', t('set.sso'), t('set.ssoHint')) +
+        '<div class="form-grid">' + fld('session', t('set.session'), { options: [['30m', t('set.min30')], ['1h', t('set.h1')], ['8h', t('set.h8')], ['24h', t('set.h24')]] }) +
+        fld('adminDomain', t('set.adminDomain'), { hint: t('set.adminDomainHint') }) + '</div>'), { icon: 'settings' }) +
+      card(t('set.roles'), '<form class="form-stack set-form" data-set="roles"><div class="table-wrap"><table class="table table-compact perm-table"><thead><tr><th>' + t('set.area') + '</th>' +
+        ROLES.map(r => '<th>' + t('role.' + r) + '</th>').join('') + '</tr></thead><tbody>' +
+        AREAS.map(a => '<tr><td>' + t('set.area.' + a) + '</td>' + ROLES.map(r => '<td>' + (r === 'owner' ? '<input type="checkbox" checked disabled aria-label="' + t('role.owner') + ': ' + t('set.area.' + a) + '">'
+          : '<input type="checkbox" name="perm_' + r + '_' + a + '"' + (s['perm_' + r + '_' + a] ? ' checked' : '') + ' aria-label="' + t('role.' + r) + ': ' + t('set.area.' + a) + '">') + '</td>').join('') + '</tr>').join('') +
+        '</tbody></table></div><p class="hint">' + t('set.rolesHint') + '</p><div><button class="btn btn-primary" type="submit">' + t('act.save') + '</button></div></form>', { icon: 'users' }) +
+      card(t('settings.team'), '<div class="table-wrap"><table class="table"><thead><tr><th>' + t('col.name') + '</th><th>' + t('col.email') + '</th><th>' + t('col.role') + '</th><th>' + t('col.lastActive') + '</th></tr></thead><tbody>' +
+        team().map(m => '<tr><td><span class="user-cell"><span class="avatar">' + esc(m.name.charAt(0)) + '</span>' + esc(m.name) + '</span></td><td class="muted">' + esc(m.email) + '</td><td>' + t('role.' + m.role) + '</td><td class="muted">' + ago(m.ts) + '</td></tr>').join('') +
+        '</tbody></table></div>', { cls: 'card-flush', action: '<button type="button" class="btn btn-ghost btn-sm" data-invite>' + icon(ICONS.plus, 16) + t('settings.invite') + '</button>' });
+  }
+
+  function setLog() {
+    const log = load('log', []);
+    return card(t('set.log'), log.length ? '<div class="table-wrap"><table class="table"><thead><tr><th>' + t('col.date') + '</th><th>' + t('set.who') + '</th><th>' + t('set.action') + '</th></tr></thead><tbody>' +
+      log.map(e => '<tr><td class="muted">' + fmtDate(new Date(e.ts), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + '</td><td>' + esc(e.who || '—') + '</td><td>' + esc(t(e.key, e.vars)) + '</td></tr>').join('') +
+      '</tbody></table></div>' : empty(t('set.logEmpty')), { cls: 'card-flush', sub: t('set.logSub') });
+  }
+
+  function saveSettings(form) {
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    const s = load('settings', {});
+    $$('input[name], select[name], textarea[name]', form).forEach(el => {
+      if (el.disabled) return;
+      s[el.name] = el.type === 'checkbox' ? el.checked : el.type === 'number' ? parseFloat(el.value) : el.value.trim();
+    });
+    save('settings', s);
+    logActivity('log.settings', { s: t('set.' + form.dataset.set) });
+    toast(t('toast.saved'));
+    rerender();
+  }
+
+  function setGeneral() {
+    const s = settings();
+    const used = c => MARKETS.filter(m => D.MARKETS[m].currency === c).map(m => t('market.' + m)).join(', ') || '—';
+    return card(t('set.markets'), '<form class="form-stack set-form" data-set="markets"><div class="table-wrap"><table class="table table-compact"><thead><tr><th>' + t('field.market') + '</th><th>' + t('col.currency') + '</th><th>' + t('set.defaultLang') + '</th><th>' + t('set.live') + '</th></tr></thead><tbody>' +
+        MARKETS.map(m => '<tr><td>' + t('market.' + m) + ' ' + mk(m) + '</td><td>' + D.MARKETS[m].currency + '</td>' +
+          '<td><select class="input-sm" name="lang_' + m + '" aria-label="' + t('set.defaultLang') + ': ' + t('market.' + m) + '">' + selectOpts([['ar', t('lang.ar')], ['en', t('lang.en')]], s['lang_' + m]) + '</select></td>' +
+          '<td><label class="switch"><input type="checkbox" role="switch" name="on_' + m + '"' + (s['on_' + m] ? ' checked' : '') + '><span class="switch-ui" aria-hidden="true"></span><span class="sr-only">' + t('set.live') + ': ' + t('market.' + m) + '</span></label></td></tr>').join('') +
+        '</tbody></table></div>' +
+        sw('geo', t('set.geo'), t('set.geoHint')) + sw('picker', t('set.picker'), t('set.pickerHint')) +
+        fld('soon', t('set.soon'), { hint: t('set.soonHint') }) +
+        '<p class="hint">' + t('set.marketsHint') + '</p><div><button class="btn btn-primary" type="submit">' + t('act.save') + '</button></div></form>', { icon: 'reports', sub: t('set.marketsSub') }) +
       '<div class="grid grid-2">' +
       card(t('settings.rates'), '<form id="ratesForm" class="form-stack"><div class="table-wrap"><table class="table table-compact"><thead><tr><th>' + t('col.currency') + '</th><th>' + t('settings.rate') + '</th><th>' + t('settings.usedBy') + '</th></tr></thead><tbody>' +
         '<tr><td>USD</td><td>1</td><td>' + used('USD') + '</td></tr>' +
@@ -1090,9 +1350,6 @@
       card(t('settings.popular'), '<form id="popularForm" class="form-stack"><label class="field"><span class="sr-only">' + t('settings.popular') + '</span><textarea name="popular" rows="9">' + esc(D.POPULAR.join('\n')) + '</textarea></label>' +
         '<p class="hint">' + t('settings.popularHint') + '</p><div><button class="btn btn-primary" type="submit">' + t('act.save') + '</button></div></form>') +
       '</div>' +
-      card(t('settings.team'), '<div class="table-wrap"><table class="table"><thead><tr><th>' + t('col.name') + '</th><th>' + t('col.email') + '</th><th>' + t('col.role') + '</th><th>' + t('col.lastActive') + '</th></tr></thead><tbody>' +
-        team().map(m => '<tr><td><span class="user-cell"><span class="avatar">' + esc(m.name.charAt(0)) + '</span>' + esc(m.name) + '</span></td><td class="muted">' + esc(m.email) + '</td><td>' + t('role.' + m.role) + '</td><td class="muted">' + ago(m.ts) + '</td></tr>').join('') +
-        '</tbody></table></div>', { cls: 'card-flush', action: '<button type="button" class="btn btn-ghost btn-sm" data-invite>' + icon(ICONS.plus, 16) + t('settings.invite') + '</button>' }) +
       card(t('settings.demo'), '<p>' + t('settings.demoText') + '</p><div class="form-actions"><button type="button" class="btn btn-danger-solid" data-reset>' + t('settings.reset') + '</button></div>');
   }
 
@@ -1150,13 +1407,15 @@
     ['nav.g.overview', [['', 'dashboard', 'nav.dashboard'], ['reports', 'reports', 'nav.reports']]],
     ['nav.g.catalog', [['products', 'products', 'nav.products'], ['offers', 'offers', 'nav.offers'], ['categories', 'categories', 'nav.categories']]],
     ['nav.g.partners', [['stores', 'stores', 'nav.stores'], ['feeds', 'feeds', 'nav.feeds'], ['coupons', 'coupons', 'nav.coupons']]],
-    ['nav.g.admin', [['users', 'users', 'nav.users'], ['settings', 'settings', 'nav.settings']]]
+    ['nav.g.admin', [['users', 'users', 'nav.users'], ['privacy', 'privacy', 'nav.privacy'], ['settings', 'settings', 'nav.settings']]]
   ];
   function renderNav(section) {
     const feedErrors = MARKETS.flatMap(m => A.STORES[m]).filter(s => s.active !== false && feedOf(s).status === 'error').length;
+    const openReq = openRequests();
     $('#nav').innerHTML = NAV.map(([group, items]) => '<p class="nav-group">' + t(group) + '</p><ul>' + items.map(([path, ic, key]) =>
       '<li><a href="#/' + path + '"' + (section === path ? ' aria-current="page"' : '') + ' data-tip="' + esc(t(key)) + '">' + icon(ICONS[ic], 20) + '<span>' + t(key) + '</span>' +
-      (path === 'feeds' && feedErrors ? '<b class="nav-count" aria-label="' + t('attn.feedErrors', { n: tp('n.feeds', feedErrors) }) + '">' + num(feedErrors) + '</b>' : '') + '</a></li>').join('') + '</ul>').join('');
+      (path === 'feeds' && feedErrors ? '<b class="nav-count" aria-label="' + t('attn.feedErrors', { n: tp('n.feeds', feedErrors) }) + '">' + num(feedErrors) + '</b>' : '') +
+      (path === 'privacy' && openReq ? '<b class="nav-count" aria-label="' + t('req.openCount', { n: num(openReq) }) + '">' + num(openReq) + '</b>' : '') + '</a></li>').join('') + '</ul>').join('');
     const dot = $('#bellDot');
     if (dot) { dot.hidden = !feedErrors; dot.textContent = num(feedErrors); }
   }
@@ -1203,7 +1462,7 @@
       '': () => pageDashboard(), reports: () => pageReports(params),
       products: () => (parts[1] ? productEditor(parts[1]) : pageProducts(params)),
       offers: () => pageOffers(params), categories: () => pageCategories(), stores: () => pageStores(params),
-      feeds: () => pageFeeds(params), coupons: () => pageCoupons(params), users: () => pageUsers(params), settings: () => pageSettings()
+      feeds: () => pageFeeds(params), coupons: () => pageCoupons(params), users: () => pageUsers(params), privacy: () => pageRequests(params), settings: () => pageSettings(params)
     };
     const main = $('#main');
     main.classList.remove('enter');
@@ -1241,7 +1500,7 @@
   // ---------- events ----------
   document.addEventListener('click', e => {
     if (!e.target.closest('#userBtn, #userMenu')) setUserMenu(false);
-    const el = e.target.closest('[data-top-tab],[data-range],[data-run],[data-store-form],[data-coupon-form],[data-del-coupon],[data-edit-cat],[data-cancel-cat],[data-del-sub],[data-invite],[data-reset],[data-export],[data-logout],[data-close-drawer],[data-close-menu],[data-dialog-cancel],#dialogOk,#menuBtn,#sideToggle,#userBtn,.lang-toggle,.nav a');
+    const el = e.target.closest('[data-top-tab],[data-range],[data-run],[data-store-form],[data-coupon-form],[data-del-coupon],[data-edit-cat],[data-cancel-cat],[data-del-sub],[data-user],[data-user-export],[data-user-delete],[data-req],[data-invite],[data-reset],[data-export],[data-logout],[data-close-drawer],[data-close-menu],[data-dialog-cancel],#dialogOk,#menuBtn,#sideToggle,#userBtn,.lang-toggle,.nav a');
     if (!el) return;
     if (el.dataset.topTab) { ui.topTab = el.dataset.topTab; rerender(); }
     else if (el.dataset.range) { state.range = +el.dataset.range; save('range', state.range); ui.barsAnim = true; rerender(); }
@@ -1261,10 +1520,14 @@
       commit('log.subRemoved', { c: subId });
       rerender();
     }
+    else if (el.dataset.user) userForm(el.dataset.user);
+    else if (el.dataset.userExport) exportUser(el.dataset.userExport);
+    else if (el.dataset.userDelete) deleteUser(el.dataset.userDelete);
+    else if (el.dataset.req) { const [id, st] = el.dataset.req.split('/'); setRequest(id, st); }
     else if (el.hasAttribute('data-invite')) toast(t('toast.invite'));
     else if (el.hasAttribute('data-reset')) {
       confirmDialog(t('settings.confirmReset'), t('settings.reset'), () => {
-        try { [A.OVERRIDE_KEY, 'doabno.admin.feeds', 'doabno.admin.log'].forEach(k => localStorage.removeItem(k)); } catch (err) { /* storage unavailable */ }
+        try { [A.OVERRIDE_KEY, 'doabno.admin.feeds', 'doabno.admin.log', 'doabno.admin.users', 'doabno.admin.requests', 'doabno.admin.settings'].forEach(k => localStorage.removeItem(k)); } catch (err) { /* storage unavailable */ }
         location.reload();
       });
     }
@@ -1335,6 +1598,8 @@
     else if (form.classList.contains('cat-edit')) saveCategory(form);
     else if (form.id === 'ratesForm') saveRates(form);
     else if (form.id === 'popularForm') savePopular(form);
+    else if (form.id === 'userForm') saveUser(form);
+    else if (form.classList.contains('set-form')) saveSettings(form);
   });
 
   document.addEventListener('keydown', e => {
