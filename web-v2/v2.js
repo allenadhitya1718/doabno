@@ -905,7 +905,7 @@
     const c = catOf(p.cat), sub = c && c.subs.find(s => s.id === p.sub);
     const bestOffer = b;
     const isFav = favs.includes(p.id), al = alerts[p.id];
-    const rows = it.offers.map(o => '<tr class="' + (o === bestOffer ? 'best' : '') + '"><td class="store-c"><div class="store">' + dot(o.store) + '<span>' + esc(o.store.name) + (o === bestOffer ? ' <span class="tag best">' + icon.check + t('bestTag') + '</span>' : '') + '</span></div>' + (o.promo ? '<small><span class="tag promo">' + esc(t('promo', { c: o.promo.code })) + '</span></small>' : '') + '</td>' +
+    const rows = it.offers.map(o => '<tr class="' + (o === bestOffer ? 'best' : '') + '"><td class="store-c"><div class="store">' + dot(o.store) + '<span>' + esc(o.store.name) + (o === bestOffer ? ' <span class="tag best">' + icon.check + t('bestTag') + '</span>' : '') + '</span></div>' + (o.promo ? '<small><span class="tag tag-code">' + esc(t('promo', { c: o.promo.code })) + '</span></small>' : '') + '</td>' +
       '<td class="p-c num money">' + money(o.price) + '</td><td class="d-c num">' + (o.shipping ? money(o.shipping) : t('free')) + '<small>' + t('days', { a: o.days[0], b: o.days[1] }) + '</small></td>' +
       '<td class="tot-c num tot">' + money(o.total) + '</td><td class="s-c">' + (o.inStock ? '<span class="stock-ok">' + t('inStock') + '</span>' : '<span class="stock-no">' + t('outStock') + '</span>') + '<small>' + fresh(o) + '</small></td>' +
       '<td class="a-c num"><button class="btn ' + (o === bestOffer ? 'primary' : 'visit') + ' sm" type="button" data-visit="' + esc(o.store.name) + '">' + t('visit') + '</button></td></tr>').join('');

@@ -183,7 +183,7 @@ html[lang="ar"] .cmp-best .k { letter-spacing: 0; font-size: 13px; }
 html[lang="ar"] .tag { letter-spacing: 0; }
 .tag.best { background: var(--green); color: #fff; }
 .tag.drop { background: var(--orange-wash); color: var(--orange-text); border: 1px solid var(--orange-line); }
-.tag.promo { background: var(--green-wash); color: var(--green); }
+.tag.tag-code { background: var(--green-wash); color: var(--green); }
 
 /* sections */
 .sec { padding: 36px 0; }
