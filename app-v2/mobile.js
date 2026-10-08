@@ -309,7 +309,7 @@
     return '<div class="welcome-bg" aria-hidden="true">' + photos +
       '<span class="wb-badge" style="top:104px;inset-inline-end:3%">-30%</span>' +
       '<span class="wb-badge sm far" style="top:90%;inset-inline-start:34%">%</span>' +
-      tag('top:21%;inset-inline-end:2%;--r:6deg', moneyText(1299, 'SAR'), 'save') +
+      tag('top:21%;inset-inline-end:2%;--r:6deg', moneyText(1299, 'SAR'), 'save far') +
       tag('top:77%;inset-inline-end:3%;--r:5deg', '-15%', 'far') +
       '<span class="wb-ic far" style="top:84%;inset-inline-start:6%">' + icon('M3 4h2l2.4 11h10.2L20 7H6.2M9 20h.01M17 20h.01', 26) + '</span>' +
       '<span class="wb-ic bar" style="top:83%;inset-inline-end:8%"><svg viewBox="0 0 48 28" width="52" height="30"><path d="M3 2v24M8 2v24M12 2v24M19 2v24M23 2v24M30 2v24M34 2v24M40 2v24M45 2v24" stroke="currentColor" stroke-width="2.2" fill="none"/></svg></span></div>';
