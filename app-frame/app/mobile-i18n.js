@@ -1,0 +1,120 @@
+/* DOABNO mobile app prototype: strings used only by the app. Everything else comes from ../assets/js/i18n.js.
+ * Keys ending in .zero/.one/.two/.few/.many/.other are plural forms, picked with Intl.PluralRules. */
+window.APP_I18N = {
+  en: {
+    'doc.title': 'DOABNO app · prototype',
+    'demo.title': 'DOABNO mobile app',
+    'demo.sub': 'App layout for iPhone and Android. Tap through it like the real app; it uses the same demo data as the website.',
+    'demo.screens': 'Jump to a screen', 'demo.website': 'Website', 'demo.admin': 'Admin portal',
+    'demo.phone': 'Open this page on your phone to see the app full screen.',
+    'demo.shared': 'Favorites, price alerts and settings are shared with the website in this browser.',
+    'screen.welcome': 'Welcome', 'screen.home': 'Home', 'screen.search': 'Search', 'screen.list': 'Product list',
+    'screen.product': 'Product', 'screen.deals': 'Deals', 'screen.saved': 'Saved', 'screen.profile': 'Profile',
+
+    'tab.home': 'Home', 'tab.categories': 'Categories', 'tab.deals': 'Deals', 'tab.saved': 'Saved', 'tab.profile': 'Profile',
+    'act.back': 'Back', 'act.close': 'Close', 'act.clear': 'Clear',
+    'n.products.one': '{n} product', 'n.products.other': '{n} products',
+
+    'home.popular': 'Popular right now',
+    'search.recent': 'Recent searches', 'search.none': 'No products match “{q}”.', 'search.try': 'Try a brand, product or store name.',
+    'list.sort': 'Sort', 'list.filter': 'Filter', 'list.empty': 'No products match these filters.', 'list.all': 'All',
+    'sort.title': 'Sort by', 'sort.p.popular': 'Most popular', 'sort.p.low': 'Lowest price', 'sort.p.high': 'Highest price',
+    'sort.p.drop': 'Biggest price drop', 'sort.p.rating': 'Highest rated',
+    'filter.title': 'Filter', 'filter.show': 'Show {n}', 'filter.reset': 'Reset',
+    'filter.freeAny': 'Free delivery available', 'filter.dropped': 'Price dropped',
+
+    'p.alertShort': 'Alert', 'p.visitAt': 'Visit {s}', 'p.freeOnly': 'Free delivery',
+    'o.inclDelivery': 'incl. {p} delivery',
+    'saved.title': 'Saved',
+    'profile.title': 'Profile', 'profile.email': 'Continue with email', 'profile.settings': 'Settings',
+    'profile.country': 'Country', 'profile.language': 'Language', 'profile.notifications': 'Notifications',
+    'notify.drops': 'Price drops on saved products', 'notify.alerts': 'When a price alert is reached', 'notify.weekly': 'Weekly deals summary',
+    'profile.about': 'About', 'profile.help': 'Help and support', 'profile.welcome': 'Show welcome screen',
+    'profile.version': 'Version {v} · prototype',
+
+    'welcome.t1': 'Compare', 'welcome.t2': 'Buy', 'welcome.t3': 'Save',
+    'show.label': 'Best prices right now', 'show.sorting': 'Sorting {n} stores by total price…', 'show.sorted': 'Cheapest first, delivery included', 'show.save': 'Save {x}',
+    'scan.title': 'Search by photo or barcode', 'scan.photo': 'Search by photo', 'scan.photo.d': 'Take or choose a picture of a product to find it.',
+    'scan.barcode': 'Scan a barcode', 'scan.barcode.d': 'Point your camera at the barcode on the box.',
+    'scan.entry': 'Or type the barcode number', 'scan.entry.ph': 'e.g. 6291234567895', 'scan.entry.go': 'Find',
+    'scan.analysing': 'Looking for matches…', 'scan.found': 'Possible matches', 'scan.none': 'No product found. Try a clearer picture or type the name.',
+    'scan.camera': 'Camera isn’t available here. Choose a picture or type the number instead.', 'scan.again': 'Try again', 'scan.open': 'Open',
+    'scan.live': 'Hold the barcode inside the frame', 'scan.cancel': 'Stop scanning', 'scan.badcode': 'Enter 8 to 14 digits.',
+    'scan.btn': 'Search by photo or barcode', 'scan.sample': 'No barcode handy? Try a sample',
+    'consent.email': 'Email address', 'consent.label': 'I agree that DOABNO may email me price-drop alerts, product updates and marketing offers. I can unsubscribe at any time.',
+    'consent.more': 'Privacy policy', 'consent.need': 'Please enter a valid email and tick the box to receive email alerts.',
+    'welcome.sub': 'See every offer side by side and buy at the best price.',
+    'welcome.country': 'Choose your country', 'welcome.language': 'Language', 'welcome.start': 'Get started',
+    'toast.demo': 'This page isn’t part of the prototype yet.'
+  },
+  ar: {
+    'doc.title': 'تطبيق دوابنو · نموذج أولي',
+    'demo.title': 'تطبيق دوابنو للجوال',
+    'demo.sub': 'تصميم التطبيق لأجهزة iPhone وAndroid. تنقّل فيه كأنه التطبيق الفعلي، وهو يستخدم بيانات الموقع التجريبية نفسها.',
+    'demo.screens': 'انتقل إلى شاشة', 'demo.website': 'الموقع', 'demo.admin': 'بوابة الإدارة',
+    'demo.phone': 'افتح هذه الصفحة على جوالك لعرض التطبيق بملء الشاشة.',
+    'demo.shared': 'المفضلة وتنبيهات الأسعار والإعدادات مشتركة مع الموقع في هذا المتصفح.',
+    'screen.welcome': 'الترحيب', 'screen.home': 'الرئيسية', 'screen.search': 'البحث', 'screen.list': 'قائمة المنتجات',
+    'screen.product': 'المنتج', 'screen.deals': 'العروض', 'screen.saved': 'المحفوظات', 'screen.profile': 'حسابي',
+
+    'tab.home': 'الرئيسية', 'tab.categories': 'الفئات', 'tab.deals': 'العروض', 'tab.saved': 'المحفوظات', 'tab.profile': 'حسابي',
+    'act.back': 'رجوع', 'act.close': 'إغلاق', 'act.clear': 'مسح',
+    'n.products.zero': 'لا توجد منتجات', 'n.products.one': 'منتج واحد', 'n.products.two': 'منتجان',
+    'n.products.few': '{n} منتجات', 'n.products.many': '{n} منتجًا', 'n.products.other': '{n} منتج',
+
+    'home.popular': 'الأكثر رواجًا الآن',
+    'search.recent': 'عمليات البحث الأخيرة', 'search.none': 'لا توجد منتجات تطابق «{q}».', 'search.try': 'جرّب اسم علامة تجارية أو منتج أو متجر.',
+    'list.sort': 'ترتيب', 'list.filter': 'تصفية', 'list.empty': 'لا توجد منتجات تطابق هذه التصفية.', 'list.all': 'الكل',
+    'sort.title': 'ترتيب حسب', 'sort.p.popular': 'الأكثر رواجًا', 'sort.p.low': 'الأقل سعرًا', 'sort.p.high': 'الأعلى سعرًا',
+    'sort.p.drop': 'أكبر انخفاض في السعر', 'sort.p.rating': 'الأعلى تقييمًا',
+    'filter.title': 'التصفية', 'filter.show': 'عرض {n}', 'filter.reset': 'إعادة الضبط',
+    'filter.freeAny': 'يتوفر توصيل مجاني', 'filter.dropped': 'انخفض سعره',
+
+    'p.alertShort': 'تنبيه', 'p.visitAt': 'زيارة {s}', 'p.freeOnly': 'توصيل مجاني',
+    'o.inclDelivery': 'يشمل توصيل {p}',
+    'saved.title': 'المحفوظات',
+    'profile.title': 'حسابي', 'profile.email': 'المتابعة بالبريد الإلكتروني', 'profile.settings': 'الإعدادات',
+    'profile.country': 'الدولة', 'profile.language': 'اللغة', 'profile.notifications': 'الإشعارات',
+    'notify.drops': 'انخفاض أسعار المنتجات المحفوظة', 'notify.alerts': 'عند الوصول إلى السعر المستهدف', 'notify.weekly': 'ملخص العروض الأسبوعي',
+    'profile.about': 'حول دوابنو', 'profile.help': 'المساعدة والدعم', 'profile.welcome': 'عرض شاشة الترحيب',
+    'profile.version': 'الإصدار {v} · نموذج أولي',
+
+    'welcome.t1': 'قارن', 'welcome.t2': 'اشترِ', 'welcome.t3': 'وفّر',
+    'show.label': 'أفضل الأسعار الآن', 'show.sorting': 'جارٍ ترتيب {n} متاجر حسب السعر الإجمالي…', 'show.sorted': 'الأرخص أولًا، شاملًا التوصيل', 'show.save': 'وفّر {x}',
+    'scan.title': 'ابحث بالصورة أو الباركود', 'scan.photo': 'البحث بالصورة', 'scan.photo.d': 'التقط صورة لمنتج أو اخترها لنجده لك.',
+    'scan.barcode': 'مسح الباركود', 'scan.barcode.d': 'وجّه الكاميرا نحو الباركود على العلبة.',
+    'scan.entry': 'أو اكتب رقم الباركود', 'scan.entry.ph': 'مثال: 6291234567895', 'scan.entry.go': 'بحث',
+    'scan.analysing': 'جارٍ البحث عن نتائج مطابقة…', 'scan.found': 'نتائج محتملة', 'scan.none': 'لم نجد منتجًا. جرّب صورة أوضح أو اكتب الاسم.',
+    'scan.camera': 'الكاميرا غير متاحة هنا. اختر صورة أو اكتب الرقم.', 'scan.again': 'حاول مجددًا', 'scan.open': 'فتح',
+    'scan.live': 'ضع الباركود داخل الإطار', 'scan.cancel': 'إيقاف المسح', 'scan.badcode': 'أدخل من 8 إلى 14 رقمًا.',
+    'scan.btn': 'البحث بالصورة أو الباركود', 'scan.sample': 'ليس لديك باركود؟ جرّب مثالًا',
+    'consent.email': 'البريد الإلكتروني', 'consent.label': 'أوافق على أن يرسل لي دوابنو تنبيهات انخفاض الأسعار وتحديثات المنتجات والعروض التسويقية عبر البريد الإلكتروني. يمكنني إلغاء الاشتراك في أي وقت.',
+    'consent.more': 'سياسة الخصوصية', 'consent.need': 'يرجى إدخال بريد إلكتروني صحيح ووضع علامة الموافقة لتلقي التنبيهات عبر البريد.',
+    'welcome.sub': 'اطّلع على جميع العروض جنبًا إلى جنب واشترِ بأفضل سعر.',
+    'welcome.country': 'اختر دولتك', 'welcome.language': 'اللغة', 'welcome.start': 'ابدأ الآن',
+    'toast.demo': 'هذه الصفحة غير متاحة في النموذج الأولي بعد.'
+  }
+};
+
+// Strings added for the redesigned app.
+Object.assign(window.APP_I18N.en, {
+  'p.updatedToday': 'Updated today', 'p.verified': 'Verified today', 'p.deliveryIncl': 'Delivery included', 'p.belowAvg': 'below the 30-day average', 'p.others': 'Other stores',
+  'h.current': 'Current',
+  'err.title': 'We couldn’t update prices', 'err.text': 'The stores didn’t respond this time.', 'err.retry': 'Try again',
+  'search.clear': 'Clear search',
+  'fav.emptyTitle': 'No saved products yet', 'alerts.emptyTitle': 'No price alerts yet', 'list.emptyTitle': 'Nothing to show',
+  'cmp.s1': 'Checking {n} stores…', 'cmp.s2': 'Comparing prices…', 'cmp.s3': 'Lowest price found',
+  'demo.states': 'Preview states', 'demo.error': 'Error state', 'demo.loading': 'Loading state'
+});
+Object.assign(window.APP_I18N.ar, {
+  'p.updatedToday': 'تم التحديث اليوم', 'p.verified': 'تم التحقق اليوم', 'p.deliveryIncl': 'التوصيل مشمول', 'p.belowAvg': 'أقل من متوسط 30 يومًا', 'p.others': 'متاجر أخرى',
+  'h.current': 'الحالي',
+  'err.title': 'تعذّر تحديث الأسعار', 'err.text': 'لم تستجب المتاجر هذه المرة.', 'err.retry': 'حاول مرة أخرى',
+  'search.clear': 'مسح البحث',
+  'fav.emptyTitle': 'لا توجد منتجات محفوظة بعد', 'alerts.emptyTitle': 'لا توجد تنبيهات أسعار بعد', 'list.emptyTitle': 'لا شيء لعرضه',
+  'cmp.s1': 'فحص {n} متاجر…', 'cmp.s2': 'مقارنة الأسعار…', 'cmp.s3': 'تم العثور على أقل سعر',
+  'demo.states': 'معاينة الحالات', 'demo.error': 'حالة الخطأ', 'demo.loading': 'حالة التحميل'
+});
+
+Object.assign(window.APP_I18N.en, { 'home.trending': 'Trending', 'strip.save': 'Save {x}', 'strip.alt': 'Example: {p} compared across stores, lowest total {x}.' });
+Object.assign(window.APP_I18N.ar, { 'home.trending': 'الأكثر بحثًا', 'strip.save': 'وفّر {x}', 'strip.alt': 'مثال: مقارنة {p} بين المتاجر، أقل سعر إجمالي {x}.' });

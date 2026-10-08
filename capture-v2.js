@@ -20,13 +20,16 @@ const BROWSERS = [
 ];
 
 // ---------- demo state stored in the browser before each page loads ----------
-const FAVS = ['sony-wh1000xm6', 'dior-sauvage', 'dyson-v15'];
+const FAVS = ['sony-wh1000xm6', 'dyson-v15', 'nike-af1', 'dior-sauvage', 'nespresso-vertuo'];
 const ALERTS = [
-  { id: 'dyson-v15', target: 2400, currency: 'SAR', email: true, push: true },
-  { id: 'airpods-pro-3', target: 700, currency: 'SAR', email: false, push: true }
+  { id: 'ps5-pro', target: 2513, currency: 'SAR', email: false, push: true },
+  { id: 'iphone-17-pro', target: 3600, currency: 'SAR', email: true, push: true },
+  { id: 'airpods-pro-3', target: 754, currency: 'SAR', email: false, push: true },
+  { id: 'galaxy-s26-ultra', target: 4007, currency: 'SAR', email: false, push: true },
+  { id: 'apple-watch-11', target: 1380, currency: 'SAR', email: false, push: true }
 ];
 const SITE = { cookie: 'essential', lang: 'en', market: 'sa', currency: 'SAR', favs: FAVS, alerts: ALERTS, recent: [] };
-const APP = Object.assign({}, SITE, { 'app.welcomed': true, recent: ['sony-wh1000xm6', 'nespresso-vertuo', 'nike-af1'], 'app.searches': ['AirPods Pro', 'Dyson V15', 'Air Force 1'] });
+const APP = Object.assign({}, SITE, { 'app.welcomed': true, 'app.demoSeeded': true, recent: ['sony-wh1000xm6', 'nespresso-vertuo', 'nike-af1'], 'app.searches': ['AirPods Pro', 'Dyson V15', 'Air Force 1'] });
 const ADMIN = { 'admin.session': { email: 'admin@example.com', name: 'Admin' }, 'admin.lang': 'en', 'admin.market': 'all', 'admin.range': 30 };
 const arabic = seed => Object.assign({}, seed, 'admin.lang' in seed ? { 'admin.lang': 'ar' } : { lang: 'ar' });
 
@@ -50,6 +53,9 @@ const WEBUSER = Object.assign({}, WEBSEED, { user: { name: 'Sara Ali', email: 's
 const SHOTS = [
   // 1. Onboarding
   { file: 'app/01-onboarding-welcome-en', flow: '1. Onboarding', title: 'Welcome: country and language', url: '/app/#/welcome', ...PHONE, seed: Object.assign({}, APP, { 'app.welcomed': false }) },
+  { file: 'app/x08-search-photo-barcode-en', flow: '3. Search', title: 'Search: photo and barcode sheet', url: '/app/#/search', ...PHONE, seed: APP, action: "document.querySelector('.scan-in').click()", settle: 600 },
+  { file: 'app/x09-search-barcode-matches-en', flow: '3. Search', title: 'Search: barcode matches', url: '/app/#/search', ...PHONE, seed: APP, action: "document.querySelector('.scan-in').click(); setTimeout(() => document.querySelector('[data-scan-code]').click(), 500)", settle: 1400 },
+  { file: 'app/x19-product-alert-email-consent-en', flow: '5. Product', title: 'Product: price alert with email consent', url: '/app/#/p/iphone-17-pro', ...PHONE, seed: APP, action: "document.querySelector('[data-sheet=\"alert\"]').click(); setTimeout(() => document.querySelector('#sheetForm input[name=email]').click(), 500)", settle: 1400 },
   // 2. Home
   { file: 'app/02-home-en', flow: '2. Home', title: 'Home: search, price race, trending, categories', url: '/app/#/', ...PHONE, wait: 4600, until: RACE_DONE, seed: APP },
   { file: 'app/03-home-market-sheet-en', flow: '2. Home', title: 'Home: market selector sheet', url: '/app/#/', ...PHONE, seed: APP, action: click('[data-sheet="country"]') },
