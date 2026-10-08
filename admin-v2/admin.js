@@ -24,7 +24,8 @@
     lang: load('lang', 'en'),
     market: load('market', 'all'),
     range: RANGES.includes(load('range', 30)) ? load('range', 30) : 30,
-    session: load('session', null)
+    session: load('session', null),
+    collapsed: load('collapsed', false) === true
   };
   if (state.market !== 'all' && !MARKETS.includes(state.market)) state.market = 'all';
   const ui = { editCat: null, keepScroll: false };
@@ -108,7 +109,7 @@
     coupons: 'M4 7a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 000-4zM10 5v14',
     reports: 'M4 19h16M5 15l4-4 3 3 6-7',
     users: 'M9 11a4 4 0 100-8 4 4 0 000 8zM2 21a7 7 0 0114 0M16 3.1a4 4 0 010 7.8M22 21a7 7 0 00-5-6.7',
-    settings: 'M12 15a3 3 0 100-6 3 3 0 000 6zM4 12h2M18 12h2M12 4v2M12 18v2M6.3 6.3l1.4 1.4M16.3 16.3l1.4 1.4M6.3 17.7l1.4-1.4M16.3 7.7l1.4-1.4',
+    settings: 'M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2zM15 12a3 3 0 11-6 0 3 3 0 016 0z',
     external: 'M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5',
     search: 'M11 4a7 7 0 110 14 7 7 0 010-14zM20 20l-4-4',
     plus: 'M12 5v14M5 12h14',
@@ -161,7 +162,15 @@
   const storeLogo = s => '<span class="slogo" style="--c:' + esc(s.color || '#0E2A47') + '" aria-hidden="true">' + esc(s.name.charAt(0)) + (DOMAINS[s.id] ? logoImg(DOMAINS[s.id]) : '') + '</span>';
   // Brand logo next to a product's brand name (nothing is shown if the logo is unavailable).
   const brandMark = b => BRAND_DOMAINS[b] ? '<span class="bmark" aria-hidden="true">' + logoImg(BRAND_DOMAINS[b]) + '</span>' : '';
-  const storeCell = s => '<span class="store-cell">' + storeLogo(s) + '<span>' + esc(s.name) + (state.market === 'all' ? ' ' + mk(s.market) : '') + '</span></span>';
+  // A store's categories as one line of chips: "All categories" when it sells everything, else the first one and "+N" for the rest (hover lists them).
+  const catChips = cats => {
+    const names = cats.map(k => L(catById(k) || { en: k }));
+    if (cats.length >= D.CATEGORIES.length) return '<span class="cats"><span class="chip chip-sm" title="' + esc(names.join(', ')) + '">' + t('filter.allCats') + '</span></span>';
+    const rest = names.slice(1);
+    return '<span class="cats">' + names.slice(0, 1).map(n => '<span class="chip chip-sm">' + esc(n) + '</span>').join('') +
+      (rest.length ? '<span class="chip chip-sm chip-more" title="' + esc(rest.join(', ')) + '">+' + rest.length + '</span>' : '') + '</span>';
+  };
+  const storeCell = s =>'<span class="store-cell">' + storeLogo(s) + '<span>' + esc(s.name) + (state.market === 'all' ? ' ' + mk(s.market) : '') + '</span></span>';
 
   const BADGES = {
     ok: ['good', 'ok'], active: ['good', 'ok'], verified: ['good', 'ok'],
@@ -511,7 +520,7 @@
       '<p class="rev-note">' + t('dash.revNote', { m: scopeName() }) + '</p></div>' +
       '<div class="rev-bars" role="img" aria-label="' + esc(label) + '">' + months.map((x, i) =>
         '<span class="rb' + (i === months.length - 1 ? ' now' : '') + '" title="' + esc(fmtDate(x.from) + ' – ' + fmtDate(x.d) + ': ' + textOf(sar(x.v, { whole: true }))) + '">' +
-        '<span class="rb-bar" style="--h:' + (x.v / max).toFixed(3) + '"></span><span class="rb-l">' + monthName(x, 'short') + '</span></span>').join('') +
+        '<span class="rb-bar" style="--h:' + (x.v / max).toFixed(3) + ';--i:' + i + '"></span><span class="rb-l">' + monthName(x, 'short') + '</span></span>').join('') +
       '</div></div></section>';
   }
 
@@ -803,7 +812,7 @@
       '<section class="card card-flush">' + toolbar(base,
         searchField(params.q, t('stores.search')) +
         '<select name="status" aria-label="' + t('col.status') + '">' + selectOpts([['', t('filter.allStatus')], ['active', t('status.active')], ['paused', t('status.paused')]], params.status) + '</select>') +
-      (pg.rows.length ? '<div class="table-wrap"><table class="table"><thead><tr>' + sortHead(t('col.store'), 'name', sp, base, 'asc') + '<th>' + t('col.categories') + '</th>' +
+      (pg.rows.length ? '<div class="table-wrap"><table class="table table-stores"><thead><tr>' + sortHead(t('col.store'), 'name', sp, base, 'asc') + '<th>' + t('col.categories') + '</th>' +
         sortHead(t('col.offers'), 'offers', sp, base, 'desc', 'num') + sortHead(t('col.clicksRange', { r: t('range.' + state.range).toLowerCase() }), 'clicks', sp, base, 'desc', 'num') +
         sortHead(t('col.cpc'), 'cpc', sp, base, 'desc', 'num') + '<th>' + t('col.feed') + '</th>' + sortHead(t('col.rating'), 'rating', sp, base, 'desc', 'num') +
         '<th>' + t('col.active') + '</th><th><span class="sr-only">' + t('col.actions') + '</span></th></tr></thead><tbody>' +
@@ -811,11 +820,11 @@
           const f = feedOf(s);
           const g = clicksBy.get(s.id);
           return '<tr' + (s.active === false ? ' class="row-muted"' : '') + '><td>' + storeCell(s) + '</td>' +
-            '<td class="cats">' + s.cats.map(k => '<span class="chip chip-sm">' + esc(L(catById(k) || { en: k })) + '</span>').join('') + '</td>' +
+            '<td class="cats-cell">' + catChips(s.cats) + '</td>' +
             '<td class="num">' + num(offersBy.get(s.id) || 0) + '</td><td class="num">' + num(g ? g.clicks : 0) + '</td>' +
             '<td class="num">' + sar(s.cpc * D.RATES.SAR) + '</td><td>' + badge(f.status, t('status.' + f.status)) + '</td><td class="num">' + s.rating.toFixed(1) + '</td>' +
             '<td><label class="switch"><input type="checkbox" role="switch" data-store-toggle="' + s.id + '"' + (s.active !== false ? ' checked' : '') + '><span class="switch-ui" aria-hidden="true"></span><span class="sr-only">' + t('col.active') + ': ' + esc(s.name) + '</span></label></td>' +
-            '<td class="actions"><button type="button" class="btn btn-ghost btn-sm" data-store-form="' + s.id + '">' + icon(ICONS.edit, 16) + t('act.edit') + '</button></td></tr>';
+            '<td class="actions"><button type="button" class="row-act" data-store-form="' + s.id + '" title="' + t('act.edit') + '" aria-label="' + t('act.edit') + ': ' + esc(s.name) + '">' + icon(ICONS.edit, 17) + '</button></td></tr>';
         }).join('') + '</tbody></table></div>' + pager(pg, base, params, sorted.length) : empty(t('empty.filters'))) + '</section>';
   }
 
@@ -1139,7 +1148,7 @@
   function renderNav(section) {
     const feedErrors = MARKETS.flatMap(m => A.STORES[m]).filter(s => s.active !== false && feedOf(s).status === 'error').length;
     $('#nav').innerHTML = NAV.map(([group, items]) => '<p class="nav-group">' + t(group) + '</p><ul>' + items.map(([path, ic, key]) =>
-      '<li><a href="#/' + path + '"' + (section === path ? ' aria-current="page"' : '') + '>' + icon(ICONS[ic], 20) + '<span>' + t(key) + '</span>' +
+      '<li><a href="#/' + path + '"' + (section === path ? ' aria-current="page"' : '') + ' data-tip="' + esc(t(key)) + '">' + icon(ICONS[ic], 20) + '<span>' + t(key) + '</span>' +
       (path === 'feeds' && feedErrors ? '<b class="nav-count" aria-label="' + t('attn.feedErrors', { n: tp('n.feeds', feedErrors) }) + '">' + num(feedErrors) + '</b>' : '') + '</a></li>').join('') + '</ul>').join('');
     const dot = $('#bellDot');
     if (dot) { dot.hidden = !feedErrors; dot.textContent = num(feedErrors); }
@@ -1154,6 +1163,7 @@
     $$('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
     $$('.lang-toggle').forEach(b => { b.textContent = state.lang === 'ar' ? 'English' : 'العربية'; b.lang = state.lang === 'ar' ? 'en' : 'ar'; });
     $('#marketSel').innerHTML = selectOpts([['all', t('market.all')]].concat(MARKETS.map(m => [m, t('market.' + m)])), state.market);
+    setCollapsed(state.collapsed);
     const s = state.session;
     if (s) {
       $('#userName').textContent = s.name;
@@ -1175,7 +1185,8 @@
     const params = parseQuery(qs);
     const parts = path.split('/').filter(Boolean);
     const y = ui.keepScroll ? window.scrollY : 0;
-    if (path !== current.path) ui.editCat = null;
+    const fresh = path !== current.path; // a new page (not a filter, sort or range change on the same one)
+    if (fresh) ui.editCat = null;
     current = { path, params };
     Object.keys(charts).forEach(k => { delete charts[k]; });
     closeDrawer(); closeDialog(); setMenu(false); setUserMenu(false);
@@ -1187,7 +1198,10 @@
       offers: () => pageOffers(params), categories: () => pageCategories(), stores: () => pageStores(params),
       feeds: () => pageFeeds(params), coupons: () => pageCoupons(params), users: () => pageUsers(params), settings: () => pageSettings()
     };
-    $('#main').innerHTML = (pages[section] || notFound)();
+    const main = $('#main');
+    main.classList.remove('enter');
+    main.innerHTML = (pages[section] || notFound)();
+    if (fresh) { void main.offsetWidth; main.classList.add('enter'); } // replays the entrance animation (CSS) only when arriving on a page
     renderNav(pages[section] ? section : null);
     const h1 = $('#main h1');
     document.title = t('doc.title', { p: h1 ? h1.textContent : 'DOABNO' });
@@ -1202,6 +1216,16 @@
     $('#app').classList.toggle('menu-open', open);
     $('#menuBtn').setAttribute('aria-expanded', String(open));
   }
+  // Desktop: the logo button folds the sidebar into an icon rail (remembered in this browser). Phones use the slide-in menu instead.
+  const isPhone = () => window.matchMedia('(max-width: 900px)').matches;
+  function setCollapsed(on) {
+    state.collapsed = on;
+    $('#app').classList.toggle('side-collapsed', on);
+    const b = $('#sideToggle');
+    b.setAttribute('aria-expanded', String(!on));
+    b.setAttribute('aria-label', t(on ? 'side.expand' : 'side.collapse'));
+    b.title = t(on ? 'side.expand' : 'side.collapse');
+  }
   function setUserMenu(open) {
     $('#userMenu').hidden = !open;
     $('#userBtn').setAttribute('aria-expanded', String(open));
@@ -1210,7 +1234,7 @@
   // ---------- events ----------
   document.addEventListener('click', e => {
     if (!e.target.closest('#userBtn, #userMenu')) setUserMenu(false);
-    const el = e.target.closest('[data-top-tab],[data-range],[data-run],[data-store-form],[data-coupon-form],[data-del-coupon],[data-edit-cat],[data-cancel-cat],[data-del-sub],[data-invite],[data-reset],[data-export],[data-logout],[data-close-drawer],[data-close-menu],[data-dialog-cancel],#dialogOk,#menuBtn,#userBtn,.lang-toggle,.nav a');
+    const el = e.target.closest('[data-top-tab],[data-range],[data-run],[data-store-form],[data-coupon-form],[data-del-coupon],[data-edit-cat],[data-cancel-cat],[data-del-sub],[data-invite],[data-reset],[data-export],[data-logout],[data-close-drawer],[data-close-menu],[data-dialog-cancel],#dialogOk,#menuBtn,#sideToggle,#userBtn,.lang-toggle,.nav a');
     if (!el) return;
     if (el.dataset.topTab) { ui.topTab = el.dataset.topTab; rerender(); }
     else if (el.dataset.range) { state.range = +el.dataset.range; save('range', state.range); rerender(); }
@@ -1244,9 +1268,18 @@
     else if (el.hasAttribute('data-dialog-cancel')) closeDialog();
     else if (el.id === 'dialogOk') { const fn = onConfirm; closeDialog(); if (fn) fn(); }
     else if (el.id === 'menuBtn') setMenu(!$('#app').classList.contains('menu-open'));
+    else if (el.id === 'sideToggle') {
+      if (isPhone()) setMenu(false);
+      else { setCollapsed(!state.collapsed); save('collapsed', state.collapsed); setUserMenu(false); }
+    }
     else if (el.id === 'userBtn') setUserMenu($('#userMenu').hidden);
     else if (el.classList.contains('lang-toggle')) { state.lang = state.lang === 'ar' ? 'en' : 'ar'; save('lang', state.lang); applyChrome(); rerender(); }
     else if (el.closest('.nav')) setMenu(false);
+  });
+
+  // Clicking the search icon on the folded rail opens the sidebar so there is room to type.
+  document.addEventListener('focusin', e => {
+    if (e.target.id === 'sideQ' && state.collapsed && !isPhone()) { setCollapsed(false); save('collapsed', false); }
   });
 
   document.addEventListener('change', e => {

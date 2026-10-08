@@ -278,7 +278,7 @@ async function capture(page, shot) {
   await page.send('Page.navigate', { url: BASE + shot.url });
   await loaded;
   await page.send('Page.removeScriptToEvaluateOnNewDocument', { identifier });
-  await sleep(400 + (shot.wait || 0));
+  await sleep(400 + (shot.wait || 0) + (shot.url.startsWith('/admin/') ? 900 : 0)); // admin pages play a short entrance animation (about 1 s)
   await page.evaluate(WAIT_ASSETS);
   if (shot.action) { await page.evaluate(shot.action); await sleep(shot.settle || 700); await page.evaluate(WAIT_ASSETS); }
 
