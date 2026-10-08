@@ -7,7 +7,7 @@
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
   const MARKETS = Object.keys(D.MARKETS);
-  const DAYS = 180; // days of demo traffic history
+  const DAYS = 540; // days of demo traffic history (six 90-day periods for the dashboard revenue bars)
   const PER_PAGE = 20;
   const RANGES = [7, 30, 90];
   const MARKET_WEIGHT = { sa: 1, ae: 0.62, us: 0.38, uk: 0.3 };
@@ -24,7 +24,8 @@
     lang: load('lang', 'en'),
     market: load('market', 'all'),
     range: RANGES.includes(load('range', 30)) ? load('range', 30) : 30,
-    session: load('session', null)
+    session: load('session', null),
+    collapsed: load('collapsed', false) === true
   };
   if (state.market !== 'all' && !MARKETS.includes(state.market)) state.market = 'all';
   const ui = { editCat: null, keepScroll: false };
@@ -77,6 +78,10 @@
     const f = opts.compact ? compact(amount) : num(amount, opts.whole ? 0 : 2);
     return '<span class="money">' + (state.lang === 'ar' ? f + ' ر.س' : 'SAR ' + f) + '</span>';
   }
+  function sarBig(amount) {
+    const f = num(amount, 0);
+    return '<span class="money">' + (state.lang === 'ar' ? f + ' <span class="cur">ر.س</span>' : '<span class="cur">SAR</span> ' + f) + '</span>';
+  }
   function price(amount, cur) {
     const sym = D.CURRENCIES[cur][state.lang];
     const f = num(amount, 2);
@@ -104,7 +109,7 @@
     coupons: 'M4 7a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 000-4zM10 5v14',
     reports: 'M4 19h16M5 15l4-4 3 3 6-7',
     users: 'M9 11a4 4 0 100-8 4 4 0 000 8zM2 21a7 7 0 0114 0M16 3.1a4 4 0 010 7.8M22 21a7 7 0 00-5-6.7',
-    settings: 'M12 15a3 3 0 100-6 3 3 0 000 6zM4 12h2M18 12h2M12 4v2M12 18v2M6.3 6.3l1.4 1.4M16.3 16.3l1.4 1.4M6.3 17.7l1.4-1.4M16.3 7.7l1.4-1.4',
+    settings: 'M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2zM15 12a3 3 0 11-6 0 3 3 0 016 0z',
     external: 'M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5',
     search: 'M11 4a7 7 0 110 14 7 7 0 010-14zM20 20l-4-4',
     plus: 'M12 5v14M5 12h14',
@@ -123,8 +128,13 @@
     logout: 'M15 4h4a1 1 0 011 1v14a1 1 0 01-1 1h-4M10 16l-4-4 4-4M6 12h11',
     back: 'M15 6l-6 6 6 6',
     chevron: 'M9 6l6 6-6 6',
-    click: 'M9 9l11 4-5 2-2 5zM4 4l2.5 2.5M9 2v3M2 9h3'
+    click: 'M9 9l11 4-5 2-2 5zM4 4l2.5 2.5M9 2v3M2 9h3',
+    bell: 'M6 16V11a6 6 0 1112 0v5l2 2H4l2-2zM10 20a2 2 0 004 0',
+    trendUp: 'M3 17l6-6 4 4 7-7M14 8h6v6',
+    trendDown: 'M3 7l6 6 4-4 7 7M14 16h6v-6',
+    updown: 'M8 9l4-4 4 4M8 15l4 4 4-4'
   };
+  const KEBAB = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="5" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="19" r="1.8" fill="currentColor"/></svg>';
   function icon(path, size = 20) {
     return '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" aria-hidden="true"><path d="' + path + '" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   }
@@ -152,7 +162,15 @@
   const storeLogo = s => '<span class="slogo" style="--c:' + esc(s.color || '#0E2A47') + '" aria-hidden="true">' + esc(s.name.charAt(0)) + (DOMAINS[s.id] ? logoImg(DOMAINS[s.id]) : '') + '</span>';
   // Brand logo next to a product's brand name (nothing is shown if the logo is unavailable).
   const brandMark = b => BRAND_DOMAINS[b] ? '<span class="bmark" aria-hidden="true">' + logoImg(BRAND_DOMAINS[b]) + '</span>' : '';
-  const storeCell = s => '<span class="store-cell">' + storeLogo(s) + '<span>' + esc(s.name) + (state.market === 'all' ? ' ' + mk(s.market) : '') + '</span></span>';
+  // A store's categories as one line of chips: "All categories" when it sells everything, else the first one and "+N" for the rest (hover lists them).
+  const catChips = cats => {
+    const names = cats.map(k => L(catById(k) || { en: k }));
+    if (cats.length >= D.CATEGORIES.length) return '<span class="cats"><span class="chip chip-sm" title="' + esc(names.join(', ')) + '">' + t('filter.allCats') + '</span></span>';
+    const rest = names.slice(1);
+    return '<span class="cats">' + names.slice(0, 1).map(n => '<span class="chip chip-sm">' + esc(n) + '</span>').join('') +
+      (rest.length ? '<span class="chip chip-sm chip-more" title="' + esc(rest.join(', ')) + '">+' + rest.length + '</span>' : '') + '</span>';
+  };
+  const storeCell = s =>'<span class="store-cell">' + storeLogo(s) + '<span>' + esc(s.name) + (state.market === 'all' ? ' ' + mk(s.market) : '') + '</span></span>';
 
   const BADGES = {
     ok: ['good', 'ok'], active: ['good', 'ok'], verified: ['good', 'ok'],
@@ -321,30 +339,38 @@
 
   const charts = {};
   let chartSeq = 0;
-  // Single-series line chart with a hover/keyboard crosshair. Values: oldest → newest, one per day.
-  function lineChart(values, fmt, label) {
+  // Line chart with a hover/keyboard crosshair. Values: oldest → newest, one per day. opts.prev adds the previous period as a second line.
+  function lineChart(values, fmt, label, opts = {}) {
     const id = 'ch' + (++chartSeq);
     const n = values.length;
-    const ticks = niceTicks(Math.max.apply(null, values));
+    const prev = opts.prev && opts.prev.length === n ? opts.prev : null;
+    const ticks = niceTicks(Math.max.apply(null, values.concat(prev || [])));
     const top = ticks[ticks.length - 1];
     const W = 720, H = 220;
     const X = i => (n === 1 ? W / 2 : i / (n - 1) * W);
     const Y = v => (1 - v / top) * H;
-    const line = 'M' + values.map((v, i) => X(i).toFixed(1) + ',' + Y(v).toFixed(1)).join('L');
+    const path = vals => 'M' + vals.map((v, i) => X(i).toFixed(1) + ',' + Y(v).toFixed(1)).join('L');
+    const line = path(values);
     const dates = values.map((_, i) => dayDate(DAYS - n + i));
-    charts[id] = { values, dates, fmt, top };
+    charts[id] = { values, prev, dates, fmt, top };
+    const k = n <= 7 ? n : 6;
+    const marks = Array.from({ length: k }, (_, j) => (k === 1 ? 0 : Math.round(j * (n - 1) / (k - 1))));
+    const xLabel = i => (i === n - 1 ? t('time.today') : n <= 7 ? fmtDate(dates[i], { weekday: 'short' }) : fmtDate(dates[i]));
     return '<figure class="lchart"><div class="lchart-body">' +
       '<div class="lchart-y" aria-hidden="true">' + ticks.map(v => '<span style="top:' + (Y(v) / H * 100).toFixed(2) + '%">' + compact(v) + '</span>').join('') + '</div>' +
       '<div class="lchart-plot" data-chart="' + id + '" tabindex="0" role="img" aria-label="' + esc(label) + '">' +
-      '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true">' +
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="g' + id + '" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#0E2A47" stop-opacity=".22"/><stop offset="1" stop-color="#0E2A47" stop-opacity="0"/></linearGradient></defs>' +
       ticks.map(v => '<line class="gridline" x1="0" x2="' + W + '" y1="' + Y(v).toFixed(1) + '" y2="' + Y(v).toFixed(1) + '" vector-effect="non-scaling-stroke"/>').join('') +
-      '<path class="area" d="' + line + 'L' + W + ',' + H + 'L0,' + H + 'Z"/>' +
+      '<path class="area" style="fill:url(#g' + id + ')" d="' + line + 'L' + W + ',' + H + 'L0,' + H + 'Z"/>' +
+      (prev ? '<path class="line2" d="' + path(prev) + '" vector-effect="non-scaling-stroke"/>' : '') +
       '<path class="line" d="' + line + '" vector-effect="non-scaling-stroke"/></svg>' +
       '<span class="lchart-end" style="left:100%;top:' + (Y(values[n - 1]) / H * 100).toFixed(2) + '%"></span>' +
       '<span class="lchart-cross" hidden></span><span class="lchart-dot" hidden></span><span class="lchart-tip" hidden></span></div></div>' +
-      '<div class="lchart-x" aria-hidden="true"><span>' + fmtDate(dates[0]) + '</span><span>' + fmtDate(dates[Math.floor((n - 1) / 2)]) + '</span><span>' + t('time.today') + '</span></div>' +
-      '<details class="chart-table"><summary>' + t('chart.table') + '</summary><div class="table-wrap"><table class="table table-compact"><thead><tr><th>' + t('col.date') + '</th><th class="num">' + esc(label) + '</th></tr></thead><tbody>' +
-      values.map((v, i) => '<tr><td>' + fmtDate(dates[i], { weekday: 'short', day: 'numeric', month: 'short' }) + '</td><td class="num">' + fmt(v) + '</td></tr>').reverse().join('') +
+      '<div class="lchart-x" aria-hidden="true">' + marks.map(i => '<span' + (i === n - 1 ? ' class="now"' : '') + '>' + xLabel(i) + '</span>').join('') + '</div>' +
+      '<details class="chart-table"><summary>' + t('chart.table') + '</summary><div class="table-wrap"><table class="table table-compact"><thead><tr><th>' + t('col.date') + '</th><th class="num">' + esc(label) + '</th>' +
+      (prev ? '<th class="num">' + t('dash.prevPeriod') + '</th>' : '') + '</tr></thead><tbody>' +
+      values.map((v, i) => '<tr><td>' + fmtDate(dates[i], { weekday: 'short', day: 'numeric', month: 'short' }) + '</td><td class="num">' + fmt(v) + '</td>' + (prev ? '<td class="num">' + fmt(prev[i]) + '</td>' : '') + '</tr>').reverse().join('') +
       '</tbody></table></div></details></figure>';
   }
   function chartShow(plot, i) {
@@ -363,7 +389,14 @@
     value.textContent = textOf(c.fmt(c.values[i]));
     const when = document.createElement('small');
     when.textContent = i === n - 1 ? t('time.today') : fmtDate(c.dates[i], { weekday: 'short', day: 'numeric', month: 'short' });
-    tip.replaceChildren(value, when);
+    const parts = [value, when];
+    if (c.prev) {
+      const before = document.createElement('small');
+      before.className = 'prev';
+      before.textContent = t('dash.prevShort', { v: textOf(c.fmt(c.prev[i])) });
+      parts.push(before);
+    }
+    tip.replaceChildren.apply(tip, parts);
     tip.style.left = x + '%';
     tip.style.transform = x < 14 ? 'translateX(0)' : x > 86 ? 'translateX(-100%)' : 'translateX(-50%)';
     tip.style.top = y > 45 ? '4px' : 'auto';
@@ -389,15 +422,17 @@
       pts.map(q => q[0].toFixed(1) + ' ' + q[1].toFixed(1)).join('L') + '"/><circle cx="' + end[0].toFixed(1) + '" cy="' + end[1].toFixed(1) + '" r="3.5"/></svg>';
   }
 
-  // Stat tile: label, value, optional delta vs the previous period (colour = direction × whether up is good) and trend.
+  // Trend line under a KPI: arrow and % change (colour = direction × whether up is good), then the comparison period.
+  function deltaLine(d, goodUp = true) {
+    if (d === undefined || !isFinite(d)) return '';
+    const up = d >= 0;
+    return '<p class="tile-delta"><span class="delta ' + (up === goodUp ? 'good' : 'bad') + '">' + icon(up ? ICONS.trendUp : ICONS.trendDown, 15) + pct(Math.abs(d)) + '</span>' +
+      '<span class="tile-vs">' + t('kpi.vs', { n: tp('n.days', state.range) }) + '</span></p>';
+  }
+  // Stat tile: icon, label, value, optional trend vs the previous period, sub-line and sparkline.
   function statTile(label, value, opts = {}) {
-    let delta = '';
-    if (opts.delta !== undefined && isFinite(opts.delta)) {
-      const up = opts.delta >= 0;
-      delta = '<p class="tile-delta"><span class="delta ' + (up === (opts.goodUp !== false) ? 'good' : 'bad') + '">' + icon(up ? ICONS.up : ICONS.down, 14) +
-        (up ? '+' : '−') + pct(Math.abs(opts.delta)) + '</span> <span class="muted">' + t('kpi.vs', { n: tp('n.days', state.range) }) + '</span></p>';
-    }
-    return '<div class="tile"><p class="tile-label">' + label + '</p><p class="tile-value">' + value + '</p>' + delta +
+    return '<div class="tile">' + (opts.icon ? '<span class="tile-ic' + (opts.tone ? ' tone-' + opts.tone : '') + '">' + icon(ICONS[opts.icon], 18) + '</span>' : '') +
+      '<p class="tile-label">' + label + '</p><p class="tile-value">' + value + '</p>' + deltaLine(opts.delta, opts.goodUp !== false) +
       (opts.sub ? '<p class="tile-sub">' + opts.sub + '</p>' : '') + (opts.spark ? sparkline(opts.spark) : '') + '</div>';
   }
 
@@ -407,7 +442,8 @@
   }
   const rangeSeg = () => '<div class="seg" role="group" aria-label="' + t('range.label') + '">' +
     RANGES.map(r => '<button type="button" data-range="' + r + '" aria-pressed="' + (r === state.range) + '">' + t('range.' + r) + '</button>').join('') + '</div>';
-  const card = (title, body, opts = {}) => '<section class="card' + (opts.cls ? ' ' + opts.cls : '') + '"><header class="card-head"><div><h2>' + title + '</h2>' +
+  const card = (title, body, opts = {}) => '<section class="card' + (opts.cls ? ' ' + opts.cls : '') + '"><header class="card-head"><div>' +
+    (opts.icon ? '<span class="card-ic' + (opts.tone ? ' tone-' + opts.tone : '') + '">' + icon(ICONS[opts.icon], 18) + '</span>' : '') + '<h2>' + title + '</h2>' +
     (opts.sub ? '<p>' + opts.sub + '</p>' : '') + '</div>' + (opts.action || '') + '</header>' + body + '</section>';
   const empty = text => '<div class="empty">' + icon(ICONS.info, 24) + '<p>' + text + '</p></div>';
 
@@ -463,6 +499,38 @@
   const toolbar = (base, fields) => '<form class="toolbar" data-filter="' + base + '">' + fields + '</form>';
 
   // ---------- dashboard ----------
+  // Estimated revenue in six back-to-back periods of the selected range (7, 30 or 90 days) ending today, oldest first,
+  // so the newest bar always equals the big number beside it.
+  const YMD = { day: 'numeric', month: 'short', year: 'numeric' };
+  function periodRevenue(dailyRev, R) {
+    const n = dailyRev.length, out = [];
+    for (let k = 5; k >= 0; k--) {
+      const end = n - k * R, start = Math.max(0, end - R);
+      if (end <= 0) continue;
+      out.push({ d: dayDate(end - 1), from: dayDate(start), v: sumDays(dailyRev, start, end) });
+    }
+    return out;
+  }
+  function revenueCard(revenue, delta, dailyRev) {
+    const R = state.range;
+    const periods = periodRevenue(dailyRev, R);
+    const max = Math.max.apply(null, periods.map(x => x.v).concat(1));
+    // Weeks are labelled by their last day (4/10); months and quarters by the month they end in.
+    const tag = x => fmtDate(x.d, R === 7 ? { day: 'numeric', month: 'numeric' } : { month: 'short' });
+    const label = t('dash.monthly', { n: tp('n.days', R) }) + ': ' + periods.map(x => fmtDate(x.from) + ' – ' + fmtDate(x.d) + ' ' + textOf(sar(x.v, { whole: true }))).join(', ');
+    const span = x => R === 90 ? fmtDate(x.from, YMD) + ' – ' + fmtDate(x.d, YMD) : fmtDate(x.from) + ' – ' + fmtDate(x.d); // quarters cross years, so show the year
+    const anim = ui.barsAnim ? ' anim' : ''; // replay the bar growth after the range changes
+    ui.barsAnim = false;
+    return '<section class="card rev-card"><header class="rev-head"><div><span class="card-ic">' + icon(ICONS.reports, 18) + '</span><h2>' + t('kpi.revenue') + '</h2></div>' +
+      '<a class="rev-go" href="#/reports" aria-label="' + esc(t('nav.reports')) + '">' + icon(ICONS.chevron, 18) + '</a></header>' +
+      '<div class="rev-body"><div class="rev-main"><p class="rev-value">' + sarBig(revenue) + '</p>' + deltaLine(delta) +
+      '<p class="rev-note">' + t('dash.revNote', { m: scopeName() }) + '</p></div>' +
+      '<div class="rev-bars' + anim + '" role="img" aria-label="' + esc(label) + '">' + periods.map((x, i) =>
+        '<span class="rb' + (i === periods.length - 1 ? ' now' : '') + '" title="' + esc(span(x) + ': ' + textOf(sar(x.v, { whole: true }))) + '">' +
+        '<span class="rb-bar" style="--h:' + (x.v / max).toFixed(3) + ';--i:' + i + '"></span><span class="rb-l">' + tag(x) + '</span></span>').join('') +
+      '</div></div></section>';
+  }
+
   function pageDashboard() {
     const R = state.range;
     const rows = traffic();
@@ -473,14 +541,15 @@
     const stores = scope().flatMap(m => A.STORES[m]);
     const activeStores = stores.filter(s => s.active !== false).length;
     const people = users().filter(u => inScope(u.market));
+    const oos = rows.filter(r => !r.o.inStock).length;
 
-    const tiles = '<section class="tiles">' +
-      statTile(t('kpi.clicks'), num(clicks), { delta: change(clicks, total(rows, 'prev')), spark: daily.slice(DAYS - 14) }) +
-      statTile(t('kpi.revenue'), sar(revenue, { whole: true }), { delta: change(revenue, total(rows, 'prevRevenue')), spark: dailyRev.slice(DAYS - 14) }) +
-      statTile(t('kpi.offers'), num(live.length), { sub: t('kpi.outOfStock', { n: num(rows.filter(r => !r.o.inStock).length) }) }) +
-      statTile(t('kpi.products'), num(visible), { sub: A.PRODUCTS.length - visible ? t('kpi.hidden', { n: num(A.PRODUCTS.length - visible) }) : t('kpi.allVisible') }) +
-      statTile(t('kpi.stores'), num(activeStores), { sub: stores.length - activeStores ? t('kpi.paused', { n: num(stores.length - activeStores) }) : t('kpi.allActive') }) +
-      statTile(t('kpi.alerts'), num(people.reduce((a, u) => a + u.alerts, 0)), { sub: t('kpi.fromUsers', { n: tp('n.users', people.length) }) }) +
+    const top = '<section class="dash-top">' + revenueCard(revenue, change(revenue, total(rows, 'prevRevenue')), dailyRev) +
+      statTile(t('kpi.clicks'), num(clicks), { icon: 'click', delta: change(clicks, total(rows, 'prev')) }) +
+      statTile(t('kpi.offers'), num(live.length), { icon: 'offers', tone: 'orange', sub: t('kpi.outOfStock', { n: num(oos) }) }) +
+      '</section><section class="tiles tiles-3">' +
+      statTile(t('kpi.products'), num(visible), { icon: 'products', sub: A.PRODUCTS.length - visible ? t('kpi.hidden', { n: num(A.PRODUCTS.length - visible) }) : t('kpi.allVisible') }) +
+      statTile(t('kpi.stores'), num(activeStores), { icon: 'stores', sub: stores.length - activeStores ? t('kpi.paused', { n: num(stores.length - activeStores) }) : t('kpi.allActive') }) +
+      statTile(t('kpi.alerts'), num(people.reduce((a, u) => a + u.alerts, 0)), { icon: 'bell', tone: 'orange', sub: t('kpi.fromUsers', { n: tp('n.users', people.length) }) }) +
       '</section>';
 
     // Things an operator should look at, most severe first.
@@ -488,38 +557,61 @@
     const errors = feeds.filter(x => x.f.status === 'error').length, warnings = feeds.filter(x => x.f.status === 'warning').length;
     const checks = live.filter(r => priceFlag(r)).length;
     const expiring = D.COUPONS.filter(c => inScope(c.market) && couponStatus(c) === 'expiring').length;
-    const oos = rows.filter(r => !r.o.inStock).length;
     const attn = [
-      errors && [badge('error', t('status.error')), t('attn.feedErrors', { n: tp('n.feeds', errors) }), '#/feeds?status=error'],
-      warnings && [badge('warning', t('status.warning')), t('attn.feedWarnings', { n: tp('n.feeds', warnings) }), '#/feeds?status=warning'],
-      checks && [badge('check', t('flag.price')), t('attn.priceChecks', { n: tp('n.offers', checks) }), '#/offers?flag=price'],
-      expiring && [badge('expiring', t('status.expiring')), t('attn.coupons', { n: tp('n.coupons', expiring) }), '#/coupons?status=expiring'],
-      oos && [badge('out', t('offer.outStock')), t('attn.outOfStock', { n: tp('n.offers', oos) }), '#/offers?stock=out']
+      errors && ['error', t('status.error'), t('attn.feedErrors', { n: tp('n.feeds', errors) }), '#/feeds?status=error'],
+      warnings && ['warning', t('status.warning'), t('attn.feedWarnings', { n: tp('n.feeds', warnings) }), '#/feeds?status=warning'],
+      checks && ['check', t('flag.price'), t('attn.priceChecks', { n: tp('n.offers', checks) }), '#/offers?flag=price'],
+      expiring && ['expiring', t('status.expiring'), t('attn.coupons', { n: tp('n.coupons', expiring) }), '#/coupons?status=expiring'],
+      oos && ['out', t('offer.outStock'), t('attn.outOfStock', { n: tp('n.offers', oos) }), '#/offers?stock=out']
     ].filter(Boolean);
-    const attnHtml = attn.length ? '<ul class="attn">' + attn.map(([tag, text, link]) =>
-      '<li><a href="' + link + '">' + tag + '<span>' + text + '</span><span class="go">' + icon(ICONS.chevron, 16) + '</span></a></li>').join('') + '</ul>' :
+    const attnHtml = attn.length ? '<ul class="attn">' + attn.map(([kind, title, text, link]) =>
+      '<li><a href="' + link + '"><span class="att-ic att-' + BADGES[kind][0] + '">' + icon(ICONS[BADGES[kind][1]], 18) + '</span>' +
+      '<span class="att-t"><strong>' + title + '</strong><small>' + text + '</small></span><span class="go">' + icon(ICONS.chevron, 18) + '</span></a></li>').join('') + '</ul>' :
       empty(t('attn.clear'));
 
-    const byStore = groupBy(rows, r => r.o.store.id, r => r.o.store).slice(0, 8);
+    const cur = daily.slice(DAYS - R), before = daily.slice(DAYS - 2 * R, DAYS - R);
+    const legend = '<div class="legend" aria-hidden="true"><span><i class="lg-a"></i>' + t('dash.thisPeriod') + '</span><span><i class="lg-b"></i>' + t('dash.prevPeriod') + '</span></div>';
+
+    const byStoreAll = groupBy(rows, r => r.o.store.id, r => r.o.store);
+    const byStore = byStoreAll.slice(0, 8);
     const byCat = groupBy(rows, r => r.p.cat, r => L(catById(r.p.cat)));
     const byProduct = groupBy(rows, r => r.p.id, r => r.p).slice(0, 6);
     const barItem = g => ({ value: g.clicks, tip: '<strong>' + num(g.clicks) + '</strong> ' + t('unit.clicks') + ' · ' + sar(g.revenue, { whole: true }) });
     const feedList = feeds.slice().sort((a, b) => ({ error: 0, warning: 1, ok: 2 }[a.f.status] - { error: 0, warning: 1, ok: 2 }[b.f.status]) || b.f.ts - a.f.ts).slice(0, 6);
 
-    return pageHead(t('dash.title'), t('dash.sub', { m: scopeName(), r: t('range.' + R).toLowerCase() }), rangeSeg()) + tiles +
-      '<div class="grid grid-2-1">' +
-      card(t('dash.trend'), lineChart(daily.slice(DAYS - R), v => num(v), t('unit.clicksDay')), { sub: t('dash.trendSub') }) +
-      card(t('attn.title'), attnHtml) +
-      '</div><div class="grid grid-2">' +
+    // Top performers, as products or as stores.
+    const tab = ui.topTab === 'stores' ? 'stores' : 'products';
+    const tabSeg = '<div class="seg" role="group" aria-label="' + t('dash.tabs') + '">' + [['products', 'dash.tabProducts'], ['stores', 'dash.tabStores']].map(([k, key]) =>
+      '<button type="button" data-top-tab="' + k + '" aria-pressed="' + (tab === k) + '">' + t(key) + '</button>').join('') + '</div>';
+    const share = g => pct(clicks ? g.clicks / clicks : 0);
+    const kebab = (link, label) => '<a class="kebab" href="' + link + '" aria-label="' + esc(label) + '">' + KEBAB + '</a>';
+    const head = first => '<thead><tr><th>' + first + '</th><th class="num">' + t('col.clicks') + '</th><th class="num">' + t('col.revenue') + '</th><th class="num">' + t('col.share') + '</th>' +
+      '<th>' + t('col.status') + '</th><th class="actions"><span class="sr-only">' + t('col.actions') + '</span></th></tr></thead>';
+    const nums = g => '<td class="num">' + num(g.clicks) + '</td><td class="num">' + sar(g.revenue, { whole: true }) + '</td><td class="num">' + share(g) + '</td>';
+    const topRows = tab === 'stores'
+      ? head(t('col.store')) + '<tbody>' + byStoreAll.slice(0, 6).map(g => {
+        const f = feedOf(g.label);
+        return '<tr><td>' + storeCell(g.label) + '</td>' + nums(g) + '<td>' + badge(f.status, t('status.' + f.status)) + '</td><td class="actions">' + kebab('#/stores?q=' + encodeURIComponent(g.label.name), t('act.edit') + ' ' + g.label.name) + '</td></tr>';
+      }).join('')
+      : head(t('col.product')) + '<tbody>' + byProduct.map(g => {
+        const p = g.label, c = catById(p.cat), hid = p.status === 'hidden';
+        return '<tr><td><a class="prod-cell" href="#/products/' + g.key + '">' + thumb(p, 40) + '<span><strong>' + esc(L(p)) + '</strong><small class="muted">' + esc(p.brand) + (c ? ' · ' + esc(L(c)) : '') + '</small></span></a></td>' +
+          nums(g) + '<td>' + badge(hid ? 'hidden' : 'active', t(hid ? 'status.hidden' : 'status.active')) + '</td><td class="actions">' + kebab('#/products/' + g.key, t('act.edit') + ' ' + L(p)) + '</td></tr>';
+      }).join('');
+
+    return pageHead(t('dash.title'), t('dash.sub', { m: scopeName(), r: t('range.' + R).toLowerCase() }), rangeSeg()) + top +
+      '<div class="grid grid-1-2">' +
+      card(t('attn.title'), attnHtml, { icon: 'alert', tone: 'orange' }) +
+      card(t('dash.trend'), lineChart(cur, v => num(v), t('unit.clicksDay'), { prev: before }), { sub: t('dash.trendSub'), action: legend }) +
+      '</div>' +
+      card(t('dash.top'), '<div class="table-wrap">' + '<table class="table table-top">' + topRows + '</tbody></table></div>', { cls: 'top-card', action: tabSeg }) +
+      '<div class="grid grid-2">' +
       card(t('dash.byStore'), barList(byStore.map(g => Object.assign(barItem(g), { label: storeCell(g.label) })), v => num(v)), { action: '<a class="link" href="#/reports?group=store">' + t('dash.fullReport') + '</a>' }) +
       card(t('dash.byCat'), barList(byCat.map(g => Object.assign(barItem(g), { label: esc(g.label) })), v => num(v)), { action: '<a class="link" href="#/reports?group=category">' + t('dash.fullReport') + '</a>' }) +
       '</div><div class="grid grid-2">' +
-      card(t('dash.topProducts'), '<div class="table-wrap"><table class="table table-tight"><thead><tr><th>' + t('col.product') + '</th><th class="num">' + t('col.clicks') + '</th><th class="num">' + t('col.revenue') + '</th><th class="num">' + t('col.share') + '</th></tr></thead><tbody>' +
-        byProduct.map(g => '<tr><td><a class="prod-cell" href="#/products/' + g.key + '">' + thumb(g.label, 36) + '<span>' + esc(L(g.label)) + '</span></a></td><td class="num">' + num(g.clicks) + '</td><td class="num">' + sar(g.revenue, { whole: true }) + '</td><td class="num">' + pct(clicks ? g.clicks / clicks : 0) + '</td></tr>').join('') +
-        '</tbody></table></div>') +
-      card(t('dash.feeds'), '<ul class="feed-list">' + feedList.map(({ s, f }) => '<li>' + storeCell(s) + '<span class="muted">' + t('feed.last', { t: ago(f.ts) }) + '</span>' + badge(f.status, t('status.' + f.status)) + '</li>').join('') + '</ul>' +
-        '<h3 class="subhead">' + t('dash.activity') + '</h3><ul class="activity">' + activity().map(a => '<li>' + icon(ICONS[a.icon], 16) + '<span>' + esc(a.text) + '</span><time class="muted">' + ago(a.ts) + '</time></li>').join('') + '</ul>',
+      card(t('dash.feeds'), '<ul class="feed-list">' + feedList.map(({ s, f }) => '<li>' + storeCell(s) + '<span class="muted">' + t('feed.last', { t: ago(f.ts) }) + '</span>' + badge(f.status, t('status.' + f.status)) + '</li>').join('') + '</ul>',
         { action: '<a class="link" href="#/feeds">' + t('dash.allFeeds') + '</a>' }) +
+      card(t('dash.activity'), '<ul class="activity">' + activity().map(a => '<li><span class="act-ic">' + icon(ICONS[a.icon], 16) + '</span><span>' + esc(a.text) + '</span><time class="muted">' + ago(a.ts) + '</time></li>').join('') + '</ul>') +
       '</div>';
   }
 
@@ -540,19 +632,19 @@
     const pg = paged(sorted, params);
     const hidden = A.PRODUCTS.filter(p => p.status === 'hidden').length;
     return pageHead(t('nav.products'), t('prod.sub', { n: num(A.PRODUCTS.length), h: num(hidden) })) +
-      '<section class="card card-flush">' + toolbar(base,
+      '<section class="card card-flush prod-list">' + toolbar(base,
         searchField(params.q, t('prod.search')) +
         '<select name="cat" aria-label="' + t('col.category') + '">' + selectOpts([['', t('filter.allCats')]].concat(D.CATEGORIES.map(c => [c.id, L(c)])), params.cat) + '</select>' +
         '<select name="status" aria-label="' + t('col.status') + '">' + selectOpts([['', t('filter.allStatus')], ['active', t('status.active')], ['hidden', t('status.hidden')]], params.status) + '</select>') +
-      (pg.rows.length ? '<div class="table-wrap"><table class="table"><thead><tr>' +
+      (pg.rows.length ? '<div class="table-wrap"><table class="table table-products"><thead><tr>' +
         sortHead(t('col.product'), 'name', sp, base, 'asc') + '<th>' + t('col.category') + '</th>' +
         sortHead(t('col.offers'), 'offers', sp, base, 'desc', 'num') + sortHead(t('col.lowest'), 'low', sp, base, 'asc', 'num') +
         sortHead(t('col.clicksRange', { r: t('range.' + state.range).toLowerCase() }), 'clicks', sp, base, 'desc', 'num') + '<th>' + t('col.status') + '</th><th><span class="sr-only">' + t('col.actions') + '</span></th></tr></thead><tbody>' +
-        pg.rows.map(r => '<tr><td><a class="prod-cell" href="#/products/' + r.p.id + '">' + thumb(r.p) + '<span><strong>' + esc(L(r.p)) + '</strong><small class="muted">' + brandMark(r.p.brand) + esc(r.p.brand) + ' · ' + t('prod.gtin') + ' ' + r.p.gtin + '</small></span></a></td>' +
-          '<td>' + esc(L(catById(r.p.cat))) + ' › ' + esc(L(subOf(r.p) || {})) + '</td>' +
-          '<td class="num">' + num(r.offers) + '</td><td class="num">' + (r.offers ? sar(r.low) : '—') + '</td><td class="num">' + num(r.clicks) + '</td>' +
+        pg.rows.map(r => '<tr><td><a class="prod-cell" href="#/products/' + r.p.id + '">' + thumb(r.p) + '<span><strong>' + esc(L(r.p)) + '</strong><small class="muted">' + brandMark(r.p.brand) + esc(r.p.brand) + '</small></span></a></td>' +
+          '<td class="cat-cell">' + esc(L(catById(r.p.cat))) + '<small class="muted">' + esc(L(subOf(r.p) || {})) + '</small></td>' +
+          '<td class="num">' + num(r.offers) + '</td><td class="num strong">' + (r.offers ? sar(r.low) : '—') + '</td><td class="num strong">' + num(r.clicks) + '</td>' +
           '<td>' + badge(r.p.status === 'hidden' ? 'hidden' : 'active', t('status.' + (r.p.status === 'hidden' ? 'hidden' : 'active'))) + '</td>' +
-          '<td class="actions"><a class="btn btn-ghost btn-sm" href="#/products/' + r.p.id + '">' + icon(ICONS.edit, 16) + t('act.edit') + '</a></td></tr>').join('') +
+          '<td class="actions"><a class="row-act" href="#/products/' + r.p.id + '" title="' + t('act.edit') + '" aria-label="' + t('act.edit') + ': ' + esc(L(r.p)) + '">' + icon(ICONS.edit, 17) + '</a></td></tr>').join('') +
         '</tbody></table></div>' + pager(pg, base, params, sorted.length) : empty(t('empty.filters'))) + '</section>';
   }
 
@@ -727,7 +819,7 @@
       '<section class="card card-flush">' + toolbar(base,
         searchField(params.q, t('stores.search')) +
         '<select name="status" aria-label="' + t('col.status') + '">' + selectOpts([['', t('filter.allStatus')], ['active', t('status.active')], ['paused', t('status.paused')]], params.status) + '</select>') +
-      (pg.rows.length ? '<div class="table-wrap"><table class="table"><thead><tr>' + sortHead(t('col.store'), 'name', sp, base, 'asc') + '<th>' + t('col.categories') + '</th>' +
+      (pg.rows.length ? '<div class="table-wrap"><table class="table table-stores"><thead><tr>' + sortHead(t('col.store'), 'name', sp, base, 'asc') + '<th>' + t('col.categories') + '</th>' +
         sortHead(t('col.offers'), 'offers', sp, base, 'desc', 'num') + sortHead(t('col.clicksRange', { r: t('range.' + state.range).toLowerCase() }), 'clicks', sp, base, 'desc', 'num') +
         sortHead(t('col.cpc'), 'cpc', sp, base, 'desc', 'num') + '<th>' + t('col.feed') + '</th>' + sortHead(t('col.rating'), 'rating', sp, base, 'desc', 'num') +
         '<th>' + t('col.active') + '</th><th><span class="sr-only">' + t('col.actions') + '</span></th></tr></thead><tbody>' +
@@ -735,11 +827,11 @@
           const f = feedOf(s);
           const g = clicksBy.get(s.id);
           return '<tr' + (s.active === false ? ' class="row-muted"' : '') + '><td>' + storeCell(s) + '</td>' +
-            '<td class="cats">' + s.cats.map(k => '<span class="chip chip-sm">' + esc(L(catById(k) || { en: k })) + '</span>').join('') + '</td>' +
+            '<td class="cats-cell">' + catChips(s.cats) + '</td>' +
             '<td class="num">' + num(offersBy.get(s.id) || 0) + '</td><td class="num">' + num(g ? g.clicks : 0) + '</td>' +
             '<td class="num">' + sar(s.cpc * D.RATES.SAR) + '</td><td>' + badge(f.status, t('status.' + f.status)) + '</td><td class="num">' + s.rating.toFixed(1) + '</td>' +
             '<td><label class="switch"><input type="checkbox" role="switch" data-store-toggle="' + s.id + '"' + (s.active !== false ? ' checked' : '') + '><span class="switch-ui" aria-hidden="true"></span><span class="sr-only">' + t('col.active') + ': ' + esc(s.name) + '</span></label></td>' +
-            '<td class="actions"><button type="button" class="btn btn-ghost btn-sm" data-store-form="' + s.id + '">' + icon(ICONS.edit, 16) + t('act.edit') + '</button></td></tr>';
+            '<td class="actions"><button type="button" class="row-act" data-store-form="' + s.id + '" title="' + t('act.edit') + '" aria-label="' + t('act.edit') + ': ' + esc(s.name) + '">' + icon(ICONS.edit, 17) + '</button></td></tr>';
         }).join('') + '</tbody></table></div>' + pager(pg, base, params, sorted.length) : empty(t('empty.filters'))) + '</section>';
   }
 
@@ -930,9 +1022,9 @@
     return pageHead(t('nav.reports'), t('rep.sub', { m: scopeName() }), rangeSeg() +
       '<button type="button" class="btn btn-ghost" data-export="' + group + '">' + icon(ICONS.download, 16) + t('rep.export') + '</button>') +
       '<section class="tiles tiles-3">' +
-      statTile(t('kpi.clicks'), num(clicks), { delta: change(clicks, total(rows, 'prev')) }) +
-      statTile(t('kpi.revenue'), sar(revenue, { whole: true }), { delta: change(revenue, total(rows, 'prevRevenue')) }) +
-      statTile(t('rep.rpc'), sar(clicks ? revenue / clicks : 0), { sub: t('rep.rpcSub') }) + '</section>' +
+      statTile(t('kpi.clicks'), num(clicks), { icon: 'click', delta: change(clicks, total(rows, 'prev')) }) +
+      statTile(t('kpi.revenue'), sarBig(revenue), { icon: 'reports', tone: 'orange', delta: change(revenue, total(rows, 'prevRevenue')) }) +
+      statTile(t('rep.rpc'), sar(clicks ? revenue / clicks : 0), { icon: 'offers', sub: t('rep.rpcSub') }) + '</section>' +
       card(t('dash.trend'), lineChart(totalsByDay(rows, false).slice(DAYS - R), v => num(v), t('unit.clicksDay')), { sub: t('range.' + R) }) +
       '<section class="card card-flush"><header class="card-head"><div><h2>' + t('rep.breakdown') + '</h2></div>' +
       '<div class="seg" role="group" aria-label="' + t('rep.groupBy') + '">' + Object.keys(GROUPS).map(g => '<a href="#/reports?group=' + g + '" aria-pressed="' + (g === group) + '">' + t('rep.by.' + g) + '</a>').join('') + '</div></header>' +
@@ -971,10 +1063,10 @@
     const withAlerts = all.filter(u => u.alerts > 0).length, arabic = all.filter(u => u.lang === 'ar').length;
     return pageHead(t('nav.users'), t('users.sub', { m: scopeName() })) +
       '<section class="tiles tiles-4">' +
-      statTile(t('users.total'), num(all.length)) +
-      statTile(t('users.withAlerts'), num(withAlerts), { sub: pct(all.length ? withAlerts / all.length : 0, 0) }) +
-      statTile(t('users.arabic'), pct(all.length ? arabic / all.length : 0, 0)) +
-      statTile(t('users.unverified'), num(all.filter(u => !u.verified).length)) + '</section>' +
+      statTile(t('users.total'), num(all.length), { icon: 'users' }) +
+      statTile(t('users.withAlerts'), num(withAlerts), { icon: 'bell', tone: 'orange', sub: pct(all.length ? withAlerts / all.length : 0, 0) }) +
+      statTile(t('users.arabic'), pct(all.length ? arabic / all.length : 0, 0), { icon: 'info' }) +
+      statTile(t('users.unverified'), num(all.filter(u => !u.verified).length), { icon: 'alert', tone: 'orange' }) + '</section>' +
       '<section class="card card-flush">' + toolbar(base,
         searchField(params.q, t('users.search')) +
         '<select name="status" aria-label="' + t('col.status') + '">' + selectOpts([['', t('filter.allStatus')], ['verified', t('status.verified')], ['unverified', t('status.unverified')]], params.status) + '</select>') +
@@ -1063,8 +1155,10 @@
   function renderNav(section) {
     const feedErrors = MARKETS.flatMap(m => A.STORES[m]).filter(s => s.active !== false && feedOf(s).status === 'error').length;
     $('#nav').innerHTML = NAV.map(([group, items]) => '<p class="nav-group">' + t(group) + '</p><ul>' + items.map(([path, ic, key]) =>
-      '<li><a href="#/' + path + '"' + (section === path ? ' aria-current="page"' : '') + '>' + icon(ICONS[ic], 20) + '<span>' + t(key) + '</span>' +
+      '<li><a href="#/' + path + '"' + (section === path ? ' aria-current="page"' : '') + ' data-tip="' + esc(t(key)) + '">' + icon(ICONS[ic], 20) + '<span>' + t(key) + '</span>' +
       (path === 'feeds' && feedErrors ? '<b class="nav-count" aria-label="' + t('attn.feedErrors', { n: tp('n.feeds', feedErrors) }) + '">' + num(feedErrors) + '</b>' : '') + '</a></li>').join('') + '</ul>').join('');
+    const dot = $('#bellDot');
+    if (dot) { dot.hidden = !feedErrors; dot.textContent = num(feedErrors); }
   }
 
   function applyChrome() {
@@ -1076,6 +1170,7 @@
     $$('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
     $$('.lang-toggle').forEach(b => { b.textContent = state.lang === 'ar' ? 'English' : 'العربية'; b.lang = state.lang === 'ar' ? 'en' : 'ar'; });
     $('#marketSel').innerHTML = selectOpts([['all', t('market.all')]].concat(MARKETS.map(m => [m, t('market.' + m)])), state.market);
+    setCollapsed(state.collapsed);
     const s = state.session;
     if (s) {
       $('#userName').textContent = s.name;
@@ -1097,7 +1192,8 @@
     const params = parseQuery(qs);
     const parts = path.split('/').filter(Boolean);
     const y = ui.keepScroll ? window.scrollY : 0;
-    if (path !== current.path) ui.editCat = null;
+    const fresh = path !== current.path; // a new page (not a filter, sort or range change on the same one)
+    if (fresh) ui.editCat = null;
     current = { path, params };
     Object.keys(charts).forEach(k => { delete charts[k]; });
     closeDrawer(); closeDialog(); setMenu(false); setUserMenu(false);
@@ -1109,10 +1205,15 @@
       offers: () => pageOffers(params), categories: () => pageCategories(), stores: () => pageStores(params),
       feeds: () => pageFeeds(params), coupons: () => pageCoupons(params), users: () => pageUsers(params), settings: () => pageSettings()
     };
-    $('#main').innerHTML = (pages[section] || notFound)();
+    const main = $('#main');
+    main.classList.remove('enter');
+    main.innerHTML = (pages[section] || notFound)();
+    if (fresh) { void main.offsetWidth; main.classList.add('enter'); } // replays the entrance animation (CSS) only when arriving on a page
     renderNav(pages[section] ? section : null);
     const h1 = $('#main h1');
     document.title = t('doc.title', { p: h1 ? h1.textContent : 'DOABNO' });
+    const here = NAV.flatMap(g => g[1]).find(x => x[0] === section);
+    $('#crumbHere').textContent = here ? t(here[2]) : (h1 ? h1.textContent : '');
     window.scrollTo(0, y);
     ui.keepScroll = false;
   }
@@ -1122,6 +1223,16 @@
     $('#app').classList.toggle('menu-open', open);
     $('#menuBtn').setAttribute('aria-expanded', String(open));
   }
+  // Desktop: the logo button folds the sidebar into an icon rail (remembered in this browser). Phones use the slide-in menu instead.
+  const isPhone = () => window.matchMedia('(max-width: 900px)').matches;
+  function setCollapsed(on) {
+    state.collapsed = on;
+    $('#app').classList.toggle('side-collapsed', on);
+    const b = $('#sideToggle');
+    b.setAttribute('aria-expanded', String(!on));
+    b.setAttribute('aria-label', t(on ? 'side.expand' : 'side.collapse'));
+    b.title = t(on ? 'side.expand' : 'side.collapse');
+  }
   function setUserMenu(open) {
     $('#userMenu').hidden = !open;
     $('#userBtn').setAttribute('aria-expanded', String(open));
@@ -1130,9 +1241,10 @@
   // ---------- events ----------
   document.addEventListener('click', e => {
     if (!e.target.closest('#userBtn, #userMenu')) setUserMenu(false);
-    const el = e.target.closest('[data-range],[data-run],[data-store-form],[data-coupon-form],[data-del-coupon],[data-edit-cat],[data-cancel-cat],[data-del-sub],[data-invite],[data-reset],[data-export],[data-logout],[data-close-drawer],[data-close-menu],[data-dialog-cancel],#dialogOk,#menuBtn,#userBtn,.lang-toggle,.nav a');
+    const el = e.target.closest('[data-top-tab],[data-range],[data-run],[data-store-form],[data-coupon-form],[data-del-coupon],[data-edit-cat],[data-cancel-cat],[data-del-sub],[data-invite],[data-reset],[data-export],[data-logout],[data-close-drawer],[data-close-menu],[data-dialog-cancel],#dialogOk,#menuBtn,#sideToggle,#userBtn,.lang-toggle,.nav a');
     if (!el) return;
-    if (el.dataset.range) { state.range = +el.dataset.range; save('range', state.range); rerender(); }
+    if (el.dataset.topTab) { ui.topTab = el.dataset.topTab; rerender(); }
+    else if (el.dataset.range) { state.range = +el.dataset.range; save('range', state.range); ui.barsAnim = true; rerender(); }
     else if (el.dataset.run) runFeed(el.dataset.run, el);
     else if (el.hasAttribute('data-store-form')) storeForm(el.dataset.storeForm);
     else if (el.hasAttribute('data-coupon-form')) couponForm(el.dataset.couponForm);
@@ -1163,9 +1275,18 @@
     else if (el.hasAttribute('data-dialog-cancel')) closeDialog();
     else if (el.id === 'dialogOk') { const fn = onConfirm; closeDialog(); if (fn) fn(); }
     else if (el.id === 'menuBtn') setMenu(!$('#app').classList.contains('menu-open'));
+    else if (el.id === 'sideToggle') {
+      if (isPhone()) setMenu(false);
+      else { setCollapsed(!state.collapsed); save('collapsed', state.collapsed); setUserMenu(false); }
+    }
     else if (el.id === 'userBtn') setUserMenu($('#userMenu').hidden);
     else if (el.classList.contains('lang-toggle')) { state.lang = state.lang === 'ar' ? 'en' : 'ar'; save('lang', state.lang); applyChrome(); rerender(); }
     else if (el.closest('.nav')) setMenu(false);
+  });
+
+  // Clicking the search icon on the folded rail opens the sidebar so there is room to type.
+  document.addEventListener('focusin', e => {
+    if (e.target.id === 'sideQ' && state.collapsed && !isPhone()) { setCollapsed(false); save('collapsed', false); }
   });
 
   document.addEventListener('change', e => {
@@ -1190,6 +1311,12 @@
   document.addEventListener('submit', e => {
     const form = e.target;
     e.preventDefault();
+    if (form.id === 'sideSearch') {
+      const q = form.q.value.trim();
+      location.hash = '#/products' + (q ? '?q=' + encodeURIComponent(q) : '');
+      setMenu(false);
+      return;
+    }
     if (form.id === 'loginForm') {
       const email = form.email.value.trim();
       const local = email.split('@')[0] || 'admin';

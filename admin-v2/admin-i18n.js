@@ -278,3 +278,19 @@ window.ADMIN_I18N = {
     notFound: 'الصفحة غير موجودة'
   }
 };
+
+// Strings added for the redesigned admin layout.
+Object.assign(window.ADMIN_I18N.en, {
+  'side.portal': 'Admin portal', 'side.addStore': 'Add store', 'side.collapse': 'Collapse sidebar', 'side.expand': 'Expand sidebar', 'side.search': 'Search products…', 'side.siteTitle': 'See it live',
+  'side.siteText': 'Check how stores and offers look to shoppers on the site.', 'side.role': 'Administrator', 'crumb.root': 'DOABNO Admin',
+  'dash.revNote': 'Commission from outbound clicks · {m}', 'dash.monthly': 'Estimated revenue per {n}', 'dash.thisPeriod': 'This period',
+  'dash.prevPeriod': 'Previous period', 'dash.prevShort': 'Previous period: {v}', 'dash.top': 'Top performers', 'dash.tabProducts': 'Products',
+  'dash.tabStores': 'Stores', 'dash.tabs': 'Show top'
+});
+Object.assign(window.ADMIN_I18N.ar, {
+  'side.portal': 'بوابة الإدارة', 'side.addStore': 'إضافة متجر', 'side.collapse': 'طي القائمة الجانبية', 'side.expand': 'توسيع القائمة الجانبية', 'side.search': 'ابحث عن منتج…', 'side.siteTitle': 'شاهده مباشرة',
+  'side.siteText': 'تحقّق من شكل المتاجر والعروض للمتسوقين على الموقع.', 'side.role': 'مشرف', 'crumb.root': 'إدارة دوابنو',
+  'dash.revNote': 'عمولة النقرات الصادرة · {m}', 'dash.monthly': 'الإيرادات التقديرية لكل {n}', 'dash.thisPeriod': 'هذه الفترة',
+  'dash.prevPeriod': 'الفترة السابقة', 'dash.prevShort': 'الفترة السابقة: {v}', 'dash.top': 'الأعلى أداءً', 'dash.tabProducts': 'المنتجات',
+  'dash.tabStores': 'المتاجر', 'dash.tabs': 'عرض الأعلى'
+});
