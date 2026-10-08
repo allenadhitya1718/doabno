@@ -539,7 +539,7 @@ a.prod-cell:hover strong, a.prod-cell:hover > span { text-decoration: underline;
 @media (min-width: 901px) {
   .app { transition: grid-template-columns .26s cubic-bezier(.2, 0, 0, 1); }
   .app.side-collapsed { grid-template-columns: 92px minmax(0, 1fr); }
-  .side-collapsed .sidebar { padding-inline: 12px; overflow: visible; }
+  .side-collapsed .sidebar { padding-inline: 12px; overflow: visible; z-index: 40; } /* labels sit above the page cards */
   .side-collapsed .side-brand { justify-content: center; padding: 4px 0; }
   .side-collapsed .side-brand-t, .side-collapsed .side-fold, .side-collapsed .nav a > span, .side-collapsed .user-t,
   .side-collapsed .user-btn > svg, .side-collapsed .side-promo > strong, .side-collapsed .side-promo > p, .side-collapsed .side-promo-btn > span { display: none; }
