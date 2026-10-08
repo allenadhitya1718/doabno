@@ -7,7 +7,7 @@
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
   const MARKETS = Object.keys(D.MARKETS);
-  const DAYS = 180; // days of demo traffic history
+  const DAYS = 540; // days of demo traffic history (six 90-day periods for the dashboard revenue bars)
   const PER_PAGE = 20;
   const RANGES = [7, 30, 90];
   const MARKET_WEIGHT = { sa: 1, ae: 0.62, us: 0.38, uk: 0.3 };
@@ -499,28 +499,35 @@
   const toolbar = (base, fields) => '<form class="toolbar" data-filter="' + base + '">' + fields + '</form>';
 
   // ---------- dashboard ----------
-  // Estimated revenue in six 30-day periods ending today, oldest first (each bar is a full period, so the newest is never partial).
-  function monthlyRevenue(dailyRev) {
+  // Estimated revenue in six back-to-back periods of the selected range (7, 30 or 90 days) ending today, oldest first,
+  // so the newest bar always equals the big number beside it.
+  const YMD = { day: 'numeric', month: 'short', year: 'numeric' };
+  function periodRevenue(dailyRev, R) {
     const n = dailyRev.length, out = [];
     for (let k = 5; k >= 0; k--) {
-      const end = n - k * 30, start = Math.max(0, end - 30);
+      const end = n - k * R, start = Math.max(0, end - R);
       if (end <= 0) continue;
       out.push({ d: dayDate(end - 1), from: dayDate(start), v: sumDays(dailyRev, start, end) });
     }
     return out;
   }
   function revenueCard(revenue, delta, dailyRev) {
-    const months = monthlyRevenue(dailyRev);
-    const max = Math.max.apply(null, months.map(x => x.v).concat(1));
-    const monthName = (x, style) => fmtDate(x.d, { month: style });
-    const label = t('dash.monthly') + ': ' + months.map(x => monthName(x, 'short') + ' ' + textOf(sar(x.v, { whole: true }))).join(', ');
+    const R = state.range;
+    const periods = periodRevenue(dailyRev, R);
+    const max = Math.max.apply(null, periods.map(x => x.v).concat(1));
+    // Weeks are labelled by their last day (4/10); months and quarters by the month they end in.
+    const tag = x => fmtDate(x.d, R === 7 ? { day: 'numeric', month: 'numeric' } : { month: 'short' });
+    const label = t('dash.monthly', { n: tp('n.days', R) }) + ': ' + periods.map(x => fmtDate(x.from) + ' – ' + fmtDate(x.d) + ' ' + textOf(sar(x.v, { whole: true }))).join(', ');
+    const span = x => R === 90 ? fmtDate(x.from, YMD) + ' – ' + fmtDate(x.d, YMD) : fmtDate(x.from) + ' – ' + fmtDate(x.d); // quarters cross years, so show the year
+    const anim = ui.barsAnim ? ' anim' : ''; // replay the bar growth after the range changes
+    ui.barsAnim = false;
     return '<section class="card rev-card"><header class="rev-head"><div><span class="card-ic">' + icon(ICONS.reports, 18) + '</span><h2>' + t('kpi.revenue') + '</h2></div>' +
       '<a class="rev-go" href="#/reports" aria-label="' + esc(t('nav.reports')) + '">' + icon(ICONS.chevron, 18) + '</a></header>' +
       '<div class="rev-body"><div class="rev-main"><p class="rev-value">' + sarBig(revenue) + '</p>' + deltaLine(delta) +
       '<p class="rev-note">' + t('dash.revNote', { m: scopeName() }) + '</p></div>' +
-      '<div class="rev-bars" role="img" aria-label="' + esc(label) + '">' + months.map((x, i) =>
-        '<span class="rb' + (i === months.length - 1 ? ' now' : '') + '" title="' + esc(fmtDate(x.from) + ' – ' + fmtDate(x.d) + ': ' + textOf(sar(x.v, { whole: true }))) + '">' +
-        '<span class="rb-bar" style="--h:' + (x.v / max).toFixed(3) + ';--i:' + i + '"></span><span class="rb-l">' + monthName(x, 'short') + '</span></span>').join('') +
+      '<div class="rev-bars' + anim + '" role="img" aria-label="' + esc(label) + '">' + periods.map((x, i) =>
+        '<span class="rb' + (i === periods.length - 1 ? ' now' : '') + '" title="' + esc(span(x) + ': ' + textOf(sar(x.v, { whole: true }))) + '">' +
+        '<span class="rb-bar" style="--h:' + (x.v / max).toFixed(3) + ';--i:' + i + '"></span><span class="rb-l">' + tag(x) + '</span></span>').join('') +
       '</div></div></section>';
   }
 
@@ -1237,7 +1244,7 @@
     const el = e.target.closest('[data-top-tab],[data-range],[data-run],[data-store-form],[data-coupon-form],[data-del-coupon],[data-edit-cat],[data-cancel-cat],[data-del-sub],[data-invite],[data-reset],[data-export],[data-logout],[data-close-drawer],[data-close-menu],[data-dialog-cancel],#dialogOk,#menuBtn,#sideToggle,#userBtn,.lang-toggle,.nav a');
     if (!el) return;
     if (el.dataset.topTab) { ui.topTab = el.dataset.topTab; rerender(); }
-    else if (el.dataset.range) { state.range = +el.dataset.range; save('range', state.range); rerender(); }
+    else if (el.dataset.range) { state.range = +el.dataset.range; save('range', state.range); ui.barsAnim = true; rerender(); }
     else if (el.dataset.run) runFeed(el.dataset.run, el);
     else if (el.hasAttribute('data-store-form')) storeForm(el.dataset.storeForm);
     else if (el.hasAttribute('data-coupon-form')) couponForm(el.dataset.couponForm);
