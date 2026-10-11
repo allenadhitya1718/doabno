@@ -1,0 +1,10 @@
+{
+  "name": "doabno-backend",
+  "private": true,
+  "description": "DOABNO back end: database schema, seed data, feed importer, click-out function. No dependencies.",
+  "scripts": {
+    "seed": "node seed/build-seed.js",
+    "test": "node seed/build-seed.js && node --test tests/importer.test.js tests/db-supabase.test.js && node tests/parity.js",
+    "import:dry": "node importer/cli.js dry-run"
+  }
+}

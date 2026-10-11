@@ -1,0 +1,35 @@
+# Imports every active store feed once a day (and on demand from the Actions tab).
+# NOT ACTIVE YET: GitHub only runs scheduled workflows from the default branch (main), and it needs two repository
+# secrets: SUPABASE_URL and SUPABASE_SERVICE_KEY (Settings > Secrets and variables > Actions). Without them it skips safely.
+name: Import store feeds
+on:
+  schedule:
+    - cron: "0 3 * * *"          # 03:00 UTC daily
+  workflow_dispatch:
+    inputs:
+      feed_id:
+        description: "Run one feed only (id from the feeds table); empty = all daily feeds"
+        required: false
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run importer
+        if: env.SUPABASE_URL != '' && env.SUPABASE_SERVICE_KEY != ''
+        run: |
+          if [ -n "${{ inputs.feed_id }}" ]; then
+            node backend/importer/cli.js run --feed-id "${{ inputs.feed_id }}"
+          else
+            node backend/importer/cli.js run --schedule daily
+          fi
+      - name: Skipped (secrets not set)
+        if: env.SUPABASE_URL == '' || env.SUPABASE_SERVICE_KEY == ''
+        run: echo "SUPABASE_URL / SUPABASE_SERVICE_KEY are not set; nothing imported."

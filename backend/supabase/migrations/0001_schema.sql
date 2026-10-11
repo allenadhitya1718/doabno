@@ -43,6 +43,7 @@ create table public.subcategories (
 
 -- ---------- stores, products, offers ----------
 create table public.stores (
+  seq bigint generated always as identity,                     -- display order (insertion order)
   id text primary key,
   market text not null references public.markets (id),
   name text not null,
@@ -57,6 +58,7 @@ create table public.stores (
 create index stores_market_idx on public.stores (market);
 
 create table public.products (
+  seq bigint generated always as identity,                     -- display order (insertion order)
   id text primary key,
   category_id text not null references public.categories (id),
   sub_id text not null,

@@ -242,6 +242,20 @@
     { store: 'Currys', market: 'uk', code: 'KITCHEN', en: '£25 off kitchen appliances', ar: 'خصم 25£ على أجهزة المطبخ', cat: 'home', days: 18 }
   ];
 
+  // ---------- live catalog (optional) ----------
+  // When assets/boot.js has loaded a catalog (from the database), it replaces the demo lists above.
+  // Without one, the generated demo data below is used unchanged.
+  const CAT = window.__CATALOG || null;
+  if (CAT) {
+    Object.keys(CAT.rates || {}).forEach(k => { RATES[k] = +CAT.rates[k]; BASE_RATES[k] = +CAT.rates[k]; });
+    Object.keys(CAT.currencies || {}).forEach(k => { CURRENCIES[k] = CAT.currencies[k]; });
+    Object.keys(CAT.markets || {}).forEach(k => { MARKETS[k] = CAT.markets[k]; });
+    if (CAT.categories) CATEGORIES.splice(0, CATEGORIES.length, ...CAT.categories);
+    if (CAT.stores) { Object.keys(STORES).forEach(m => { delete STORES[m]; }); Object.keys(CAT.stores).forEach(m => { STORES[m] = CAT.stores[m]; }); }
+    if (CAT.products) PRODUCTS.splice(0, PRODUCTS.length, ...CAT.products);
+    if (CAT.coupons) COUPONS.splice(0, COUPONS.length, ...CAT.coupons);
+  }
+
   // Deterministic pseudo-random so prices stay stable between reloads.
   function seeded(str) {
     let h = 2166136261;
@@ -268,6 +282,7 @@
   ['SAR', 'AED', 'GBP'].forEach(c => { if (OV.rates && +OV.rates[c] > 0) RATES[c] = +OV.rates[c]; });
   if (Array.isArray(OV.coupons)) COUPONS.splice(0, COUPONS.length, ...OV.coupons);
   const POPULAR = Array.isArray(OV.popular) && OV.popular.length ? OV.popular.slice() :
+    CAT && CAT.popular && CAT.popular.length ? CAT.popular.slice() :
     ['iPhone 17', 'AirPods Pro', 'PlayStation 5', 'Dyson V15', 'Dior Sauvage', 'LEGO Technic', 'Galaxy S26', 'Apple Watch', 'Anthelios',
       'Olaplex', 'Air Force 1', 'Samba', 'Wayfarer', "Levi's 501", 'Maxi-Cosi', 'Nespresso', 'Airfryer XXL', 'WH-1000XM6'];
 
@@ -284,9 +299,10 @@
   });
   Object.keys(STORES).forEach(m => STORES[m].forEach(s => {
     const rnd = seeded(s.id + 'rating');
-    s.rating = Math.round((3.8 + rnd() * 1.1) * 10) / 10;
-    s.reviews = 300 + Math.floor(rnd() * 12000);
-    if (s.cpc === undefined) s.cpc = Math.round((0.22 + rnd() * 0.38) * 100) / 100; // USD per click
+    const r1 = rnd(), r2 = rnd(), r3 = rnd();
+    if (s.rating == null) s.rating = Math.round((3.8 + r1 * 1.1) * 10) / 10;
+    if (s.reviews == null) s.reviews = 300 + Math.floor(r2 * 12000);
+    if (s.cpc == null) s.cpc = Math.round((0.22 + r3 * 0.38) * 100) / 100; // USD per click
     if (s.active === undefined) s.active = true;
     s.market = m;
     Object.assign(s, (OV.stores || {})[s.id]);
@@ -301,8 +317,8 @@
     return d.concat((10 - sum % 10) % 10).join('');
   }
   PRODUCTS.forEach(p => {
-    p.status = 'active';
-    p.gtin = gtinFor(p.id);
+    if (!p.status) p.status = 'active';
+    if (!p.gtin) p.gtin = gtinFor(p.id);
     Object.assign(p, (OV.products || {})[p.id]);
   });
 
@@ -325,11 +341,43 @@
     return Math.round(v * 2) / 2 - 0.01;
   }
 
+  const couponFor = (store, marketId, product) => COUPONS.find(c => c.active !== false && c.days >= 0 && c.store === store.name && c.market === marketId && c.cat === product.cat) || null;
+  const byBestPrice = (a, b) => (b.inStock - a.inStock) || (a.total - b.total);
+
+  // Offers from the live catalog (real store prices), in the same shape the demo generator returns.
+  function liveOffers(product, marketId) {
+    const byId = {};
+    (ACTIVE_STORES[marketId] || []).forEach(s => { byId[s.id] = s; });
+    return (CAT.offers[product.id + '|' + marketId] || []).filter(o => byId[o.storeId]).map(o => ({
+      store: byId[o.storeId], price: +o.price, shipping: +o.shipping, total: +o.price + +o.shipping, currency: o.currency,
+      was: o.was == null ? null : +o.was, inStock: !!o.inStock, days: [o.daysMin, o.daysMax], updatedMin: o.updatedMin,
+      variant: o.variant | 0, promo: couponFor(byId[o.storeId], marketId, product), trackingId: o.trackingId, url: o.url || null
+    })).sort(byBestPrice);
+  }
+
+  // Daily lowest-price series from the live catalog. History rows are [date, price] pairs recorded when the price changed.
+  function liveHistory(product, marketId, days) {
+    const rows = (CAT.history || {})[product.id + '|' + marketId] || [];
+    const out = [];
+    const day = new Date(); day.setHours(0, 0, 0, 0);
+    let i = 0, last = rows.length ? +rows[0][1] : 0;
+    const start = new Date(day); start.setDate(start.getDate() - (days - 1));
+    // Value in force on the first day shown: the latest change on or before it.
+    while (i < rows.length && new Date(rows[i][0] + 'T00:00:00') <= start) { last = +rows[i][1]; i++; }
+    for (let d = 0; d < days; d++) {
+      const cur = new Date(start); cur.setDate(cur.getDate() + d);
+      while (i < rows.length && new Date(rows[i][0] + 'T00:00:00') <= cur) { last = +rows[i][1]; i++; }
+      out.push(last);
+    }
+    return out;
+  }
+
   function offersFor(product, marketId) {
+    if (CAT && CAT.offers) return liveOffers(product, marketId);
     const market = MARKETS[marketId];
     const local = product.base * BASE_RATES[market.currency] * market.priceFactor * (1 - product.drop / 100);
     const pool = ACTIVE_STORES[marketId].filter(s => s.cats.includes(product.cat));
-    const promoFor = store => COUPONS.find(c => c.active !== false && c.days >= 0 && c.store === store.name && c.market === marketId && c.cat === product.cat) || null;
+    const promoFor = store => couponFor(store, marketId, product);
     const trackingId = store => 'doabno-' + marketId + '-' + store.id + '-' + product.id;
     const offers = [];
     pool.forEach(store => {
@@ -358,11 +406,12 @@
       offers.push({ store: pool[0], price, shipping: 0, total: price, currency: market.currency, was: null, inStock: true,
         days: [2, 4], updatedMin: 12, variant: 0, promo: promoFor(pool[0]), trackingId: trackingId(pool[0]) });
     }
-    return offers.sort((a, b) => (b.inStock - a.inStock) || (a.total - b.total));
+    return offers.sort(byBestPrice);
   }
 
   // Daily lowest-price history (oldest → newest) in the market currency.
   function historyFor(product, marketId, days) {
+    if (CAT && CAT.history) return liveHistory(product, marketId, days);
     const market = MARKETS[marketId];
     const rnd = seeded(product.id + marketId + 'hist');
     const avg = product.base * BASE_RATES[market.currency] * market.priceFactor;
