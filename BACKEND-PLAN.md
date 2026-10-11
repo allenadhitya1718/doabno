@@ -1,9 +1,9 @@
 # DOABNO: plan from prototype to live product
 
 ## Context
-The website (`web-v2/`), app (`app-v2/`) and admin (`admin-v2/`) are finished static prototypes. All three read the same demo catalog (`*/assets/data.js`, 20 products, 4 markets, 5 categories) and keep every user action in browser localStorage. There is no server, database, login, or real store data. This plan covers everything needed to go live and hand over, with the tooling picked for lowest cost that one developer can run.
+The website (`web-v2/`), app (`app-v2/`) and admin (`admin-v2/`) are finished static prototypes. All three read the same demo catalog (`*/assets/data.js`, 20 products, 4 markets, 5 categories) and keep every user action in browser localStorage. There is no server, database, login, or real store data. This plan covers everything needed to go live and hand over, with the tooling picked for lowest cost and fastest build that one developer can run. Target: a working version in about 3 days (see the 3-day cut below).
 
-Decisions already made: build by **one developer**; user-data location (PDPL) **decided later**, so the plan keeps personal data in separate tables that can move.
+Decisions already made: build by **one developer**; backend is **Supabase** (chosen for speed: login, storage and a data dashboard come built in); user-data location (PDPL) **needs sign-off from the client's Saudi legal adviser before real users**, so personal data stays in separate tables that can move to a Saudi host later. Until sign-off, use test accounts and sample data only.
 
 ## What the prototypes already tell us (reuse, don't redo)
 - `admin-v2/assets/data.js` defines the entities: rates, markets (sa/ae/us/uk), categories+subs, stores (one row per store per market), products (with GTIN), coupons, plus generated offers/history/clicks/users. Use it as the **seed data** and the schema guide.
@@ -17,10 +17,9 @@ Rule: every piece starts on a free plan that allows commercial use, with a named
 
 | Need | Pick | Why this over the alternatives | Cost at launch | Pay when |
 |---|---|---|---|---|
-| Database | **Neon** Postgres, free plan (0.5 GB, 100 compute-hours/mo, scales to zero) | Supabase's free plan pauses after 1 week of inactivity and Supabase Pro is $25/mo; PlanetScale has no real free tier. Neon free is the cheapest real Postgres. Trade-off: 0.5 GB fills up, so price history is stored **only when a price changes**, not daily. | $0 | Storage nears 0.5 GB or compute runs out: Neon Launch (about $19/mo) or Supabase Pro ($25/mo) |
-| Region | Frankfurt (the Neon region closest to the Gulf; no Gulf region exists) | Region can't be changed later without migrating. | $0 | n/a |
-| Login | **Better Auth** (free, open source, runs inside our own code; email + Google/Apple) | Supabase Auth would force Supabase; Auth0/Clerk charge by user. | $0 | Never needed |
-| Website (server-rendered for SEO, Arabic RTL) | **Next.js on Cloudflare** (Workers via the OpenNext adapter) | Vercel's free plan bans commercial use and Vercel Pro is $20/seat. Cloudflare's free plan allows commercial use. Risk: the adapter has some App Router edge cases, so test early. | $0 | Free daily request cap is hit: Workers Paid, $5/mo (10M requests included) |
+| Database + login + file storage | **Supabase** free plan (500 MB database, 50,000 monthly users, 1 GB files, 2 projects); Pro $25/mo when needed | Login, storage and a data dashboard come built in, which saves about a day versus Neon plus a separate login library, and the free plan is also $0. Trade-offs: the free plan **pauses after 1 week of inactivity** (a live site with traffic should keep it awake, not guaranteed) and the 500 MB fills up, so price history is stored **only when a price changes**. | $0 | Database pauses, nears 500 MB, or needs daily backups: Supabase Pro, $25/mo |
+| Region | **Frankfurt** (Supabase has no Gulf or Saudi region; nearest are Frankfurt and Mumbai) | Pick a specific region, not a "general" one, so data stays where we choose. Region can't be changed without migrating. | included | n/a |
+| Login | **Supabase Auth** (email + Google/Apple) | Built in; no extra service. | $0 | Over 50,000 monthly users || Website (server-rendered for SEO, Arabic RTL) | **Next.js on Cloudflare** (Workers via the OpenNext adapter) | Vercel's free plan bans commercial use and Vercel Pro is $20/seat. Cloudflare's free plan allows commercial use. Risk: the adapter has some App Router edge cases, so test early. | $0 | Free daily request cap is hit: Workers Paid, $5/mo (10M requests included) |
 | Feed imports | **GitHub Actions scheduled job** (free for private repos, within a monthly minutes allowance; my own knowledge, verify) | Runs plain Node with no CPU cap, so big XML feeds are fine. Limit: the free minutes allow roughly **daily** imports for a handful of stores, not hourly. | $0 | Need hourly imports or more stores: small always-on worker on Railway, about $5-10/mo |
 | Search | **Postgres full-text + trigram** | Free, no extra service. Test Arabic quality early. | $0 | Arabic/typo quality disappoints: Meilisearch Cloud, from about $30/mo (best Arabic support of the options found) |
 | Email (alerts, verification) | **Resend** free plan | 3,000/mo and 100/day free; Amazon SES is cheaper at huge volume but more setup. | $0 | Over 100 alerts a day: Resend Pro $20/mo or SES |
@@ -28,7 +27,7 @@ Rule: every piece starts on a free plan that allows commercial use, with a named
 | Mobile app | **Installable web app (PWA) first**, native Expo app only if the client needs store listings | A PWA reuses the website, no second codebase, no store fees. Expo/stores add Apple $99/yr and Google $25 once (my own knowledge) plus about 3 weeks of work. | $0 | Client requires App Store / Play Store presence |
 | Images, monitoring | Cloudflare free caching for store-supplied image links; Sentry free plan; free uptime checker | Enough at launch. | $0 | n/a |
 
-Estimated running cost at launch: **about $0/month plus the domain (roughly $10-15/year)**. Realistic first paid steps: Cloudflare Workers Paid $5, then Neon Launch about $19: roughly **$25-30/month** at moderate traffic. The previous plan (Supabase + Vercel + Railway) was about $50-60/month. Figures come from third-party price pages that sometimes conflict; confirm on each vendor's page before relying on them.
+Estimated running cost at launch: **about $0/month plus the domain (roughly $10-15/year)**. Realistic first paid steps: Supabase Pro $25 and Cloudflare Workers Paid $5: roughly **$30/month** at moderate traffic. (Neon + a free login library would be about $5 cheaper at that point but costs about a day more to build.) Figures come from third-party price pages that sometimes conflict; confirm on each vendor's page before relying on them.
 
 Cheapest-path trade-offs the client must accept: daily (not hourly) price refresh at first; a database that must be kept small; two more upgrades likely within the first months of real traffic.
 
@@ -44,10 +43,10 @@ download feed, stream-parse, normalise (currency, price + shipping to total), ma
 
 ## Phases (one developer; estimates in working weeks)
 **Phase 0: Decisions and paperwork (week 1, runs in parallel with everything).**
-Apply to Noon, Awin, Admitad/others and Amazon Associates (ae, sa). Create accounts: Neon, Cloudflare, GitHub (private repo), Resend, OneSignal, domain. Get a lawyer on: PDPL data-location approach, privacy policy, terms, affiliate disclosure, cookie text. Pick the first 5-10 stores and the feed format of each.
+Apply to Noon, Awin, Admitad/others and Amazon Associates (ae, sa). Create accounts: Supabase, Cloudflare, GitHub (private repo), Resend, OneSignal, domain. Get a lawyer on: PDPL data-location approach, privacy policy, terms, affiliate disclosure, cookie text. Pick the first 5-10 stores and the feed format of each.
 
 **Phase 1: Foundation (about 1.5 weeks).**
-Monorepo (web, app, admin, worker, shared types). Postgres schema from data.js: markets, currencies/rates, categories, subcategories, stores, products, product_translations (en/ar), offers, price_history, coupons, clicks, feeds, feed_runs. User-data tables kept separate (profiles, favorites, alerts, consents, privacy_requests) so they can be moved to another region. Migrations, Better Auth set up, a seed script that loads data.js, price history stored only when a price changes, and a free staging database branch plus a production one. Backups: Neon's point-in-time restore on the free plan is short, so also run a weekly dump to free file storage.
+Monorepo (web, app, admin, worker, shared types). Postgres schema from data.js: markets, currencies/rates, categories, subcategories, stores, products, product_translations (en/ar), offers, price_history, coupons, clicks, feeds, feed_runs. User-data tables kept separate (profiles, favorites, alerts, consents, privacy_requests) so they can be moved to another region. Migrations, Supabase Auth and row-level security set up, a seed script that loads data.js, price history stored only when a price changes, and a free staging database branch plus a production one. Backups: the free plan has no daily backups, so also run a weekly database dump to free file storage.
 
 **Phase 2: Feed pipeline (about 2-3 weeks).**
 Import script (run daily by GitHub Actions; moves to a Railway worker later if hourly is needed) with adapters for CSV, XML, JSON API and Google Merchant. GTIN matching plus unmatched-items review queue. Outlier and stock checks (port the existing rule). Exchange-rate updates. Scheduling (hourly/6-hourly/daily as the feeds page shows). Real "Run now" and rejected-items list. Alert evaluation hook. Needs: at least two real feeds to test with.
@@ -56,7 +55,7 @@ Import script (run daily by GitHub Actions; moves to a Railway worker later if h
 Port `web-v2/` screens to server-rendered pages with clean URLs (today's `#/` links cannot be indexed). Per-page titles, canonical, hreflang en/ar, structured product data, sitemap. Product, category, search, deals, coupons from the database. Arabic RTL carried over. Postgres search. **Click-out endpoint:** logs the click, then redirects to the store's affiliate link (this is what earns money and feeds the admin's traffic reports). Target the PRD's 7-second response time with caching.
 
 **Phase 4: Accounts, favorites, alerts, privacy (about 1.5-2 weeks).**
-Real sign-up/login with Better Auth (email + Google/Apple, matching the profile screens), email verification, favorites and alerts in the database (one shape for web and app), alert emails with recorded marketing consent, data download, account deletion, cookie consent record, privacy-request intake with the 30-day promise, CCPA opt-out.
+Real sign-up/login with Supabase Auth (email + Google/Apple, matching the profile screens), email verification, favorites and alerts in the database (one shape for web and app), alert emails with recorded marketing consent, data download, account deletion, cookie consent record, privacy-request intake with the 30-day promise, CCPA opt-out.
 
 **Phase 5: Admin on the real back end (about 2 weeks).**
 Replace the localStorage overrides in `admin-v2/admin.js` with API calls: products, categories, stores, coupons, rates, popular searches. Real sign-in with two-factor and roles (owner/catalog/partners/analyst), audit log, CSV export from real clicks, live feed status.
@@ -75,11 +74,11 @@ Total: about **14-17 weeks** for one developer with the PWA (add about 2 weeks f
 ## Risks and open items
 - Affiliate approvals and feed access are outside our control and set the real launch date.
 - Amazon API rules changed in 2026 and sources disagree; verify on Amazon before relying on it.
-- Saudi PDPL transfer rules (in force since September 2024) apply even if the server is abroad; legal advice needed. Plan keeps personal data separable.
+- Saudi PDPL transfer rules (in force since September 2024) apply even if the server is abroad; legal advice needed. Plan keeps personal data separable. Also confirm with the adviser where backups, logs, support access and the provider's sub-processors handle data, since a provider can process some data outside the region you pick (Supabase's docs mention telemetry and support), and review Supabase's data-processing agreement. If Saudi hosting is required, the user tables can move to Postgres on Saudi infrastructure or a self-hosted Supabase.
 - Arabic search quality must be tested on real product names, including mixed Arabic/English.
 - Several vendor prices came from third-party comparison pages; re-check before purchase.
-- Free-tier limits are the main risk of the cheapest path: Neon's 0.5 GB (keep history change-only), GitHub Actions minutes (daily imports only), Resend's 100 emails/day (cap alert sends). Each has a named upgrade in the stack table.
-- Neon free scales to zero, so the first request after idle can be slower; measure against the 7-second target and keep a cheap uptime ping if needed.
+- Free-tier limits are the main risk of the cheapest path: Supabase's 500 MB (keep history change-only), GitHub Actions minutes (daily imports only), Resend's 100 emails/day (cap alert sends). Each has a named upgrade in the stack table.
+- Supabase free pauses after a week without activity; a free uptime ping every few hours keeps it awake, and a paused project needs a manual restart.
 - Next.js on Cloudflare uses an adapter; prove it in Phase 3 week 1 with product and search pages, and fall back to Vercel Pro ($20) if it blocks us.
 
 ## Verification (how we'll know each phase works)
@@ -92,3 +91,10 @@ Total: about **14-17 weeks** for one developer with the PWA (add about 2 weeks f
 
 ## Critical files in the current repo
 `admin-v2/assets/data.js` (schema + seed source), `admin-v2/admin.js` (feeds, admin operations to rewire), `web-v2/v2.js` and `app-v2/mobile.js` (screens and storage keys to replace), `README.md` (stated production intent), `PRD-CHECKLIST.md` (requirements to tick off).
+
+## The 3-day cut (if the deadline is fixed)
+Everything above is about 14-17 weeks; three days only fits a reduced version. Needs one real store feed in hand by day 2.
+- **Day 1:** Supabase project (Frankfurt), schema, demo catalog loaded from data.js, login, favorites and alerts saved in the database.
+- **Day 2:** import for 1-2 real stores (daily), the "Visit store" click that logs the click and redirects.
+- **Day 3:** admin connected to the real database, deployed live, handover note.
+- **Left out:** the Google-friendly Next.js rebuild, native app, extra Gulf markets, hourly refresh, final legal sign-off. A public launch with real Saudi users should wait for the legal sign-off and affiliate approvals; three days is realistic for a client demo.
