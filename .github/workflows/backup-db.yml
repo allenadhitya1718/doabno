@@ -1,0 +1,49 @@
+# Weekly copy of the database (public tables, plus accounts), encrypted, kept for 30 days as a workflow artifact.
+# NOT ACTIVE YET: GitHub only runs scheduled workflows from the default branch (main), and it needs two repository secrets
+# (Settings > Secrets and variables > Actions):
+#   SUPABASE_DB_URL    Supabase > Project Settings > Database > Connection string > "Session pooler" (not "Direct connection": GitHub's servers cannot use it)
+#   BACKUP_PASSPHRASE  a long random passphrase; keep a copy somewhere safe, without it the backup cannot be opened
+# Without the secrets it skips safely. The backup contains personal data (emails), which is why it is encrypted.
+# To restore, see "Restoring a backup" in HANDOVER.md.
+name: Back up database
+on:
+  schedule:
+    - cron: "0 2 * * 0"          # Sundays 02:00 UTC
+  workflow_dispatch:
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+    steps:
+      - name: Check secrets
+        id: check
+        run: |
+          if [ -n "$SUPABASE_DB_URL" ] && [ -n "$BACKUP_PASSPHRASE" ]; then echo "ready=true" >> "$GITHUB_OUTPUT"; else echo "SUPABASE_DB_URL / BACKUP_PASSPHRASE are not set; nothing backed up."; fi
+      - name: Install PostgreSQL 17 client
+        if: steps.check.outputs.ready == 'true'
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y postgresql-client-17
+      - name: Dump and encrypt
+        if: steps.check.outputs.ready == 'true'
+        run: |
+          set -euo pipefail
+          STAMP=$(date -u +%Y-%m-%d)
+          /usr/lib/postgresql/17/bin/pg_dump "$SUPABASE_DB_URL" --schema=public --schema=auth --no-owner --no-privileges --format=custom --file="doabno-$STAMP.dump"
+          test -s "doabno-$STAMP.dump"
+          openssl enc -aes-256-cbc -pbkdf2 -salt -pass env:BACKUP_PASSPHRASE -in "doabno-$STAMP.dump" -out "doabno-$STAMP.dump.enc"
+          rm "doabno-$STAMP.dump"
+          ls -l doabno-*.enc
+      - name: Keep the encrypted file
+        if: steps.check.outputs.ready == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-backup
+          path: doabno-*.dump.enc
+          retention-days: 30
+          if-no-files-found: error
