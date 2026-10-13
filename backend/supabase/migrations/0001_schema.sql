@@ -316,8 +316,8 @@ create policy "read" on public.feed_rejects for select using (public.has_role(ar
 create policy "read" on public.clicks for select using (public.has_role(array['owner','partners','analyst']));
 
 -- User data: each person sees and changes only their own rows.
-create policy "own" on public.profiles for select using (user_id = auth.uid());
-create policy "own" on public.profiles for update using (user_id = auth.uid()) with check (user_id = auth.uid());
+create policy "own read" on public.profiles for select using (user_id = auth.uid());
+create policy "own update" on public.profiles for update using (user_id = auth.uid()) with check (user_id = auth.uid());
 create policy "own" on public.favorites for all using (user_id = auth.uid()) with check (user_id = auth.uid());
 create policy "own" on public.alerts for all using (user_id = auth.uid()) with check (user_id = auth.uid());
 

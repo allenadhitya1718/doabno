@@ -18,6 +18,8 @@ Run `0002_get_catalog.sql` too (after `0001`). It creates `get_catalog()`, which
 
 Status: the SQL has not been run against a real database yet; the first run is the test.
 
+If a run stops with an error: fix is pushed here first (pull, then re-open the file and paste again). If the next run complains that tables or policies "already exist", the earlier run left parts behind: on a new empty test project only, run `supabase/reset-dev.sql` once, then run the files again from the top.
+
 ## Other parts
 - `importer/`: feed importer (CSV, XML/Google Merchant, JSON). Try it without a database: `node importer/cli.js dry-run --file feed.csv --format csv --store noon-sa`. With a database: `node importer/cli.js run --schedule daily` (needs `SUPABASE_URL` and `SUPABASE_SERVICE_KEY`).
 - `supabase/functions/go/`: the "Visit store" click-out function (logs the click, then redirects). Deploy with JWT verification off; set the `CLICK_SALT` secret.
