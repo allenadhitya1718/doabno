@@ -2,6 +2,7 @@
 // Feed importer command line.
 //   node backend/importer/cli.js run --schedule daily          run every active feed on that schedule (needs SUPABASE_URL, SUPABASE_SERVICE_KEY)
 //   node backend/importer/cli.js run --feed-id 7               run one feed
+//   node backend/importer/cli.js alerts [--dry true]           email people whose price alert was reached (needs RESEND_API_KEY, ALERT_FROM, SITE_URL)
 //   node backend/importer/cli.js dry-run --file feed.csv --format csv --store noon-sa
 //                                                              try a feed file against the demo catalog, saving nothing
 // In a feed's address, ${NAME} is replaced with the environment variable NAME, so keys stay out of the database.
@@ -14,6 +15,13 @@ const cmd = args.shift();
 const opt = {};
 for (let i = 0; i < args.length; i += 2) opt[args[i].replace(/^--/, '')] = args[i + 1];
 const expand = s => (s || '').replace(/\$\{(\w+)\}/g, (m, n) => { if (process.env[n] === undefined) throw new Error('Environment variable ' + n + ' is not set'); return process.env[n]; });
+
+async function sendAlerts(db, dry) {
+  const { checkAlerts } = require('./alerts');
+  const mailer = dry ? null : require('./mailer').createResendMailer();
+  const res = await checkAlerts({ db, mailer, siteUrl: process.env.SITE_URL || 'http://localhost:5174', max: +process.env.ALERT_MAX_EMAILS || 80, dryRun: dry, log: m => console.log('  ' + m) });
+  console.log('alerts: ' + JSON.stringify(res));
+}
 
 async function main() {
   if (cmd === 'dry-run') {
@@ -44,9 +52,15 @@ async function main() {
       console.log('feed ' + feed.id + ' (' + feed.store_id + '): ' + res.status + (res.status === 'error' ? ' ' + (res.error || '') + ' ' + (res.message || '') : ', ' + res.items + ' items, ' + res.rejected + ' rejected'));
     }
     console.log(feeds.length + ' feeds, ' + failed + ' failed');
+    if (process.env.RESEND_API_KEY && process.env.ALERT_FROM) await sendAlerts(db, false);   // after new prices are in, tell people whose target was reached
     return;
   }
-  console.log(fs.readFileSync(__filename, 'utf8').split('\n').slice(1, 9).join('\n').replace(/^\/\/ ?/gm, ''));
+  if (cmd === 'alerts') {
+    const { createSupabaseDb } = require('./db-supabase');
+    await sendAlerts(createSupabaseDb(), opt.dry === 'true');
+    return;
+  }
+  console.log(fs.readFileSync(__filename, 'utf8').split('\n').slice(1, 10).join('\n').replace(/^\/\/ ?/gm, ''));
   process.exitCode = cmd ? 1 : 0;
 }
 main().catch(e => { console.error('Error:', e.message); process.exit(1); });

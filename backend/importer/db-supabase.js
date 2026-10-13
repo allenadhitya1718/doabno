@@ -76,6 +76,16 @@ function createSupabaseDb({ url = process.env.SUPABASE_URL, key = process.env.SU
       }
       for (const batch of chunk(rows, 500)) await rest('price_history?on_conflict=product_id,market,day', { method: 'POST', body: batch, prefer: 'resolution=merge-duplicates,return=minimal' });
     },
+    // Alerts: the database function lists every active alert with the person's email and the current lowest price (service key only).
+    async getAlertCandidates() {
+      const out = [];
+      for (let offset = 0; ; offset += 1000) {
+        const page = await rest('rpc/alerts_to_check?limit=1000&offset=' + offset, { method: 'POST', body: {} });
+        out.push(...page);
+        if (page.length < 1000) return out;
+      }
+    },
+    async markAlert(id, triggeredAt) { await rest('alerts?id=eq.' + Number(id), { method: 'PATCH', body: { triggered_at: triggeredAt }, prefer: 'return=minimal' }); },
     async startRun(feedId) { return (await rest('feed_runs', { method: 'POST', body: { feed_id: feedId }, prefer: 'return=representation' }))[0].id; },
     async finishRun(runId, r) {
       await rest('feed_runs?id=eq.' + Number(runId), { method: 'PATCH', body: { status: r.status, items: r.items, rejected: r.rejected, error: r.error || null, finished_at: new Date().toISOString() }, prefer: 'return=minimal' });

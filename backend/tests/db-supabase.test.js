@@ -60,3 +60,18 @@ test('adapter: refuses to start without credentials; rows without a link never o
   assert.equal(posts.length, 2);
   assert.ok(posts.some(p => 'url' in p.body[0]) && posts.some(p => !('url' in p.body[0])));
 });
+
+test('adapter: alert candidates come from the database function (paged), and marking an alert patches that row', async () => {
+  const calls = [];
+  const fetchImpl = async (url, init = {}) => {
+    const u = new URL(url); calls.push({ method: init.method || 'GET', path: u.pathname, query: u.search, body: init.body ? JSON.parse(init.body) : undefined, auth: init.headers.Authorization });
+    const page = u.searchParams.get('offset') === '0' ? Array.from({ length: 1000 }, (_, i) => ({ alert_id: i })) : [{ alert_id: 1000 }];
+    return { ok: true, status: 200, text: async () => (u.pathname.endsWith('alerts_to_check') ? JSON.stringify(page) : ''), json: async () => page };
+  };
+  const db = createSupabaseDb({ url: 'https://x.supabase.co', key: 'SERVICE', fetchImpl });
+  const rows = await db.getAlertCandidates();
+  assert.equal(rows.length, 1001); assert.deepEqual(calls.map(c => c.query), ['?limit=1000&offset=0', '?limit=1000&offset=1000']); assert.ok(calls.every(c => c.method === 'POST' && c.auth === 'Bearer SERVICE'));
+  await db.markAlert(7, '2026-10-13T10:00:00Z'); await db.markAlert(8, null);
+  assert.deepEqual([calls[2].method, calls[2].path, calls[2].query, calls[2].body], ['PATCH', '/rest/v1/alerts', '?id=eq.7', { triggered_at: '2026-10-13T10:00:00Z' }]);
+  assert.deepEqual(calls[3].body, { triggered_at: null });
+});
