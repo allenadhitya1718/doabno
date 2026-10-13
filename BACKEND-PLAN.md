@@ -44,7 +44,7 @@ download feed, stream-parse, normalise (currency, price + shipping to total), ma
 ## Build schedule: 3 days, as much as possible
 Key shortcut: keep the three finished front-ends and make them read from the database through a small loader that returns the **same `window.DOABNO_DATA` shape** the screens already use. No screen has to be redone. Work is about 10-12 hours a day, with me writing most of the code and you handling accounts and approvals in parallel.
 
-**Before day 1 (you, about 1 hour, can be done today):** create the Supabase project (Frankfurt), Cloudflare and GitHub (private repo) accounts and a Resend account; start the Noon, Awin/Admitad and Amazon Associates applications; ask any one store or network for a **sample feed file** (needed on day 2).
+**Before day 1 (you, about 1 hour, can be done today):** create the Supabase project (Frankfurt), Cloudflare and GitHub (private repo) accounts and a Resend account; we submit the Noon, Awin/Admitad and Amazon Associates applications ourselves once the client sends the company details, authorized signatory, authorization letter and payout details (see `ClientRequirements.pdf`); a **sample feed file** from the first approved network or store is needed on day 2.
 
 **Day 1: database, login, and all three apps on real data.**
 - Schema from data.js: markets, currencies/rates, categories, subcategories, stores, products (en/ar), offers, price history (change-only), coupons, clicks, feeds, feed_runs. User tables kept separate (profiles, favorites, alerts, consents, privacy_requests).
@@ -75,7 +75,7 @@ Key shortcut: keep the three finished front-ends and make them read from the dat
 - Hourly refresh instead of daily (small always-on worker, about a day to set up, $5-10/mo).
 - Affiliate approvals, real store feeds, and the Saudi legal sign-off: outside our control and the real limit on a public launch. Until then, run with sample or test data only.
 ## Risks and open items
-- Affiliate approvals and feed access are outside our control and set the real launch date.
+- Affiliate approvals and feed access are outside our control and set the real launch date. We submit the applications; the client only supplies company details, signatory, authorization letter and payout details, so delays there delay everything.
 - Amazon API rules changed in 2026 and sources disagree; verify on Amazon before relying on it.
 - Saudi PDPL transfer rules (in force since September 2024) apply even if the server is abroad; legal advice needed. Plan keeps personal data separable. Also confirm with the adviser where backups, logs, support access and the provider's sub-processors handle data, since a provider can process some data outside the region you pick (Supabase's docs mention telemetry and support), and review Supabase's data-processing agreement. If Saudi hosting is required, the user tables can move to Postgres on Saudi infrastructure or a self-hosted Supabase.
 - Arabic search quality must be tested on real product names, including mixed Arabic/English.

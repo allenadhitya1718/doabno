@@ -23,7 +23,7 @@ Plan and reasoning: [BACKEND-PLAN.md](BACKEND-PLAN.md). Back-end setup: [backend
 4. Admin saves edits to the database; roles; audit log (`admin-v2/admin.js`).
 5. Privacy features (data download, account deletion, consent records).
 6. Deploy to free hosting; weekly backup; handover note.
-7. Needs the client: store feed samples, affiliate approvals, Saudi legal sign-off.
+7. **We run the affiliate applications, feeds and tracking links ourselves; the client only sends information** (company details, authorized signatory, authorization letter, payout details, legal adviser contact and sign-off). See `ClientRequirements.pdf`. Open for us: prepare the authorization-letter template, choose the first stores and networks, submit the applications as soon as the company details arrive.
 8. `app-frame/app/assets/data.js` (a separate copy) still uses demo data only; port the loader there when the app wrapper is next touched.
 
 ## Done
