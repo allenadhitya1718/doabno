@@ -36,6 +36,7 @@ http.createServer((req, res) => {
       return send(res, 200, session(user));
     }
     if (p === '/auth/v1/logout') return send(res, 204);
+    if (p === '/auth/v1/user') return me ? send(res, 200, { id: me.id, email: me.email, user_metadata: me.meta }) : send(res, 401, { error_code: 'bad_jwt' });
     if (p === '/mock/confirm') { state.users.forEach(x => { x.confirmed = true; }); return send(res, 200, { ok: true }); }
     if (p === '/mock/state') return send(res, 200, { users: state.users.map(x => ({ id: x.id, email: x.email, meta: x.meta })), favorites: state.favorites, alerts: state.alerts, privacy: state.privacy });
     if (p === '/rest/v1/privacy_requests') { state.privacy.push(body); return send(res, 201); }

@@ -5,7 +5,7 @@
  * request to that user's rows). It never needs, and must never be given, the service_role key. */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = { createAccount: factory };
-  else root.DOABNO_ACCOUNT = factory({ cfg: root.DOABNO_CONFIG || {}, storage: root.localStorage, fetchImpl: root.fetch.bind(root), key: root.DOABNO_AUTH_KEY });
+  else root.DOABNO_ACCOUNT = factory({ cfg: root.DOABNO_CONFIG || {}, storage: root.localStorage, fetchImpl: root.fetch.bind(root), key: root.DOABNO_AUTH_KEY, location: root.location, history: root.history });
 })(typeof window !== 'undefined' ? window : globalThis, function createAccount(opts) {
   const cfg = opts.cfg || {};
   const fetchImpl = opts.fetchImpl;
@@ -66,15 +66,38 @@
   }
   async function rest(path, o = {}) { const t = await token(); if (!t) throw new AccountError('signed_out', 'Not signed in', 401); return raw('/rest/v1/' + path, Object.assign({ token: t }, o)); }
 
+  // The link in the confirmation email (and password-reset or magic-link emails) sends the person back to the site with the login
+  // details in the part of the address after "#". Take them out of the address bar straight away (before the page's own router
+  // sees them, and so they are not left in the browser history), then finish signing in.
+  //   ready resolves to null (nothing to do), { status: 'signed-in', type } or { status: 'error', code }.
+  let landing = null;
+  const loc = opts.location, hist = opts.history;
+  if (enabled && loc && /^#(access_token|error)=/.test(loc.hash || '')) {
+    const q = new URLSearchParams(loc.hash.slice(1));
+    landing = { access_token: q.get('access_token'), refresh_token: q.get('refresh_token'), expires_in: +q.get('expires_in') || 3600, expires_at: +q.get('expires_at') || 0,
+      type: q.get('type') || '', error: q.get('error_code') || q.get('error') || '' };
+    try { hist.replaceState(null, '', (loc.pathname || '/') + (loc.search || '') + '#/'); } catch (e) { /* the page is still usable */ }
+  }
+  const ready = landing ? (async () => {
+    if (!landing.access_token) return { status: 'error', code: /expired|invalid/i.test(landing.error) ? 'link_expired' : 'failed' };
+    try {
+      const u = await raw('/auth/v1/user', { token: landing.access_token });
+      keepSession({ access_token: landing.access_token, refresh_token: landing.refresh_token, expires_in: landing.expires_in, expires_at: landing.expires_at, user: u });
+      return { status: 'signed-in', type: landing.type };
+    } catch (e) { return { status: 'error', code: e.code || 'failed' }; }
+  })() : Promise.resolve(null);
+
   const api = {
     enabled,
+    ready,
     AccountError,
     signedIn: () => !!session,
     user: () => (session ? Object.assign({}, session.user) : null),
 
     // Returns { status: 'signed-in' } or { status: 'confirm' } when the project requires the email to be confirmed first.
     async signUp({ email, password, name, lang, market, marketing }) {
-      const d = await raw('/auth/v1/signup', { method: 'POST', body: { email, password, data: { name, lang, market, marketing: !!marketing } } });
+      const back = loc ? '?redirect_to=' + encodeURIComponent(loc.origin + (loc.pathname || '/')) : '';
+      const d = await raw('/auth/v1/signup' + back, { method: 'POST', body: { email, password, data: { name, lang, market, marketing: !!marketing } } });
       if (d && d.access_token) { keepSession(d); return { status: 'signed-in' }; }
       // With confirmation on, an address that is already registered comes back as a user with no identities.
       if (d && Array.isArray(d.identities) && d.identities.length === 0) throw new AccountError('exists', 'Already registered', 400);

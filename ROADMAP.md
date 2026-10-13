@@ -34,6 +34,7 @@ Plan and reasoning: [BACKEND-PLAN.md](BACKEND-PLAN.md). Back-end setup: [backend
 - Feed importer (CSV, XML/Google Merchant, JSON): barcode matching, price checks, change-only history, error codes. Tested offline: 13 tests, including a fake-server test of the Supabase adapter. Not yet run on a real project.
 - Click-out function and daily import workflow: written, not deployed.
 - Website accounts: sign-up, sign-in, favorites and price alerts saved in the database, profile consent, privacy requests, account deletion (`web-v2/assets/account.js`; 9 tests plus a full browser run against `backend/tests/mock-supabase.js`). Also fixed the oversized checkboxes in the sign-up dialog.
+- Email-confirmation link: signing in from the link in the Supabase email (login details are removed from the address bar), plus a fix for a crash after account deletion (stored `null`). Both found by the first live test.
 - App accounts: email sign-up and sign-in sheet, account card with sign out and delete, favorites and alerts synced, notification choices saved to the profile (`app-v2/mobile.js`, same `account.js`; tested in a browser against the mock server).
 - `ClientRequirements.pdf`: one-page list of what the client must provide (stores and feeds, affiliate accounts, legal approval, domain and accounts, content).
 

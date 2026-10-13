@@ -25,6 +25,7 @@ function fake({ confirmEmail = true, existing = false } = {}) {
     }
     if (p === '/auth/v1/token' && u.searchParams.get('grant_type') === 'refresh_token') return body.refresh_token === 'revoked' ? respond({ error_code: 'refresh_token_not_found' }, 400) : respond(sess('sara@example.com'));
     if (p === '/auth/v1/logout') return respond(undefined, 204);
+    if (p === '/auth/v1/user') return /^Bearer AT/.test(init.headers.Authorization) ? respond({ id: 'u1', email: 'sara@example.com', user_metadata: { name: 'Sara Ali' } }) : respond({ error_code: 'bad_jwt' }, 401);
     if (p === '/rest/v1/favorites' && method === 'GET') return respond(db.favorites.map(product_id => ({ product_id })));
     if (p === '/rest/v1/favorites' && method === 'POST') { body.forEach(r => { if (!db.favorites.includes(r.product_id)) db.favorites.push(r.product_id); }); return respond(undefined, 201); }
     if (p === '/rest/v1/favorites' && method === 'DELETE') { const id = u.searchParams.get('product_id').replace('eq.', ''); db.favorites = db.favorites.filter(x => x !== id); return respond(undefined, 204); }
@@ -130,4 +131,35 @@ test('privacy request works without signing in; account deletion calls the datab
 test('network failure is reported as a network error, not a crash', async () => {
   const a = createAccount({ cfg: CFG, fetchImpl: async () => { throw new TypeError('Failed to fetch'); } });
   await assert.rejects(a.signIn({ email: 'a@b.co', password: 'x' }), e => e.code === 'network');
+});
+
+const landing = (hash, extra = {}) => { const loc = Object.assign({ hash, pathname: '/', search: '?x=1', origin: 'http://localhost:5174' }, extra); const h = { urls: [], replaceState(a, b, u) { h.urls.push(u); loc.hash = '#/'; } }; return { loc, h }; };
+
+test('email link: login details are removed from the address at once, then the user is signed in', async () => {
+  const f = fake(); const { loc, h } = landing('#access_token=AT9&refresh_token=RT9&expires_in=3600&token_type=bearer&type=signup');
+  const a = make(f, { location: loc, history: h });
+  assert.deepEqual(h.urls, ['/?x=1#/']);                           // the page's router never sees the tokens
+  assert.deepEqual(await a.ready, { status: 'signed-in', type: 'signup' });
+  assert.equal(a.signedIn(), true); assert.equal(a.user().email, 'sara@example.com'); assert.equal(a.user().name, 'Sara Ali');
+  assert.ok(f.calls.some(c => c.path === '/auth/v1/user' && c.auth === 'Bearer AT9'));
+});
+
+test('expired or used email link: reported as an error, nobody is signed in', async () => {
+  const f = fake(); const { loc, h } = landing('#error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired');
+  const a = make(f, { location: loc, history: h });
+  assert.deepEqual(await a.ready, { status: 'error', code: 'link_expired' });
+  assert.equal(a.signedIn(), false); assert.deepEqual(h.urls, ['/?x=1#/']);
+});
+
+test('normal page load: nothing to do, address untouched', async () => {
+  const f = fake(); const { loc, h } = landing('#/p/iphone-17-pro');
+  const a = make(f, { location: loc, history: h });
+  assert.equal(await a.ready, null); assert.deepEqual(h.urls, []);
+});
+
+test('sign-up tells Supabase to send the person back to the same page after they click the email link', async () => {
+  const f = fake(); const { loc, h } = landing('#/', { pathname: '/app/' });
+  const a = make(f, { location: loc, history: h });
+  await a.signUp({ email: 'sara@example.com', password: 'correct-horse', name: 'Sara' });
+  assert.match(f.calls[0].query, /redirect_to=http%3A%2F%2Flocalhost%3A5174%2Fapp%2F/);
 });

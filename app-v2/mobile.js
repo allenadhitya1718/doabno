@@ -13,7 +13,7 @@
 
   // ---------- state ----------
   function load(key, fallback) {
-    try { const v = localStorage.getItem('doabno.' + key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; }
+    try { const v = localStorage.getItem('doabno.' + key); const j = v ? JSON.parse(v) : null; return j == null ? fallback : j; } catch (e) { return fallback; }
   }
   function save(key, value) {
     try { localStorage.setItem('doabno.' + key, JSON.stringify(value)); } catch (e) { /* storage unavailable */ }
@@ -1183,5 +1183,10 @@
   applyChrome();
   fit();
   route();
-  syncFromAccount();
+  // Back from the link in a confirmation email: account.js has already signed the person in.
+  Promise.resolve(ACC.ready).then(r => {
+    if (r && r.status === 'signed-in') toast(t('auth.confirmed'));
+    else if (r && r.status === 'error') toast(t('auth.errLink'));
+    return syncFromAccount();
+  });
 })();
