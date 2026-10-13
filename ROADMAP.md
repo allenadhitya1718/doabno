@@ -33,6 +33,7 @@ Plan and reasoning: [BACKEND-PLAN.md](BACKEND-PLAN.md). Back-end setup: [backend
 - Catalog loader: pages can read the catalog from a database or file, and fall back to demo data (tested: 250 checks).
 - Feed importer (CSV, XML/Google Merchant, JSON): barcode matching, price checks, change-only history, error codes. Tested offline: 13 tests, including a fake-server test of the Supabase adapter. Not yet run on a real project.
 - Click-out function and daily import workflow: written, not deployed.
+- `ClientRequirements.pdf`: one-page list of what the client must provide (stores and feeds, affiliate accounts, legal approval, domain and accounts, content).
 
 ## Not planned for the first 3 days
 Next.js rebuild for Google, native app, extra Gulf markets, hourly refresh. See `BACKEND-PLAN.md`.
