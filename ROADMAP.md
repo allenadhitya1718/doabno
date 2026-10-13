@@ -12,13 +12,13 @@ Plan and reasoning: [BACKEND-PLAN.md](BACKEND-PLAN.md). Back-end setup: [backend
 ## In progress (claimed: do not edit)
 | Owner | Area | Files / folders claimed | Started | Status |
 |---|---|---|---|---|
-| devesh1905 (+ Claude session) | Back end, day 1-3 build | `backend/**` (whole folder), `.github/**`, `ROADMAP.md`, `BACKEND-PLAN.md`, `CLAUDE.md` | 2026-10-11 | Written and tested offline: schema, seed, catalog loader, feed importer, click function. Waiting on the Supabase project to run it |
+| devesh1905 (+ Claude session) | Back end, day 1-3 build | `backend/**` (whole folder), `.github/**`, `ROADMAP.md`, `BACKEND-PLAN.md`, `CLAUDE.md` | 2026-10-11 | Written and tested offline: schema, seed, catalog loader, feed importer, click function. Live catalog connected (2026-10-13). Next: login, favorites and alerts, click function, importer on a real feed |
 | devesh1905 (+ Claude session) | Data loader in the three apps | `*/assets/data.js`, `*/assets/boot.js`, `*/assets/config.js` (for `web-v2`, `app-v2`, `admin-v2`) and the script tags at the bottom of each `index.html` | 2026-10-11 | Done and tested; hands off |
 | devesh1905 (+ Claude session) | Reserved for next steps (not started) | `admin-v2/admin.js` (wire to database), `web-v2/v2.js` and `app-v2/mobile.js` (sign-in, favorites, alerts), `app-frame/app/assets/data.js` | next | Queued: starts after the Supabase project exists |
 
 ## Queued (waiting on something)
-1. **Waiting on the Supabase project** (the owner creates it, see `backend/README.md`): run `backend/supabase/migrations/0001`, `0002`, then the seed files; check the tables; then put the project URL and publishable key into `assets/config.js` (3 apps) to switch from demo data to the live catalog.
-2. After 1: deploy and test the click function (`backend/supabase/functions/go`), set `CLICK_SALT`; run the importer against a real feed (`backend/importer/cli.js`); add `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` as GitHub secrets (the daily workflow only runs once merged to `main`).
+1. ~~Supabase project~~ **Done 2026-10-13:** project created, schema and seed loaded, counts verified, and the three apps now read the live catalog (`*/assets/config.js`). The live catalog matches the demo data (250 parity checks).
+2. Deploy and test the click function (`backend/supabase/functions/go`), set `CLICK_SALT`; run the importer against a real feed (`backend/importer/cli.js`); add `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` as GitHub secrets (the daily workflow only runs once merged to `main`).
 3. Sign-up and login in website and app; favorites and price alerts saved in the database (`web-v2/v2.js`, `app-v2/mobile.js`).
 4. Admin saves edits to the database; roles; audit log (`admin-v2/admin.js`).
 5. Privacy features (data download, account deletion, consent records).
