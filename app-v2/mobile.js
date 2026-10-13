@@ -4,7 +4,7 @@
 (function () {
   const D = window.DOABNO_DATA;
   // Real accounts (Supabase) when assets/config.js is filled in; otherwise everything stays in browser storage as before.
-  const ACC = window.DOABNO_ACCOUNT || { enabled: false, signedIn: () => false, user: () => null };
+  const ACC = window.DOABNO_ACCOUNT || { enabled: false, signedIn: () => false, user: () => null, providers: () => [] };
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
   const frameQuery = window.matchMedia('(min-width: 760px) and (min-height: 600px)');
@@ -703,8 +703,8 @@
         '<button type="button" class="btn btn-outline-light" data-account="signout">' + t('acct.signout') + '</button></div></div>';
     }
     return '<div class="signin-card"><span class="avatar">' + icon(ICONS.user, 26) + '</span><h2>' + t('signin.title') + '</h2><p>' + t('signin.desc') + '</p><div class="btns">' +
-      '<button type="button" class="btn btn-light" data-auth="soon">' + APPLE_LOGO + t('signin.apple') + '</button>' +
-      '<button type="button" class="btn btn-light" data-auth="soon">' + GOOGLE_LOGO + t('signin.google') + '</button>' +
+      '<button type="button" class="btn btn-light" data-auth="' + (ACC.providers().includes('apple') ? 'oauth:apple' : 'soon') + '">' + APPLE_LOGO + t('signin.apple') + '</button>' +
+      '<button type="button" class="btn btn-light" data-auth="' + (ACC.providers().includes('google') ? 'oauth:google' : 'soon') + '">' + GOOGLE_LOGO + t('signin.google') + '</button>' +
       '<button type="button" class="btn btn-outline-light" data-auth="signin">' + icon('M4 6h16v12H4zM4 7l8 6 8-6', 20) + t('profile.email') + '</button></div></div>';
   }
 
@@ -1037,7 +1037,7 @@
     else if (el.hasAttribute('data-simulate-error')) { ui.error = !ui.error; rerender(); }
     else if (el.hasAttribute('data-simulate-loading')) showLoading(1600);
     else if (el.hasAttribute('data-clear-searches')) { state.searches = []; save('app.searches', []); $('#searchBody').innerHTML = searchBody(''); }
-    else if (el.dataset.auth) { if (el.dataset.auth === 'soon') toast(t('auth.soon')); else { ui.authMode = el.dataset.auth; ui.authNote = ''; openSheet('auth'); } }
+    else if (el.dataset.auth) { if (el.dataset.auth.startsWith('oauth:')) location.href = ACC.oauthUrl(el.dataset.auth.slice(6)); else if (el.dataset.auth === 'soon') toast(t('auth.soon')); else { ui.authMode = el.dataset.auth; ui.authNote = ''; openSheet('auth'); } }
     else if (el.hasAttribute('data-auth-swap')) { ui.authMode = ui.authMode === 'signup' ? 'signin' : 'signup'; ui.authNote = ''; openSheet('auth'); }
     else if (el.dataset.account === 'signout') accountSignOut();
     else if (el.dataset.account === 'delete') accountDelete();

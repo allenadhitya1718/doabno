@@ -324,3 +324,5 @@ Object.assign(ADMIN_I18N.ar, {
   'status.none': 'لا توجد بيانات بعد', 'feed.err.other': 'فشل الاستيراد', 'feed.noneYet': 'لم يتم إعداد أي مصدر بيانات للمتاجر بعد. أضف واحدًا في قاعدة البيانات (راجع HANDOVER.md).',
   'feeds.liveNote': 'يتم استيراد البيانات تلقائيًا (يوميًا). للاستيراد الآن: GitHub ثم Actions ثم "Import store feeds" ثم Run workflow.'
 });
+Object.assign(ADMIN_I18N.en, { 'rep.recentLive': 'Latest clicks', 'rep.recentSubLive': 'The most recent "Visit store" clicks from all visitors', 'rep.recentEmptyLive': 'No clicks recorded yet. They appear here once the click function is deployed and offers have store links.' });
+Object.assign(ADMIN_I18N.ar, { 'rep.recentLive': 'آخر النقرات', 'rep.recentSubLive': 'أحدث نقرات «زيارة المتجر» من جميع الزوار', 'rep.recentEmptyLive': 'لم تُسجَّل نقرات بعد. ستظهر هنا بعد نشر دالة النقرات وإضافة روابط المتاجر للعروض.' });

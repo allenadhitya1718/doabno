@@ -913,3 +913,8 @@ html[lang="ar"] .app-promo2 h2 { letter-spacing: 0; line-height: 1.35; }
 .sv-empty h3 { font-size: 20px; } .sv-empty p { color: var(--muted); max-width: 420px; margin-bottom: 8px; }
 @media (max-width: 960px) { .al-grid { grid-template-columns: 1fr; } }
 @media (max-width: 520px) { .al-card { grid-template-columns: 92px minmax(0, 1fr); gap: 12px; padding: 12px; } .al-px b { font-size: 17px; } .al-top { flex-direction: column; gap: 6px; } }
+
+/* "or" divider and social sign-in buttons in the sign-in dialog */
+.auth-or { display: flex; align-items: center; gap: 12px; margin: 14px 0 10px; color: var(--muted); font-size: 13px; }
+.auth-or::before, .auth-or::after { content: ""; flex: 1; height: 1px; background: #E3E8ED; }
+.auth-social { display: grid; gap: 8px; }

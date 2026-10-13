@@ -14,7 +14,7 @@ Plan: see [../BACKEND-PLAN.md](../BACKEND-PLAN.md). Database: Supabase (Postgres
 3. Check: **Table Editor** shows 43 rows in `stores`, 20 in `products`, 355 in `offers`.
 4. Send the **Project URL** and the **publishable (anon) key** (Settings, API Keys). These two are meant to be public; never share the `service_role` key or the database password.
 
-Run `0002_get_catalog.sql`, `0003_account_functions.sql`, `0004_admin.sql` and `0005_alerts.sql` too, in that order (after `0001`). It creates `get_catalog()`, which the three apps call for the whole catalog.
+Run `0002_get_catalog.sql`, `0003_account_functions.sql`, `0004_admin.sql`, `0005_alerts.sql` and `0006_click_stats.sql` too, in that order (after `0001`). It creates `get_catalog()`, which the three apps call for the whole catalog.
 
 Status: the SQL has not been run against a real database yet; the first run is the test.
 

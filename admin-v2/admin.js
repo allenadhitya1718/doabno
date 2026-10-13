@@ -33,7 +33,7 @@
   };
   if (state.market !== 'all' && !MARKETS.includes(state.market)) state.market = 'all';
   if (ACC.enabled && (!ACC.signedIn() || !(state.session && state.session.role))) state.session = null;   // a database sign-in is always required
-  let auditRows = [], liveUsers = [], liveTeam = [], liveFeeds = new Map();
+  let auditRows = [], liveUsers = [], liveTeam = [], liveFeeds = new Map(), liveClicks = new Map(), liveRecent = [];
   // Who may change what. This mirrors the database's rules (0001_schema.sql): the database is what really enforces them,
   // the screens just stop offering buttons a role cannot use. In demo mode everything is allowed.
   const PERMS = { product: ['owner', 'catalog'], category: ['owner', 'catalog'], popular: ['owner', 'catalog'], store: ['owner', 'partners'], coupon: ['owner', 'partners'],
@@ -216,8 +216,11 @@
   const offersIn = m => memo('offers:' + m, () => A.PRODUCTS.flatMap(p => D.offersFor(p, m).map(o => ({ p, o, m }))));
   const scopedOffers = () => scope().flatMap(offersIn);
 
-  // Daily "Visit store" clicks for one offer: product popularity × store rating × weekday × growth.
+  // Daily "Visit store" clicks for one offer. With a database these are the real recorded clicks (zero until there are some);
+  // the demo generates them from product popularity × store rating × weekday × growth.
+  const NO_CLICKS = new Array(DAYS).fill(0);
   function dailyClicks(x) {
+    if (LIVE()) return liveClicks.get(x.o.trackingId) || NO_CLICKS;
     return memo('clicks:' + x.o.trackingId, () => {
       const out = new Array(DAYS).fill(0);
       if (x.p.status === 'hidden') return out;
@@ -346,6 +349,10 @@
 
   // Clicks on "Visit store" made on the site in this browser (the site logs them for this report).
   function siteClicks() {
+    if (LIVE()) return liveRecent.map(c => {
+      const x = (MARKETS.includes((c.id.split('-')[1] || '')) ? offersIn(c.id.split('-')[1]) : []).find(y => y.o.trackingId === c.id);
+      return x ? Object.assign({ ts: c.ts }, x) : null;
+    }).filter(Boolean);
     let log = [];
     try { log = JSON.parse(localStorage.getItem('doabno.clicks')) || []; } catch (e) { /* storage unavailable */ }
     return log.map(c => {
@@ -1073,8 +1080,8 @@
         return '<tr><td>' + g.label + '</td><td class="num">' + num(g.clicks) + '</td><td class="num">' + pct(clicks ? g.clicks / clicks : 0) + '</td><td class="num">' + sar(g.revenue, { whole: true }) + '</td>' +
           '<td class="num">' + sar(g.clicks ? g.revenue / g.clicks : 0) + '</td><td class="num"><span class="delta ' + (ch >= 0 ? 'good' : 'bad') + '">' + icon(ch >= 0 ? ICONS.up : ICONS.down, 12) + (ch >= 0 ? '+' : '−') + pct(Math.abs(ch)) + '</span></td></tr>';
       }).join('') + '</tbody></table></div></section>' +
-      card(t('rep.recent'), recent.length ? '<ul class="activity">' + recent.map(x => '<li>' + icon(ICONS.click, 16) + '<span>' + t('rep.recentItem', { p: esc(L(x.p)), s: esc(x.o.store.name) }) + ' ' + mk(x.m) + '</span><time class="muted">' + ago(x.ts) + '</time></li>').join('') + '</ul>' :
-        empty(t('rep.recentEmpty')), { sub: t('rep.recentSub') });
+      card(t(LIVE() ? 'rep.recentLive' : 'rep.recent'), recent.length ? '<ul class="activity">' + recent.map(x => '<li>' + icon(ICONS.click, 16) + '<span>' + t('rep.recentItem', { p: esc(L(x.p)), s: esc(x.o.store.name) }) + ' ' + mk(x.m) + '</span><time class="muted">' + ago(x.ts) + '</time></li>').join('') + '</ul>' :
+        empty(t(LIVE() ? 'rep.recentEmptyLive' : 'rep.recentEmpty')), { sub: t(LIVE() ? 'rep.recentSubLive' : 'rep.recentSub') });
   }
 
   function exportCsv(group) {
@@ -1253,6 +1260,18 @@
     const jobs = [DB.recentAudit(30).then(rows => { auditRows = rows.map(r => ({ ts: r.ts, key: r.key, vars: r.vars, who: '' })); }, () => {}),
       DB.listUsers().then(u => { liveUsers = u; Object.keys(cache).forEach(k => { delete cache[k]; }); }, () => { liveUsers = []; }),
       DB.listTeam().then(m => { liveTeam = m; }, () => { liveTeam = []; }),
+      DB.clickStats(DAYS).then(rows => {
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        liveClicks = new Map();
+        rows.forEach(r => {
+          const idx = DAYS - 1 - Math.round((today - new Date(r.day + 'T00:00:00')) / 864e5);
+          if (idx < 0 || idx >= DAYS) return;
+          if (!liveClicks.has(r.trackingId)) liveClicks.set(r.trackingId, new Array(DAYS).fill(0));
+          liveClicks.get(r.trackingId)[idx] += r.clicks;
+        });
+        Object.keys(cache).forEach(k => { delete cache[k]; });
+      }, () => {}),
+      DB.recentClicks(10).then(rows => { liveRecent = rows; }, () => {}),
       DB.listFeeds().then(rows => { liveFeeds = new Map(rows.map(r => [r.storeId, r])); Object.keys(cache).forEach(k => { delete cache[k]; }); }, () => {})];
     await Promise.all(jobs);
     rerender();

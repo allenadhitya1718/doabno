@@ -9,7 +9,7 @@ const fs = require('fs');
 const path = require('path');
 const PORT = +process.argv[2] || 54321;
 const cat = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'seed', 'catalog.local.json'), 'utf8'));   // the catalog, edited in memory by the admin calls below
-const state = { users: [], sessions: {}, favorites: [], alerts: [], privacy: [], audit: [], team: [], seq: 0 };
+const state = { clicks: [], users: [], sessions: {}, favorites: [], alerts: [], privacy: [], audit: [], team: [], seq: 0 };
 // What the public (signed-out or non-admin) catalog hides, like the database's row-level security: hidden products, paused stores.
 const catalogFor = isAdmin => { if (isAdmin) return cat; const o = Object.assign({}, cat); o.products = cat.products.filter(p => p.status === 'active'); o.stores = Object.fromEntries(Object.entries(cat.stores).map(([m, l]) => [m, l.filter(s => s.active)])); return o; };
 const confirm = !!process.env.MOCK_CONFIRM;
@@ -62,6 +62,9 @@ http.createServer((req, res) => {
     if (p === '/rest/v1/rpc/admin_add_member') { const target = state.users.find(x => x.email.toLowerCase() === String(body.p_email).toLowerCase()); if (!target) return send(res, 400, { code: 'P0002', message: 'no account with that email' }); state.team = state.team.filter(m => m.user_id !== target.id).concat([{ user_id: target.id, email: target.email, name: body.p_name || target.meta.name || target.email, role: body.p_role }]); state.audit.push({ ts: new Date().toISOString(), action: 'log.memberAdded', detail: { e: target.email, r: body.p_role }, user_id: me.id }); return send(res, 204); }
     if (p === '/rest/v1/rpc/admin_remove_member') { state.team = state.team.filter(m => m.user_id !== body.p_user); return send(res, 204); }
     if (p === '/rest/v1/rpc/set_popular_searches') { cat.popular = body.p_terms.slice(0, 30); return send(res, 204); }
+    if (p === '/mock/click') { (body.list || []).forEach(x => state.clicks.push({ ts: x.ts || new Date().toISOString(), tracking_id: x.id })); return send(res, 200, { total: state.clicks.length }); }
+    if (p === '/rest/v1/rpc/admin_click_stats') { const m = new Map(); state.clicks.forEach(c => { const day = c.ts.slice(0, 10), k = c.tracking_id + '|' + day; m.set(k, (m.get(k) || 0) + 1); }); return send(res, 200, [...m].map(([k, n]) => ({ tracking_id: k.split('|')[0], day: k.split('|')[1], clicks: n }))); }
+    if (p === '/rest/v1/clicks' && req.method === 'GET') return send(res, 200, state.clicks.slice().sort((a, b) => b.ts.localeCompare(a.ts)).slice(0, 10));
     if (p === '/rest/v1/feeds' && req.method === 'GET') return send(res, 200, [{ id: 1, store_id: 'noon-sa', format: 'google_merchant', schedule: 'daily', active: true }, { id: 2, store_id: 'jarir', format: 'csv', schedule: 'six_hourly', active: true }]);
     if (p === '/rest/v1/feed_runs' && req.method === 'GET') return send(res, 200, [{ feed_id: 1, started_at: new Date(Date.now() - 3600e3).toISOString(), finished_at: new Date(Date.now() - 3500e3).toISOString(), status: 'warning', items: 1432, rejected: 310, error: null }, { feed_id: 2, started_at: new Date(Date.now() - 7200e3).toISOString(), finished_at: new Date(Date.now() - 7190e3).toISOString(), status: 'error', items: 0, rejected: 0, error: 'auth' }]);
     const tm = p.match(/^\/rest\/v1\/(products|categories|subcategories|stores|coupons|currencies|audit_log)$/);

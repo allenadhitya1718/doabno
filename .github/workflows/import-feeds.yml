@@ -17,6 +17,12 @@ jobs:
     env:
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      # Price-drop emails after the import (skipped when RESEND_API_KEY or ALERT_FROM is empty).
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      ALERT_FROM: ${{ secrets.ALERT_FROM }}            # for example: DOABNO <alerts@yourdomain.com>
+      SITE_URL: ${{ secrets.SITE_URL }}                # the website's address, for the links in the emails
+      # Store feed logins: add one line per key, then use ${NAME} in the feed's address in the database, for example:
+      # NOON_FEED_KEY: ${{ secrets.NOON_FEED_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

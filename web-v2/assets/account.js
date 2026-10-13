@@ -92,6 +92,10 @@
     ready,
     AccountError,
     signedIn: () => !!session,
+    // Google or Apple sign-in: send the person to this address. Supabase takes them through the provider and back to this page,
+    // where the "email link" code above signs them in. The provider must first be enabled in Supabase (Authentication > Sign In / Providers).
+    oauthUrl: provider => base + '/auth/v1/authorize?provider=' + encodeURIComponent(provider) + (loc ? '&redirect_to=' + encodeURIComponent(loc.origin + (loc.pathname || '/')) : ''),
+    providers: () => (Array.isArray(cfg.socialLogin) ? cfg.socialLogin.filter(p => p === 'google' || p === 'apple') : []),
     user: () => (session ? Object.assign({}, session.user) : null),
 
     // Returns { status: 'signed-in' } or { status: 'confirm' } when the project requires the email to be confirmed first.

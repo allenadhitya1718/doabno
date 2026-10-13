@@ -68,6 +68,16 @@
       });
     },
 
+    // ---- traffic: real "Visit store" clicks ----
+    async clickStats(days) {
+      const rows = await acc.rpc('admin_click_stats', { p_days: days });
+      return rows.map(r => ({ trackingId: r.tracking_id, day: r.day, clicks: Number(r.clicks) }));
+    },
+    async recentClicks(limit) {
+      const rows = await acc.rest('clicks?select=ts,tracking_id&order=ts.desc&limit=' + (limit || 10));
+      return rows.map(r => ({ id: r.tracking_id, ts: Date.parse(r.ts) }));
+    },
+
     // ---- people ----
     async listUsers() {
       const rows = await acc.rpc('admin_list_users');

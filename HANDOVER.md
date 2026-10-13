@@ -49,14 +49,14 @@ Never put any of these in the repository, in `config.js`, or in chat.
 If a secret is ever exposed, rotate it (section 7) before anything else.
 
 ## 4. Setting up from nothing (a new project)
-1. **Supabase project:** new project, region Central EU (Frankfurt). In the SQL Editor run, in order: `backend/supabase/migrations/0001` to `0005`, then `backend/supabase/seed/01-catalog.sql` and `02-history.sql` (demo catalog; skip when real feeds are in).
+1. **Supabase project:** new project, region Central EU (Frankfurt). In the SQL Editor run, in order: `backend/supabase/migrations/0001` to `0006`, then `backend/supabase/seed/01-catalog.sql` and `02-history.sql` (demo catalog; skip when real feeds are in).
 2. **First admin:** have that person sign up on the website, then run the SQL in `backend/README.md` ("Making the first admin").
 3. **Point the pages at it:** put the project URL and publishable key in `web-v2/assets/config.js`, `app-v2/assets/config.js`, `admin-v2/assets/config.js` (same values in all three).
 4. **Supabase login settings** (Authentication):
    - URL Configuration: Site URL = the real web address; Redirect URLs = that address with `/**` (and `/app/**`).
    - Email: keep "Confirm email" **on**. Turn on **custom SMTP** with Resend, because Supabase's built-in sender is limited to a few emails an hour.
 5. **Hosting (Cloudflare Pages):** Workers & Pages, Create, Pages, connect the GitHub repo. Production branch `main`, build command `node scripts/build-site.js`, output directory `dist`. Add the custom domain. Every push to `main` then redeploys. (Merge `redesign-v2` into `main` first; `main` still holds the older website and app.)
-6. **Click tracking (when real store links exist):** Supabase, Edge Functions, create `go` from `backend/supabase/functions/go/index.ts`, switch **JWT verification off**, set secrets `CLICK_SALT` and `SITE_URL`. Or from a terminal: `supabase functions deploy go --no-verify-jwt`. Then put its address (`https://<project>.supabase.co/functions/v1/go`) in `clickOutUrl` in the three `assets/config.js` files: from then on, "Visit store" for an offer that has a store link logs the click and goes to the store.
+6. **Click tracking (when real store links exist):** Supabase, Edge Functions, create `go` from `backend/supabase/functions/go/index.ts`, switch **JWT verification off**, set secrets `CLICK_SALT` and `SITE_URL`. Or from a terminal, in the `backend` folder: `supabase functions deploy go` (the settings file `backend/supabase/config.toml` already turns JWT checking off for it). Then put its address (`https://<project>.supabase.co/functions/v1/go`) in `clickOutUrl` in the three `assets/config.js` files: from then on, "Visit store" for an offer that has a store link logs the click and goes to the store.
 7. **Scheduled jobs:** add the GitHub secrets in section 3. The daily importer (`import-feeds.yml`) and weekly backup (`backup-db.yml`) only run from `main`.
 
 ## 5. Everyday jobs
@@ -93,9 +93,9 @@ If a secret is ever exposed, rotate it (section 7) before anything else.
 **Still demo or not done:**
 - **Prices and stores are demo data** until real feeds are connected. Needs the affiliate approvals and feeds from the client.
 - **"Visit store" does not track clicks yet.** The function is written but not deployed (and `clickOutUrl` is empty), and demo offers have no store links.
-- **Admin traffic and revenue numbers** (dashboard and Clicks and revenue) are generated demo numbers. They become real once clicks are recorded. The Store feeds page is real: it shows each feed's latest run, and "No feed yet" for stores without one.
+- **Admin traffic and revenue numbers are real but read zero until clicks exist** (they come from the recorded "Visit store" clicks, times each store's cost per click). Only owner, partners and analyst roles can read clicks; a catalog manager sees zeros. The Store feeds page is real too: each feed's latest run, and "No feed yet" for stores without one.
 - Price-drop emails are written and tested but need a Resend account and domain to send.
-- **Apple and Google sign-in:** buttons say "coming soon" (need developer accounts).
+- **Apple and Google sign-in** are wired in but switched off: set the provider up in Supabase, then list it in `socialLogin` in the three `config.js` files and the buttons appear (details in `remainingthings.md`).
 - **Content-Security-Policy is moderate:** it blocks other sites' scripts and limits where data can go, but still allows inline scripts and styles because the pages use a few inline event handlers. Removing those would allow a stricter policy.
 - **SEO:** page addresses use `#/`, so search engines cannot index product pages. Fixing it means moving the website to a server-rendered framework (Next.js), about three weeks.
 - **Native iOS and Android apps:** not built; the app folder is a mobile-sized prototype.
@@ -112,4 +112,4 @@ If a secret is ever exposed, rotate it (section 7) before anything else.
 At launch about **$0 plus the domain**. Realistic first upgrades: Supabase Pro $25/mo and Cloudflare Workers paid $5/mo, so about **$30/month**; Resend Pro $20/mo only above 100 alert emails a day. Prices change; check each vendor's page.
 
 ## 11. Where things are
-`ROADMAP.md` (status and open work) · `BACKEND-PLAN.md` (reasons for each tool) · `backend/README.md` (database and importer details) · `ClientRequirements.pdf` (what the client must send) · `CLAUDE.md` (rules for AI assistants working in the repo).
+`ROADMAP.md` (status and open work) · `BACKEND-PLAN.md` (reasons for each tool) · `backend/README.md` (database and importer details) · `ClientRequirements.pdf` (what the client must send) · `remainingthings.md` (everything still needed to hand over, with set-up steps) · `CLAUDE.md` (rules for AI assistants working in the repo).

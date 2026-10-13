@@ -116,3 +116,13 @@ test('feeds: each active feed is paired with its latest run; a feed that never r
   assert.deepEqual([by.extra.status, by.extra.error], ['error', 'other']);       // a failed run without a code is shown as "other"
   assert.equal(by['noon-sa'].ts, Date.parse('2026-10-13T08:02:00Z'));
 });
+test('traffic: daily click counts come back as numbers; recent clicks newest first', async () => {
+  const { db, calls } = rig({
+    'rpc/admin_click_stats': [{ tracking_id: 'doabno-sa-noon-sa-p1', day: '2026-10-12', clicks: '7' }, { tracking_id: 'doabno-ae-noon-ae-p1', day: '2026-10-13', clicks: 2 }],
+    clicks: [{ ts: '2026-10-13T09:00:00Z', tracking_id: 'doabno-sa-noon-sa-p1' }]
+  });
+  assert.deepEqual(await db.clickStats(540), [{ trackingId: 'doabno-sa-noon-sa-p1', day: '2026-10-12', clicks: 7 }, { trackingId: 'doabno-ae-noon-ae-p1', day: '2026-10-13', clicks: 2 }]);
+  assert.deepEqual(calls[0], { kind: 'rpc', name: 'admin_click_stats', body: { p_days: 540 } });
+  assert.deepEqual(await db.recentClicks(5), [{ id: 'doabno-sa-noon-sa-p1', ts: Date.parse('2026-10-13T09:00:00Z') }]);
+  assert.match(calls[1].path, /^clicks\?select=ts,tracking_id&order=ts\.desc&limit=5$/);
+});

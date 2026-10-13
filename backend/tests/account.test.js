@@ -163,3 +163,10 @@ test('sign-up tells Supabase to send the person back to the same page after they
   await a.signUp({ email: 'sara@example.com', password: 'correct-horse', name: 'Sara' });
   assert.match(f.calls[0].query, /redirect_to=http%3A%2F%2Flocalhost%3A5174%2Fapp%2F/);
 });
+test('Google and Apple sign-in: the address goes through Supabase and back to the same page; only the listed providers are offered', () => {
+  const { loc, h } = landing('#/', { pathname: '/app/' });
+  const a = createAccount({ cfg: Object.assign({ socialLogin: ['google', 'apple', 'facebook', 7] }, CFG), fetchImpl: async () => { throw new Error('no network'); }, location: loc, history: h });
+  assert.equal(a.oauthUrl('google'), 'https://x.supabase.co/auth/v1/authorize?provider=google&redirect_to=http%3A%2F%2Flocalhost%3A5174%2Fapp%2F');
+  assert.deepEqual(a.providers(), ['google', 'apple']);                           // unknown providers are ignored
+  assert.deepEqual(make(fake()).providers(), []);                                 // nothing listed, nothing offered
+});

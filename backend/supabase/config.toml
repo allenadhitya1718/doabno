@@ -1,0 +1,6 @@
+# Settings the Supabase command line tool reads when deploying from backend/ (supabase functions deploy go).
+project_id = "doabno"
+
+# "go" is the public "Visit store" link: shoppers are not signed in, so it must not demand a login token.
+[functions.go]
+verify_jwt = false
