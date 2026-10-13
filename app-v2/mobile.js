@@ -3,6 +3,8 @@
  * so they stay in sync with it (as the real app would through the user's account). */
 (function () {
   const D = window.DOABNO_DATA;
+  // Real accounts (Supabase) when assets/config.js is filled in; otherwise everything stays in browser storage as before.
+  const ACC = window.DOABNO_ACCOUNT || { enabled: false, signedIn: () => false, user: () => null };
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
   const frameQuery = window.matchMedia('(min-width: 760px) and (min-height: 600px)');
@@ -15,6 +17,64 @@
   }
   function save(key, value) {
     try { localStorage.setItem('doabno.' + key, JSON.stringify(value)); } catch (e) { /* storage unavailable */ }
+    if (key === 'favs' || key === 'alerts') queueSync();
+  }
+
+  // ---------- account sync (only when ACC.enabled) ----------
+  let syncing = false, syncTimer = 0;
+  const alertRows = () => state.alerts.map(a => ({ product_id: a.id, target_price: a.target, currency: a.currency || state.currency, notify_email: !!a.email, notify_push: a.push !== false,
+    consent_at: a.consent && a.consent.at ? new Date(a.consent.at).toISOString() : null }));
+  function queueSync() {
+    if (!ACC.enabled || !ACC.signedIn() || syncing) return;
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(async () => {
+      try { await ACC.saveFavs(state.favs); await ACC.saveAlerts(alertRows()); }
+      catch (e) { if (e.code === 'signed_out') rerender(); else toast(t('auth.syncErr')); }
+    }, 400);
+  }
+  // After sign-in (or on a page load with a saved session): merge this device's items with the account's, then save the result back.
+  async function syncFromAccount() {
+    if (!ACC.enabled || !ACC.signedIn()) return;
+    try {
+      const r = await ACC.pull();
+      syncing = true;
+      state.favs = Array.from(new Set(r.favs.concat(state.favs))).filter(id => productById(id));
+      const mine = ACC.user();
+      r.alerts.forEach(a => {
+        if (!productById(a.product_id)) return;
+        state.alerts = state.alerts.filter(x => x.id !== a.product_id).concat([{ id: a.product_id, target: a.target_price, currency: a.currency, email: !!a.notify_email, push: !!a.notify_push,
+          mail: mine ? mine.email : '', consent: a.consent_at ? { marketing: true, at: Date.parse(a.consent_at) } : null }]);
+      });
+      save('favs', state.favs); save('alerts', state.alerts);
+      if (r.profile) { state.notify.weekly = !!r.profile.marketing_consent; save('app.notify', state.notify); }
+      syncing = false;
+      await ACC.saveFavs(state.favs); await ACC.saveAlerts(alertRows());
+      rerender();
+    } catch (e) { syncing = false; if (e.code === 'signed_out') rerender(); else toast(t('auth.syncErr')); }
+  }
+  const authErr = e => ({ invalid_credentials: 'auth.errAuth', email_not_confirmed: 'auth.errConfirm', exists: 'auth.errExists', weak_password: 'auth.errWeak', rate_limited: 'auth.errRate', network: 'auth.errNet', invalid_email: 'auth.errInput' }[e.code] || 'auth.errGeneric');
+  const clearLocalAccountData = () => { syncing = true; state.favs = []; state.alerts = []; save('favs', []); save('alerts', []); syncing = false; };
+  async function authSubmit(form) {
+    const up = ui.authMode === 'signup', email = form.mail.value.trim(), pw = form.pw.value, err = $('#authErr');
+    const fail = k => { err.textContent = t(k); err.hidden = false; };
+    const okMail = /^\S+@\S+\.\S+$/.test(email);
+    if (!okMail || !pw) return fail('auth.errInput');
+    if (up && pw.length < 8) return fail('auth.errWeak');
+    if (up && (!form.name.value.trim() || !form.agree.checked)) return fail('auth.errName');
+    const btn = $('button[type=submit]', form); btn.disabled = true; err.hidden = true;
+    try {
+      if (up) {
+        const res = await ACC.signUp({ email, password: pw, name: form.name.value.trim(), lang: state.lang, market: state.market, marketing: !!form.marketing.checked });
+        if (res.status === 'confirm') { $('#sheet .sheet-body').innerHTML = '<p class="sheet-text">' + t('auth.checkMail', { e: '<b>' + esc(email) + '</b>' }) + '</p>'; const ft = $('#sheet .sheet-foot'); if (ft) ft.remove(); return; }
+      } else await ACC.signIn({ email, password: pw });
+      closeSheet(); toast(t(up ? 'auth.welcome' : 'auth.signedIn')); rerender(); syncFromAccount();
+    } catch (ex) { btn.disabled = false; fail(authErr(ex)); }
+  }
+  async function accountSignOut() { await ACC.signOut(); clearLocalAccountData(); toast(t('auth.signedOut')); rerender(); }
+  async function accountDelete() {
+    if (!confirm(t('acct.confirmDelete'))) return;
+    try { await ACC.deleteAccount(); } catch (e) { toast(t('auth.errGeneric')); return; }
+    clearLocalAccountData(); toast(t('acct.deleted')); rerender();
   }
 
   const state = {
@@ -31,7 +91,7 @@
   if (!D.MARKETS[state.market]) state.market = 'sa';
   if (!D.CURRENCIES[state.currency]) state.currency = D.MARKETS[state.market].currency;
   // View state that survives re-renders but not reloads.
-  const ui = { listKey: '', sort: 'popular', filters: { brand: [], free: false, sale: false }, listBase: [], dealsCat: '', savedTab: 'favs', freeOnly: false, days: 30, keepScroll: false, error: false, pop: '' };
+  const ui = { listKey: '', sort: 'popular', filters: { brand: [], free: false, sale: false }, listBase: [], dealsCat: '', savedTab: 'favs', freeOnly: false, days: 30, keepScroll: false, error: false, pop: '', authMode: 'signin', authNote: '' };
 
   // ---------- text, numbers, money ----------
   function t(key, vars) {
@@ -635,6 +695,19 @@
     };
   }
 
+  // With real accounts: sign-in options when signed out, the account card when signed in.
+  function liveSigninCard() {
+    const u = ACC.signedIn() ? ACC.user() : null;
+    if (u) {
+      return '<div class="signin-card"><span class="avatar">' + esc((u.name || u.email || '?').charAt(0).toUpperCase()) + '</span><h2>' + esc(u.name || '') + '</h2><p>' + esc(u.email || '') + '</p><div class="btns">' +
+        '<button type="button" class="btn btn-outline-light" data-account="signout">' + t('acct.signout') + '</button></div></div>';
+    }
+    return '<div class="signin-card"><span class="avatar">' + icon(ICONS.user, 26) + '</span><h2>' + t('signin.title') + '</h2><p>' + t('signin.desc') + '</p><div class="btns">' +
+      '<button type="button" class="btn btn-light" data-auth="soon">' + APPLE_LOGO + t('signin.apple') + '</button>' +
+      '<button type="button" class="btn btn-light" data-auth="soon">' + GOOGLE_LOGO + t('signin.google') + '</button>' +
+      '<button type="button" class="btn btn-outline-light" data-auth="signin">' + icon('M4 6h16v12H4zM4 7l8 6 8-6', 20) + t('profile.email') + '</button></div></div>';
+  }
+
   function screenProfile() {
     const row = (ic, label, val, attrs) => '<button type="button" class="row"' + attrs + '><span class="ic">' + icon(ICONS[ic], 20) + '</span><span class="row-label">' + label + '</span>' +
       (val ? '<span class="val">' + val + '</span>' : '') + icon(ICONS.chevron, 18, 'chev flip') + '</button>';
@@ -642,10 +715,10 @@
       (state.notify[k] ? ' checked' : '') + '><span class="switch-ui" aria-hidden="true"></span></span></label>';
     return {
       tab: 'profile', bar: appBar({ title: t('profile.title'), large: true }),
-      html: '<div class="signin-card"><span class="avatar">' + icon(ICONS.user, 26) + '</span><h2>' + t('signin.title') + '</h2><p>' + t('signin.desc') + '</p><div class="btns">' +
+      html: (ACC.enabled ? liveSigninCard() : '<div class="signin-card"><span class="avatar">' + icon(ICONS.user, 26) + '</span><h2>' + t('signin.title') + '</h2><p>' + t('signin.desc') + '</p><div class="btns">' +
           '<button type="button" class="btn btn-light" data-demo="signin">' + APPLE_LOGO + t('signin.apple') + '</button>' +
           '<button type="button" class="btn btn-light" data-demo="signin">' + GOOGLE_LOGO + t('signin.google') + '</button>' +
-          '<button type="button" class="btn btn-outline-light" data-demo="signin">' + icon('M4 6h16v12H4zM4 7l8 6 8-6', 20) + t('profile.email') + '</button></div></div>' +
+          '<button type="button" class="btn btn-outline-light" data-demo="signin">' + icon('M4 6h16v12H4zM4 7l8 6 8-6', 20) + t('profile.email') + '</button></div></div>') +
         '<p class="group-title">' + t('profile.settings') + '</p><div class="group">' +
           row('globe', t('profile.country'), t('market.' + state.market), ' data-sheet="country"') +
           row('lang', t('profile.language'), state.lang === 'ar' ? 'العربية' : 'English', ' data-sheet="language"') +
@@ -656,6 +729,7 @@
           row('info', t('footer.how'), '', ' data-demo="page"') + row('help', t('profile.help'), '', ' data-demo="page"') +
           row('shield', t('footer.privacy'), '', ' data-demo="page"') + row('doc', t('footer.terms'), '', ' data-demo="page"') +
           row('refresh', t('profile.welcome'), '', ' data-goto="#/welcome"') + '</div>' +
+        (ACC.enabled && ACC.signedIn() ? '<div class="group">' + row('close', t('acct.delete'), '', ' data-account="delete"') + '</div>' : '') +
         '<p class="fineprint">' + t('footer.disclosure') + '</p><p class="fineprint">' + t('profile.version', { v: VERSION }) + '</p>'
     };
   }
@@ -751,6 +825,18 @@
         '<label class="check"><input type="checkbox" name="consent"><span>' + t('consent.label') + ' <a href="../#/legal/privacy" target="_blank" rel="noopener">' + t('consent.more') + '</a></span></label>' +
         '<p class="form-err" id="consentErr" hidden>' + t('consent.need') + '</p></div>';
       foot = '<button type="submit" class="btn btn-primary btn-block">' + t('alert.save') + '</button>';
+    } else if (kind === 'auth') {
+      const up = ui.authMode === 'signup';
+      title = up ? t('auth.signup') : t('auth.signin');
+      body = (ui.authNote ? '<p class="sheet-text">' + esc(ui.authNote) + '</p>' : '') +
+        (up ? '<label class="field"><span>' + t('auth.name') + '</span><input type="text" name="name" autocomplete="name"></label>' : '') +
+        '<label class="field"><span>' + t('consent.email') + '</span><input type="email" name="mail" autocomplete="email" inputmode="email" placeholder="name@example.com"></label>' +
+        '<label class="field"><span>' + t('auth.password') + (up ? ' (' + t('auth.pw8') + ')' : '') + '</span><input type="password" name="pw" autocomplete="' + (up ? 'new-password' : 'current-password') + '"></label>' +
+        (up ? '<label class="check"><input type="checkbox" name="agree"><span>' + t('auth.agree') + ' <a href="../#/legal/terms" target="_blank" rel="noopener">' + t('auth.terms') + '</a> · <a href="../#/legal/privacy" target="_blank" rel="noopener">' + t('consent.more') + '</a></span></label>' +
+          '<label class="check"><input type="checkbox" name="marketing"><span>' + t('auth.marketing') + '</span></label>' : '') +
+        '<p class="form-err" id="authErr" hidden></p>' +
+        '<button type="button" class="btn btn-ghost" data-auth-swap>' + (up ? t('auth.haveAccount') : t('auth.newHere')) + '</button>';
+      foot = '<button type="submit" class="btn btn-primary btn-block">' + (up ? t('auth.signup') : t('auth.signin')) + '</button>';
     } else if (kind === 'scan') {
       title = t('scan.title');
       body = '<div class="scan-opts"><label class="scan-opt"><span class="ic">' + icon('M4 8h3l2-3h6l2 3h3v11H4zM12 17a4 4 0 100-8 4 4 0 000 8z', 26) + '</span><strong>' + t('scan.photo') + '</strong><small>' + t('scan.photo.d') + '</small>' +
@@ -776,7 +862,7 @@
       '<div class="sheet-body">' + body + '</div>' + (foot ? '<div class="sheet-foot">' + foot + '</div>' : '') + '</form>';
     $('#sheet').hidden = false;
     $('#sheetBackdrop').hidden = false;
-    const first = $('#sheet input[name="target"]') || $('#sheet input:checked') || $('#sheet [data-close-sheet]');
+    const first = $('#sheet input[name="target"]') || $('#sheet input[name="name"]') || $('#sheet input[name="mail"]') || $('#sheet input:checked') || $('#sheet [data-close-sheet]');
     if (first) first.focus({ preventScroll: true });
   }
   function closeSheet() {
@@ -907,7 +993,7 @@
 
   document.addEventListener('click', e => {
     const el = e.target.closest('[data-back],[data-fav],[data-visit],[data-copy],[data-share],[data-sheet],[data-close-sheet],[data-scan-live],[data-scan-stop],[data-scan-code],[data-scan-hit],[data-filter-reset],[data-days],[data-free-only],' +
-      '[data-deals-cat],[data-saved-tab],[data-unalert],[data-clear-searches],[data-clear-q],[data-retry],[data-simulate-error],[data-simulate-loading],[data-demo],[data-goto],[data-market],[data-lang],[data-start],[data-screen],.lang-toggle,#sheetBackdrop');
+      '[data-deals-cat],[data-saved-tab],[data-unalert],[data-clear-searches],[data-clear-q],[data-retry],[data-simulate-error],[data-simulate-loading],[data-demo],[data-auth],[data-auth-swap],[data-account],[data-goto],[data-market],[data-lang],[data-start],[data-screen],.lang-toggle,#sheetBackdrop');
     if (!el) return;
     if (el.hasAttribute('data-back')) { if (navStack.length > 1) history.back(); else location.hash = parentOf(current.parts); }
     else if (el.dataset.fav) toggleFav(el.dataset.fav);
@@ -922,7 +1008,11 @@
     }
     else if (el.dataset.copy) { copy(el.dataset.copy); toast(t('coupon.copied') + ': ' + el.dataset.copy); }
     else if (el.dataset.share) { copy(location.href.replace(/app\/?(\?[^#]*)?#.*$/, '#/p/' + el.dataset.share)); toast(t('share.copied')); }
-    else if (el.dataset.sheet) openSheet(el.dataset.sheet);
+    else if (el.dataset.sheet) {
+      // Price alerts are saved under an account when accounts are on.
+      if (el.dataset.sheet === 'alert' && ACC.enabled && !ACC.signedIn()) { ui.authMode = 'signin'; ui.authNote = t('auth.needSignIn'); openSheet('auth'); }
+      else openSheet(el.dataset.sheet);
+    }
     else if (el.hasAttribute('data-close-sheet') || el.id === 'sheetBackdrop') closeSheet();
     else if (el.hasAttribute('data-filter-reset')) { ui.filters = { brand: [], free: false, sale: false }; closeSheet(); rerender(); }
     else if (el.dataset.days) {
@@ -943,6 +1033,10 @@
     else if (el.hasAttribute('data-simulate-error')) { ui.error = !ui.error; rerender(); }
     else if (el.hasAttribute('data-simulate-loading')) showLoading(1600);
     else if (el.hasAttribute('data-clear-searches')) { state.searches = []; save('app.searches', []); $('#searchBody').innerHTML = searchBody(''); }
+    else if (el.dataset.auth) { if (el.dataset.auth === 'soon') toast(t('auth.soon')); else { ui.authMode = el.dataset.auth; ui.authNote = ''; openSheet('auth'); } }
+    else if (el.hasAttribute('data-auth-swap')) { ui.authMode = ui.authMode === 'signup' ? 'signin' : 'signup'; ui.authNote = ''; openSheet('auth'); }
+    else if (el.dataset.account === 'signout') accountSignOut();
+    else if (el.dataset.account === 'delete') accountDelete();
     else if (el.dataset.demo) toast(t(el.dataset.demo === 'signin' ? 'signin.note' : 'toast.demo'));
     else if (el.dataset.goto) location.hash = el.dataset.goto;
     else if (el.dataset.market) setMarket(el.dataset.market);
@@ -960,7 +1054,10 @@
     const form = el.closest('#sheetForm');
     if (el.id === 'scanFile') scanByPhoto(el.files[0]);
     else if (el.name === 'email' && form && form.dataset.kind === 'alert') { $('#emailConsent').hidden = !el.checked; if (el.checked) form.mail.focus(); }
-    else if (el.dataset.notify) { state.notify[el.dataset.notify] = el.checked; save('app.notify', state.notify); }
+    else if (el.dataset.notify) {
+      state.notify[el.dataset.notify] = el.checked; save('app.notify', state.notify);
+      if (ACC.enabled && ACC.signedIn()) ACC.saveProfile({ notify_push: !!(state.notify.drops || state.notify.alerts), marketing_consent: !!state.notify.weekly, consent_at: state.notify.weekly ? new Date().toISOString() : null }).catch(() => toast(t('auth.syncErr')));
+    }
     else if (form && form.dataset.kind === 'sort') { ui.sort = el.value; closeSheet(); rerender(); }
     else if (form && form.dataset.kind === 'filter') {
       const fd = new FormData(form);
@@ -991,6 +1088,7 @@
       closeSheet(); rerender();
     }
     else if (form.dataset.kind === 'scan') { scanByCode(form.code.value); }
+    else if (form.dataset.kind === 'auth') { authSubmit(form); }
     else if (form.dataset.kind === 'alert') {
       const id = current.parts[1];
       if (form.email.checked && (!/^\S+@\S+\.\S+$/.test(form.mail.value.trim()) || !form.consent.checked)) { $('#consentErr').hidden = false; (form.consent.checked ? form.mail : form.consent).focus(); return; }
@@ -1067,7 +1165,7 @@
   document.addEventListener('error', e => { if (e.target.tagName === 'IMG' && e.target.closest('.ph')) e.target.remove(); }, true);
 
   // Demo data: on the first visit, fill Saved (favourites and price alerts) so the screens are not empty (runs once).
-  if (!load('app.demoSeeded', false)) {
+  if (!ACC.enabled && !load('app.demoSeeded', false)) {   // real accounts start empty
     save('app.demoSeeded', true);
     if (!state.favs.length) { state.favs = ['sony-wh1000xm6', 'dyson-v15', 'nike-af1', 'dior-sauvage', 'nespresso-vertuo'].filter(id => productById(id) && offersOf(productById(id)).length); save('favs', state.favs); }
     if (!state.alerts.length) {
@@ -1085,4 +1183,5 @@
   applyChrome();
   fit();
   route();
+  syncFromAccount();
 })();
