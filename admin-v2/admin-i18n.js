@@ -422,3 +422,47 @@ Object.assign(window.ADMIN_I18N.ar, {
   'dash.prevPeriod': 'الفترة السابقة', 'dash.prevShort': 'الفترة السابقة: {v}', 'dash.top': 'الأعلى أداءً', 'dash.tabProducts': 'المنتجات',
   'dash.tabStores': 'المتاجر', 'dash.tabs': 'عرض الأعلى'
 });
+
+Object.assign(ADMIN_I18N.en, {
+  'login.noAccess': 'This account is not an admin. Ask an owner to add you.', 'login.errCreds': 'Wrong email or password.', 'login.errConfirm': 'Please confirm your email first, then sign in.',
+  'login.errNet': 'Could not reach the server. Check your connection.', 'login.errGeneric': 'Could not sign in. Please try again.',
+  'err.noPermission': 'Your role does not allow this change. The page will reload.', 'err.saveFailed': 'The change could not be saved. The page will reload.', 'err.noAccount': 'No account with that email. They must sign up on the DOABNO website or app first.',
+  'invite.hint': 'The person must first create an account on the DOABNO website or app with this email address. Then add them here.', 'toast.memberAdded': '{e} was added to the team.', 'toast.memberRemoved': 'Team member removed.',
+  'team.confirmRemove': 'Remove {n} from the admin team?', 'log.memberAdded': 'Added {e} to the team as {r}', 'log.memberRemoved': 'Removed a team member'
+});
+
+Object.assign(ADMIN_I18N.ar, {
+  'login.noAccess': 'هذا الحساب ليس حساب مشرف. اطلب من المالك إضافتك.', 'login.errCreds': 'البريد الإلكتروني أو كلمة المرور غير صحيحة.', 'login.errConfirm': 'يرجى تأكيد بريدك الإلكتروني أولًا ثم سجّل الدخول.',
+  'login.errNet': 'تعذّر الاتصال بالخادم. تحقق من الاتصال.', 'login.errGeneric': 'تعذّر تسجيل الدخول. حاول مرة أخرى.',
+  'err.noPermission': 'دورك لا يسمح بهذا التغيير. ستُعاد تحميل الصفحة.', 'err.saveFailed': 'تعذّر حفظ التغيير. ستُعاد تحميل الصفحة.', 'err.noAccount': 'لا يوجد حساب بهذا البريد. يجب أن يسجّل أولًا في موقع دوابنو أو تطبيقه.',
+  'invite.hint': 'يجب أن ينشئ الشخص حسابًا في موقع دوابنو أو تطبيقه بهذا البريد الإلكتروني أولًا. ثم أضفه هنا.', 'toast.memberAdded': 'تمت إضافة {e} إلى الفريق.', 'toast.memberRemoved': 'تمت إزالة عضو الفريق.',
+  'team.confirmRemove': 'إزالة {n} من فريق الإدارة؟', 'log.memberAdded': 'أضاف {e} إلى الفريق بدور {r}', 'log.memberRemoved': 'أزال عضوًا من الفريق'
+});
+Object.assign(ADMIN_I18N.en, {
+  'role.viewOnly': 'Your role ({r}) can view this page but not change it.', 'err.noAccessTitle': 'No access', 'err.noAccessPage': 'Your role ({r}) does not have access to this page.'
+});
+Object.assign(ADMIN_I18N.ar, {
+  'role.viewOnly': 'دورك ({r}) يتيح لك عرض هذه الصفحة دون تعديلها.', 'err.noAccessTitle': 'لا يوجد صلاحية', 'err.noAccessPage': 'دورك ({r}) لا يملك صلاحية الوصول إلى هذه الصفحة.'
+});
+Object.assign(ADMIN_I18N.en, {
+  'status.none': 'No feed yet', 'feed.err.other': 'Import failed', 'feed.noneYet': 'No store feeds are set up yet. Add one in the database (see HANDOVER.md, "Add a store\'s feed").',
+  'feeds.liveNote': 'Feeds import automatically (daily). To import now: GitHub, Actions, "Import store feeds", Run workflow.'
+});
+Object.assign(ADMIN_I18N.ar, {
+  'status.none': 'لا توجد بيانات بعد', 'feed.err.other': 'فشل الاستيراد', 'feed.noneYet': 'لم يتم إعداد أي مصدر بيانات للمتاجر بعد. أضف واحدًا في قاعدة البيانات (راجع HANDOVER.md).',
+  'feeds.liveNote': 'يتم استيراد البيانات تلقائيًا (يوميًا). للاستيراد الآن: GitHub ثم Actions ثم "Import store feeds" ثم Run workflow.'
+});
+Object.assign(ADMIN_I18N.en, { 'rep.recentLive': 'Latest clicks', 'rep.recentSubLive': 'The most recent "Visit store" clicks from all visitors', 'rep.recentEmptyLive': 'No clicks recorded yet. They appear here once the click function is deployed and offers have store links.' });
+Object.assign(ADMIN_I18N.ar, { 'rep.recentLive': 'آخر النقرات', 'rep.recentSubLive': 'أحدث نقرات «زيارة المتجر» من جميع الزوار', 'rep.recentEmptyLive': 'لم تُسجَّل نقرات بعد. ستظهر هنا بعد نشر دالة النقرات وإضافة روابط المتاجر للعروض.' });
+Object.assign(ADMIN_I18N.en, {
+  'set.localNote': 'Settings on this page, other than exchange rates, popular searches and the team, are saved in this browser only for now and do not change the live site.',
+  'set.rolesLive': 'These roles are enforced by the database, so they cannot be switched here. Changing them means changing the database rules.',
+  'users.readOnly': 'Your role can view this account but not change it.',
+  'req.t.restrict': 'Restrict processing', 'req.t.port': 'Data portability', 'req.t.object': 'Object to processing', 'req.t.consent': 'Withdraw consent'
+});
+Object.assign(ADMIN_I18N.ar, {
+  'set.localNote': 'الإعدادات في هذه الصفحة، عدا أسعار الصرف وعمليات البحث الشائعة والفريق، تُحفظ في هذا المتصفح فقط حاليًا ولا تغيّر الموقع المباشر.',
+  'set.rolesLive': 'هذه الأدوار تفرضها قاعدة البيانات، لذلك لا يمكن تغييرها من هنا. تغييرها يعني تغيير قواعد قاعدة البيانات.',
+  'users.readOnly': 'دورك يتيح عرض هذا الحساب دون تعديله.',
+  'req.t.restrict': 'تقييد المعالجة', 'req.t.port': 'نقل البيانات', 'req.t.object': 'الاعتراض على المعالجة', 'req.t.consent': 'سحب الموافقة'
+});

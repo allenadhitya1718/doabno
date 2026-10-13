@@ -183,7 +183,7 @@ html[lang="ar"] .cmp-best .k { letter-spacing: 0; font-size: 13px; }
 html[lang="ar"] .tag { letter-spacing: 0; }
 .tag.best { background: var(--green); color: #fff; }
 .tag.drop { background: var(--orange-wash); color: var(--orange-text); border: 1px solid var(--orange-line); }
-.tag.promo { background: var(--green-wash); color: var(--green); }
+.tag.tag-code { background: var(--green-wash); color: var(--green); }
 
 /* sections */
 .sec { padding: 36px 0; }
@@ -430,6 +430,9 @@ html[lang="ar"] .foot h2 { letter-spacing: 0; font-size: 14px; }
 .modal h2 { font-size: 22px; margin-bottom: 6px; }
 .modal p { color: var(--muted); margin-bottom: 16px; }
 .modal input { width: 100%; height: 44px; border: 1px solid #C8D2DC; border-radius: 10px; padding-inline: 12px; margin-bottom: 10px; }
+/* Consent checkboxes keep their own small size (the rule above would stretch them to full width and 44px high). */
+.modal .switch input[type=checkbox] { width: 18px; height: 18px; margin: 2px 0 0; padding: 0; flex: none; }
+.modal .switch { align-items: flex-start; }
 .modal .x { float: inline-end; background: none; border: 0; font-size: 22px; cursor: pointer; color: var(--muted); }
 
 /* responsive */
@@ -910,3 +913,8 @@ html[lang="ar"] .app-promo2 h2 { letter-spacing: 0; line-height: 1.35; }
 .sv-empty h3 { font-size: 20px; } .sv-empty p { color: var(--muted); max-width: 420px; margin-bottom: 8px; }
 @media (max-width: 960px) { .al-grid { grid-template-columns: 1fr; } }
 @media (max-width: 520px) { .al-card { grid-template-columns: 92px minmax(0, 1fr); gap: 12px; padding: 12px; } .al-px b { font-size: 17px; } .al-top { flex-direction: column; gap: 6px; } }
+
+/* "or" divider and social sign-in buttons in the sign-in dialog */
+.auth-or { display: flex; align-items: center; gap: 12px; margin: 14px 0 10px; color: var(--muted); font-size: 13px; }
+.auth-or::before, .auth-or::after { content: ""; flex: 1; height: 1px; background: #E3E8ED; }
+.auth-social { display: grid; gap: 8px; }

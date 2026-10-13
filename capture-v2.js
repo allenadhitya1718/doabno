@@ -8,7 +8,7 @@ const os = require('os');
 const path = require('path');
 
 const BASE = process.env.BASE || 'http://127.0.0.1:5176';
-const OUT = path.join(__dirname, 'figma-export');
+const OUT = path.join(__dirname, process.env.AR_APP ? 'figma-export-app-arabic-final' : process.env.AR_WEB ? 'figma-export-web-arabic-final' : process.env.AR_ADMIN ? 'figma-export-admin-arabic-final' : 'figma-export-final');
 const PORT = 9333;
 const MAX_PX = 4096; // Figma scales down images larger than this on either side.
 const BROWSERS = [
@@ -39,14 +39,13 @@ const click = sel => 'document.querySelector(' + JSON.stringify(sel) + ').click(
 // The app scrolls inside its own container; for a full-length shot, let the page grow instead.
 const APP_FULL = "const st = document.createElement('style'); st.textContent = '.stage,.device-wrap,.device,.device-frame,.app{height:auto!important}.app{overflow:visible!important}.screen{overflow:visible!important;flex:none!important}.bottombar{position:static!important}'; document.head.appendChild(st)";
 const scrollTo = n => "const s = document.getElementById('screen'); s.scrollTop += document.querySelectorAll('.block')[" + n + "].getBoundingClientRect().top - s.getBoundingClientRect().top - 12";
-// Home "price race": hold the finished frame (cheapest row on top, saving shown) so screenshots never catch the card empty or mid-animation.
-const FREEZE = "(function(){ const f = () => { const s = document.getElementById('rkStage'); if (!s) return; s.querySelectorAll('.rk-row').forEach(r => { r.style.top = (+r.dataset.to * 46) + 'px'; }); s.className = 'rk-stage p1 p2 p3'; const b = s.querySelector('.rk-row.best .rk-px'), n = document.getElementById('rkNow'); if (b && n) n.textContent = b.textContent; const st = document.getElementById('rkStatus'); if (st) st.textContent = 'Cheapest first, delivery included'; }; f(); window.__frz = setInterval(f, 40); })();";
+// Animation checks used by `until`: the app's price race and the website hero animation, each at a finished scene.
+const RACE_DONE = "(() => { const s = document.querySelector('#rkStage'), n = document.querySelector('#rkNow'), b = document.querySelector('.rk-row.best .rk-px'); return !!(s && n && b && s.classList.contains('p3') && !s.classList.contains('out') && n.textContent === b.textContent); })()";
+const VIZ_LOWEST = "(() => { const v = document.querySelector('#viz'), big = document.querySelector('#vzBig'), b = document.querySelector('.vz-node.best .vp'); return !!(v && big && b && v.classList.contains('p3') && !v.classList.contains('p4') && !v.classList.contains('out') && big.textContent === b.textContent); })()";
+const VIZ_HISTORY = "(() => { const v = document.querySelector('#viz'), l = document.querySelector('.vh-line'); return !!(v && l && v.classList.contains('p4') && !v.classList.contains('out') && parseFloat(getComputedStyle(l).strokeDashoffset) === 0); })()";
 const IPHONE = '/p/iphone-17-pro';
 const W = { prefix: 'doabno2.' };
-const WEBFAVS = ['sony-wh1000xm6', 'dyson-v15', 'nike-af1', 'dior-sauvage', 'nespresso-vertuo'];
-const WEBALERTS = { 'ps5-pro': { target: 2513 }, 'iphone-17-pro': { target: 3600 }, 'airpods-pro-3': { target: 754 }, 'galaxy-s26-ultra': { target: 4007 }, 'apple-watch-11': { target: 1380 } };
-const WEBSEED = { cookie: 'essential', lang: 'en', market: 'sa', favs: WEBFAVS, alerts: WEBALERTS, demoSeeded: true, recents: ['AirPods Pro', 'Dyson V15'] };
-const NOIPHONE = Object.assign({}, WEBSEED, { alerts: { 'ps5-pro': { target: 2513 }, 'airpods-pro-3': { target: 754 }, 'galaxy-s26-ultra': { target: 4007 }, 'apple-watch-11': { target: 1380 } } });
+const WEBSEED = { demoSeeded: true, cookie: 'essential', lang: 'en', market: 'sa', favs: ['sony-wh1000xm6', 'dior-sauvage', 'dyson-v15'], alerts: { 'dyson-v15': { target: 2400 }, 'airpods-pro-3': { target: 700 } }, recents: ['AirPods Pro', 'Dyson V15'] };
 const WEBUSER = Object.assign({}, WEBSEED, { user: { name: 'Sara Ali', email: 'sara@example.com' } });
 
 // Flow order follows the app: onboarding > home > search > browse > product & comparison > deals > saved > profile > states > Arabic.
@@ -54,17 +53,16 @@ const WEBUSER = Object.assign({}, WEBSEED, { user: { name: 'Sara Ali', email: 's
 const SHOTS = [
   // 1. Onboarding
   { file: 'app/01-onboarding-welcome-en', flow: '1. Onboarding', title: 'Welcome: country and language', url: '/app/#/welcome', ...PHONE, seed: Object.assign({}, APP, { 'app.welcomed': false }) },
-  { file: 'app/x08-search-photo-barcode-en', flow: '3. Search', title: 'Search: photo and barcode sheet', url: '/app/#/search', ...PHONE, seed: APP, action: "document.querySelector('.scan-in').click()", settle: 600 },
-  { file: 'app/x09-search-barcode-matches-en', flow: '3. Search', title: 'Search: barcode matches', url: '/app/#/search', ...PHONE, seed: APP, action: "document.querySelector('.scan-in').click(); setTimeout(() => document.querySelector('[data-scan-code]').click(), 500)", settle: 1400 },
-  { file: 'app/x19-product-alert-email-consent-en', flow: '5. Product', title: 'Product: price alert with email consent', url: '/app/#/p/iphone-17-pro', ...PHONE, seed: APP, action: "document.querySelector('[data-sheet=\"alert\"]').click(); setTimeout(() => document.querySelector('#sheetForm input[name=email]').click(), 500)", settle: 1400 },
   // 2. Home
-  { file: 'app/02-home-en', flow: '2. Home', title: 'Home: search, price race, trending, categories', url: '/app/#/', ...PHONE, wait: 2600, seed: APP, action: FREEZE, settle: 400 },
-  { file: 'app/03-home-market-sheet-en', flow: '2. Home', title: 'Home: market selector sheet', url: '/app/#/', ...PHONE, wait: 2600, seed: APP, action: FREEZE + click('[data-sheet="country"]'), settle: 500 },
-  { file: 'app/04-home-full-length-en', flow: '2. Home', title: 'Home: full length', url: '/app/#/', ...PHONE, full: true, wait: 2600, seed: APP, action: FREEZE + APP_FULL, settle: 600 },
+  { file: 'app/02-home-en', flow: '2. Home', title: 'Home: search, price race, trending, categories', url: '/app/#/', ...PHONE, wait: 4600, until: RACE_DONE, seed: APP },
+  { file: 'app/03-home-market-sheet-en', flow: '2. Home', title: 'Home: market selector sheet', url: '/app/#/', ...PHONE, seed: APP, action: click('[data-sheet="country"]') },
+  { file: 'app/04-home-full-length-en', flow: '2. Home', title: 'Home: full length', url: '/app/#/', ...PHONE, full: true, wait: 4600, until: RACE_DONE, seed: APP, action: APP_FULL },
   // 3. Search
   { file: 'app/05-search-empty-en', flow: '3. Search', title: 'Search: recent and popular searches', url: '/app/#/search', ...PHONE, seed: APP },
   { file: 'app/06-search-results-en', flow: '3. Search', title: 'Search: results', url: '/app/#/search?q=sony', ...PHONE, seed: APP },
   { file: 'app/07-search-no-results-en', flow: '3. Search', title: 'Search: no results', url: '/app/#/search?q=zzzz', ...PHONE, seed: APP },
+  { file: 'app/07a-search-photo-barcode-en', flow: '3. Search', title: 'Search by photo or barcode', url: '/app/#/search', ...PHONE, seed: APP, action: click('[data-sheet="scan"]') },
+  { file: 'app/07b-search-barcode-matches-en', flow: '3. Search', title: 'Barcode search: possible matches', url: '/app/#/search', ...PHONE, seed: APP, action: "document.querySelector('[data-sheet=\"scan\"]').click(); document.querySelector('.scan-sample').click()", settle: 2600 },
   // 4. Browse
   { file: 'app/08-browse-categories-en', flow: '4. Browse', title: 'Categories', url: '/app/#/categories', ...PHONE, seed: APP },
   { file: 'app/09-browse-product-list-en', flow: '4. Browse', title: 'Product list', url: '/app/#/c/electronics', ...PHONE, seed: APP },
@@ -76,6 +74,7 @@ const SHOTS = [
   { file: 'app/14-product-price-history-en', flow: '5. Product & comparison', title: 'Product: price history', url: '/app/#' + IPHONE, ...PHONE, wait: 1700, seed: APP, action: scrollTo(1) },
   { file: 'app/15-product-details-similar-en', flow: '5. Product & comparison', title: 'Product: details and similar products', url: '/app/#' + IPHONE, ...PHONE, wait: 1700, seed: APP, action: scrollTo(2) },
   { file: 'app/16-product-price-alert-sheet-en', flow: '5. Product & comparison', title: 'Product: set price alert', url: '/app/#' + IPHONE, ...PHONE, wait: 1700, seed: APP, action: click('.bottombar [data-sheet="alert"]') },
+  { file: 'app/16a-product-alert-email-consent-en', flow: '5. Product & comparison', title: 'Price alert: email and consent', url: '/app/#' + IPHONE, ...PHONE, wait: 1700, seed: APP, action: "document.querySelector('.bottombar [data-sheet=\"alert\"]').click(); const e = document.querySelector('#sheetForm [name=email]'); e.checked = true; e.dispatchEvent(new Event('change', { bubbles: true }))" },
   { file: 'app/17-product-full-length-en', flow: '5. Product & comparison', title: 'Product: full length', url: '/app/#' + IPHONE, ...PHONE, full: true, wait: 1700, seed: APP, action: APP_FULL },
   // 6. Deals
   { file: 'app/18-deals-en', flow: '6. Deals', title: 'Deals', url: '/app/#/deals', ...PHONE, seed: APP },
@@ -94,7 +93,7 @@ const SHOTS = [
   { file: 'app/28-state-empty-alerts-en', flow: '9. States', title: 'Empty: no price alerts', url: '/app/#/saved?tab=alerts', ...PHONE, seed: Object.assign({}, APP, { favs: [], alerts: [] }) },
   // 10. Arabic (right-to-left)
   { file: 'app/29-ar-welcome', flow: '10. Arabic (RTL)', title: 'Welcome', url: '/app/#/welcome', ...PHONE, seed: Object.assign(arabic(APP), { 'app.welcomed': false }) },
-  { file: 'app/30-ar-home', flow: '10. Arabic (RTL)', title: 'Home', url: '/app/#/', ...PHONE, wait: 2600, seed: arabic(APP) },
+  { file: 'app/30-ar-home', flow: '10. Arabic (RTL)', title: 'Home', url: '/app/#/', ...PHONE, wait: 4600, until: RACE_DONE, seed: arabic(APP) },
   { file: 'app/31-ar-search-results', flow: '10. Arabic (RTL)', title: 'Search results', url: '/app/#/search?q=sony', ...PHONE, seed: arabic(APP) },
   { file: 'app/32-ar-product-best-price', flow: '10. Arabic (RTL)', title: 'Product: best price', url: '/app/#' + IPHONE, ...PHONE, wait: 1700, seed: arabic(APP) },
   { file: 'app/33-ar-product-store-offers', flow: '10. Arabic (RTL)', title: 'Product: store offers', url: '/app/#' + IPHONE, ...PHONE, wait: 1700, seed: arabic(APP), action: scrollTo(0) },
@@ -102,10 +101,10 @@ const SHOTS = [
   ,
   // ===== Website (desktop 1440, then phone browser). Storage prefix doabno2. =====
   // 1. Home
-  { file: 'web/01-home-hero-en', flow: '1. Home', title: 'Home: search-first hero, price animation (lowest price found)', url: '/#/', ...DESKTOP, ...W, wait: 3900, seed: WEBSEED },
-  { file: 'web/02-home-hero-history-en', flow: '1. Home', title: 'Home: hero animation (price history scene)', url: '/#/', ...DESKTOP, ...W, wait: 6200, seed: WEBSEED },
-  { file: 'web/03-home-full-length-en', flow: '1. Home', title: 'Home: full length', url: '/#/', ...DESKTOP, ...W, full: true, wait: 3900, seed: WEBSEED },
-  { file: 'web/04-home-app-promo-en', flow: '1. Home', title: 'Home: app promo card (phone demo)', url: '/#/', ...DESKTOP, ...W, seed: WEBSEED, action: "document.querySelector('.app-promo2').scrollIntoView({block:'center'})", settle: 3300 },
+  { file: 'web/01-home-hero-en', flow: '1. Home', title: 'Home: hero, price animation (lowest price found), Buy now bar', url: '/#/', ...DESKTOP, ...W, wait: 3900, until: VIZ_LOWEST, seed: WEBSEED },
+  { file: 'web/02-home-hero-history-en', flow: '1. Home', title: 'Home: hero animation (price history scene)', url: '/#/', ...DESKTOP, ...W, wait: 6200, until: VIZ_HISTORY, seed: WEBSEED },
+  { file: 'web/03-home-full-length-en', flow: '1. Home', title: 'Home: full length', url: '/#/', ...DESKTOP, ...W, full: true, wait: 3900, until: VIZ_LOWEST, seed: WEBSEED },
+  { file: 'web/04-home-app-promo-en', flow: '1. Home', title: 'Home: "Compare prices wherever you go" banner with phones', url: '/#/', ...DESKTOP, ...W, full: true, region: '.app-promo2', after: 3600, seed: WEBSEED },
   // 2. Navigation and search
   { file: 'web/05-nav-categories-menu-en', flow: '2. Navigation & search', title: 'Categories menu (animated popup)', url: '/#/', ...DESKTOP, ...W, wait: 800, seed: WEBSEED, action: click('#browseBtn'), settle: 1000 },
   { file: 'web/06-nav-price-alerts-popup-en', flow: '2. Navigation & search', title: 'Price alerts popup (menu morph)', url: '/#/', ...DESKTOP, ...W, wait: 800, seed: WEBSEED, action: "document.querySelector('[data-menu=\"alerts\"]').dispatchEvent(new MouseEvent('mouseenter'))", settle: 1100 },
@@ -113,46 +112,45 @@ const SHOTS = [
   // 3. Browse and results
   { file: 'web/08-search-results-en', flow: '3. Browse & results', title: 'Search results with filters', url: '/#/search?q=apple', ...DESKTOP, ...W, full: true, seed: WEBSEED },
   { file: 'web/09-category-en', flow: '3. Browse & results', title: 'Category page', url: '/#/c/electronics', ...DESKTOP, ...W, full: true, seed: WEBSEED },
-  { file: 'web/10-subcategory-en', flow: '3. Browse & results', title: 'Subcategory results', url: '/#/c/electronics/audio', ...DESKTOP, ...W, full: true, seed: WEBSEED },
+  { file: 'web/10-subcategory-en', flow: '3. Browse & results', title: 'Subcategory: product card grid', url: '/#/c/electronics/audio', ...DESKTOP, ...W, full: true, seed: WEBSEED },
   { file: 'web/11-deals-en', flow: '3. Browse & results', title: 'Deals: biggest price drops', url: '/#/deals', ...DESKTOP, ...W, full: true, seed: WEBSEED },
   // 4. Product and comparison
   { file: 'web/12-product-comparison-en', flow: '4. Product & comparison', title: 'Product: best total price and store comparison', url: '/#/p/iphone-17-pro', ...DESKTOP, ...W, wait: 800, seed: WEBSEED },
   { file: 'web/13-product-full-length-en', flow: '4. Product & comparison', title: 'Product: full length (history, specs, similar products)', url: '/#/p/iphone-17-pro', ...DESKTOP, ...W, full: true, wait: 800, seed: WEBSEED },
-  { file: 'web/14-product-alert-set-en', flow: '4. Product & comparison', title: 'Product: price alert switched on', url: '/#/p/iphone-17-pro', ...DESKTOP, ...W, wait: 800, seed: WEBSEED, action: click('#alertBtn') },
+  { file: 'web/14-product-alert-popup-en', flow: '4. Product & comparison', title: 'Price alert popup: target, email and consent', url: '/#/p/iphone-17-pro', ...DESKTOP, ...W, wait: 800, seed: WEBSEED, action: click('#alertBtn') },
+  { file: 'web/15-product-alert-set-en', flow: '4. Product & comparison', title: 'Product: price alert created', url: '/#/p/iphone-17-pro', ...DESKTOP, ...W, wait: 800, seed: WEBSEED, action: "document.querySelector('#alertBtn').click(); const f = document.querySelector('#alForm'); f.email.value = 'sara@example.com'; f.consent.checked = true; f.dispatchEvent(new Event('submit', { cancelable: true }))", settle: 900 },
   // 5. Coupons
-  { file: 'web/15-coupons-en', flow: '5. Coupons', title: 'Coupons and promo codes', url: '/#/coupons', ...DESKTOP, ...W, full: true, seed: WEBSEED },
+  { file: 'web/16-coupons-en', flow: '5. Coupons', title: 'Coupons and promo codes', url: '/#/coupons', ...DESKTOP, ...W, full: true, seed: WEBSEED },
   // 6. Saved
-  { file: 'web/16-favorites-en', flow: '6. Saved', title: 'Favorites', url: '/#/favorites', ...DESKTOP, ...W, full: true, seed: WEBSEED },
-  { file: 'web/17-price-alerts-en', flow: '6. Saved', title: 'Price alerts', url: '/#/alerts', ...DESKTOP, ...W, full: true, seed: WEBSEED },
+  { file: 'web/17-favorites-en', flow: '6. Saved', title: 'Favorites (stats, card grid, remove)', url: '/#/favorites', ...DESKTOP, ...W, full: true, seed: WEBSEED },
+  { file: 'web/18-price-alerts-en', flow: '6. Saved', title: 'Price alerts (progress toward target)', url: '/#/alerts', ...DESKTOP, ...W, full: true, seed: WEBSEED },
   // 7. Account
-  { file: 'web/18-account-sign-in-en', flow: '7. Account', title: 'Sign in dialog', url: '/#/', ...DESKTOP, ...W, wait: 800, seed: WEBSEED, action: click('#signInBtn') },
-  { file: 'web/19-account-sign-up-en', flow: '7. Account', title: 'Create account dialog', url: '/#/', ...DESKTOP, ...W, wait: 800, seed: WEBSEED, action: "document.querySelector('#signInBtn').click(); document.querySelector('#authSwap').click()" },
-  { file: 'web/20-account-profile-en', flow: '7. Account', title: 'Profile: notifications, data download and deletion', url: '/#/account', ...DESKTOP, ...W, full: true, seed: WEBUSER },
-  // 8. Legal and consent
-  { file: 'web/21-cookie-bar-en', flow: '8. Legal & consent', title: 'Cookie consent bar', url: '/#/', ...DESKTOP, ...W, wait: 800, seed: { lang: 'en', market: 'sa' } },
-  { file: 'web/22-legal-privacy-en', flow: '8. Legal & consent', title: 'Privacy policy', url: '/#/legal/privacy', ...DESKTOP, ...W, full: true, seed: WEBSEED },
-  { file: 'web/23-legal-do-not-sell-en', flow: '8. Legal & consent', title: 'Do not sell or share my personal information (CCPA)', url: '/#/legal/ccpa', ...DESKTOP, ...W, full: true, seed: WEBSEED },
-  { file: 'web/n14-product-alert-popup-en', flow: '4. Product & comparison', title: 'Product: price alert popup', url: '/#/p/iphone-17-pro', ...DESKTOP, ...W, wait: 800, seed: NOIPHONE, action: click('#alertBtn'), settle: 700 },
-  { file: 'web/n15-product-alert-set-en', flow: '4. Product & comparison', title: 'Product: price alert set', url: '/#/p/iphone-17-pro', ...DESKTOP, ...W, wait: 800, seed: NOIPHONE, action: "document.querySelector('#alertBtn').click(); setTimeout(() => { const f = document.querySelector('#alForm'); f.email.value = 'sara@example.com'; f.consent.click(); f.requestSubmit(); }, 500)", settle: 1500 },
-  { file: 'web/n22-about-us-en', flow: '8. Legal & consent', title: 'About us', url: '/#/about', ...DESKTOP, ...W, full: true, wait: 1500, seed: WEBSEED },
-  { file: 'web/n25-legal-terms-en', flow: '8. Legal & consent', title: 'Terms of use', url: '/#/legal/terms', ...DESKTOP, ...W, full: true, seed: WEBSEED },
-  { file: 'web/n26-legal-disclaimer-en', flow: '8. Legal & consent', title: 'Disclaimer', url: '/#/legal/disclaimer', ...DESKTOP, ...W, full: true, seed: WEBSEED },
-  { file: 'web/n27-legal-cookies-en', flow: '8. Legal & consent', title: 'Cookie policy', url: '/#/legal/cookies', ...DESKTOP, ...W, full: true, seed: WEBSEED },
-  { file: 'web/n29-privacy-request-en', flow: '8. Legal & consent', title: 'Privacy request', url: '/#/privacy-request', ...DESKTOP, ...W, full: true, seed: WEBSEED },
-  // 9. Arabic (RTL)
-  { file: 'web/24-ar-home-hero', flow: '9. Arabic (RTL)', title: 'Home: hero', url: '/#/', ...DESKTOP, ...W, wait: 3900, seed: arabic(WEBSEED) },
-  { file: 'web/25-ar-search-results', flow: '9. Arabic (RTL)', title: 'Search results', url: '/#/search?q=apple', ...DESKTOP, ...W, full: true, seed: arabic(WEBSEED) },
-  { file: 'web/26-ar-product-comparison', flow: '9. Arabic (RTL)', title: 'Product comparison', url: '/#/p/iphone-17-pro', ...DESKTOP, ...W, wait: 800, seed: arabic(WEBSEED) },
-  { file: 'web/27-ar-coupons', flow: '9. Arabic (RTL)', title: 'Coupons', url: '/#/coupons', ...DESKTOP, ...W, full: true, seed: arabic(WEBSEED) },
-  // 10. Phone browser
-  { file: 'web/28-mobile-home-en', flow: '10. Phone browser', title: 'Home', url: '/#/', ...PHONE, ...W, wait: 800, seed: WEBSEED },
-  { file: 'web/29-mobile-home-full-length-en', flow: '10. Phone browser', title: 'Home: full length', url: '/#/', ...PHONE, ...W, full: true, wait: 800, seed: WEBSEED },
-  { file: 'web/30-mobile-search-results-en', flow: '10. Phone browser', title: 'Search results', url: '/#/search?q=apple', ...PHONE, ...W, seed: WEBSEED },
-  { file: 'web/31-mobile-filters-en', flow: '10. Phone browser', title: 'Filters open', url: '/#/search?q=apple', ...PHONE, ...W, seed: WEBSEED, action: click('#fToggle') },
-  { file: 'web/32-mobile-product-en', flow: '10. Phone browser', title: 'Product comparison', url: '/#/p/iphone-17-pro', ...PHONE, ...W, wait: 800, seed: WEBSEED },
-  { file: 'web/n35-mobile-favorites-en', flow: '10. Phone browser', title: 'Favorites', url: '/#/favorites', ...PHONE, ...W, wait: 800, seed: WEBSEED },
-  { file: 'web/33-mobile-home-ar', flow: '10. Phone browser', title: 'Home (Arabic)', url: '/#/', ...PHONE, ...W, wait: 800, seed: arabic(WEBSEED) }
-  ,
+  { file: 'web/19-account-sign-in-en', flow: '7. Account', title: 'Sign in dialog', url: '/#/', ...DESKTOP, ...W, wait: 800, seed: WEBSEED, action: click('#signInBtn') },
+  { file: 'web/20-account-sign-up-en', flow: '7. Account', title: 'Create account dialog (marketing consent)', url: '/#/', ...DESKTOP, ...W, wait: 800, seed: WEBSEED, action: "document.querySelector('#signInBtn').click(); document.querySelector('#authSwap').click()" },
+  { file: 'web/21-account-profile-en', flow: '7. Account', title: 'Profile: notifications, data download and deletion', url: '/#/account', ...DESKTOP, ...W, full: true, seed: WEBUSER },
+  // 8. About us
+  { file: 'web/22-about-us-en', flow: '8. About us', title: 'About us: full page', url: '/#/about', ...DESKTOP, ...W, full: true, wait: 800, seed: WEBSEED },
+  // 9. Legal and consent
+  { file: 'web/23-cookie-bar-en', flow: '9. Legal & consent', title: 'Cookie consent bar', url: '/#/', ...DESKTOP, ...W, wait: 800, seed: { lang: 'en', market: 'sa', demoSeeded: true } },
+  { file: 'web/24-legal-privacy-en', flow: '9. Legal & consent', title: 'Privacy policy', url: '/#/legal/privacy', ...DESKTOP, ...W, full: true, seed: WEBSEED },
+  { file: 'web/25-legal-terms-en', flow: '9. Legal & consent', title: 'Terms of use', url: '/#/legal/terms', ...DESKTOP, ...W, full: true, seed: WEBSEED },
+  { file: 'web/26-legal-disclaimer-en', flow: '9. Legal & consent', title: 'Disclaimer', url: '/#/legal/disclaimer', ...DESKTOP, ...W, full: true, seed: WEBSEED },
+  { file: 'web/27-legal-cookies-en', flow: '9. Legal & consent', title: 'Cookie policy', url: '/#/legal/cookies', ...DESKTOP, ...W, full: true, seed: WEBSEED },
+  { file: 'web/28-legal-do-not-sell-en', flow: '9. Legal & consent', title: 'Do not sell or share my personal information (CCPA)', url: '/#/legal/ccpa', ...DESKTOP, ...W, full: true, seed: WEBSEED },
+  { file: 'web/29-privacy-request-en', flow: '9. Legal & consent', title: 'Privacy request form', url: '/#/privacy-request', ...DESKTOP, ...W, full: true, seed: WEBSEED },
+  // 10. Arabic (RTL), key screens (the Arabic-only folder has the complete set)
+  { file: 'web/30-ar-home-hero', flow: '10. Arabic (RTL)', title: 'Home: hero', url: '/#/', ...DESKTOP, ...W, wait: 3900, until: VIZ_LOWEST, seed: arabic(WEBSEED) },
+  { file: 'web/31-ar-search-results', flow: '10. Arabic (RTL)', title: 'Search results', url: '/#/search?q=apple', ...DESKTOP, ...W, full: true, seed: arabic(WEBSEED) },
+  { file: 'web/32-ar-product-comparison', flow: '10. Arabic (RTL)', title: 'Product comparison', url: '/#/p/iphone-17-pro', ...DESKTOP, ...W, wait: 800, seed: arabic(WEBSEED) },
+  { file: 'web/33-ar-about-us', flow: '10. Arabic (RTL)', title: 'About us', url: '/#/about', ...DESKTOP, ...W, full: true, wait: 800, seed: arabic(WEBSEED) },
+  // 11. Phone browser
+  { file: 'web/34-mobile-home-en', flow: '11. Phone browser', title: 'Home', url: '/#/', ...PHONE, ...W, wait: 800, until: VIZ_LOWEST, seed: WEBSEED },
+  { file: 'web/35-mobile-home-full-length-en', flow: '11. Phone browser', title: 'Home: full length', url: '/#/', ...PHONE, ...W, full: true, wait: 800, until: VIZ_LOWEST, seed: WEBSEED },
+  { file: 'web/36-mobile-search-results-en', flow: '11. Phone browser', title: 'Search results', url: '/#/search?q=apple', ...PHONE, ...W, seed: WEBSEED },
+  { file: 'web/37-mobile-filters-en', flow: '11. Phone browser', title: 'Filters open', url: '/#/search?q=apple', ...PHONE, ...W, seed: WEBSEED, action: click('#fToggle') },
+  { file: 'web/38-mobile-product-en', flow: '11. Phone browser', title: 'Product comparison', url: '/#/p/iphone-17-pro', ...PHONE, ...W, wait: 800, seed: WEBSEED },
+  { file: 'web/39-mobile-favorites-en', flow: '11. Phone browser', title: 'Favorites', url: '/#/favorites', ...PHONE, ...W, full: true, seed: WEBSEED },
+  { file: 'web/40-mobile-home-ar', flow: '11. Phone browser', title: 'Home (Arabic)', url: '/#/', ...PHONE, ...W, wait: 800, until: VIZ_LOWEST, seed: arabic(WEBSEED) },
   // ===== Admin portal (the original design: the admin has not been redesigned). Served at /admin/ =====
   // 1. Access
   { file: 'admin/01-sign-in-en', flow: '1. Access', title: 'Sign in', url: '/admin/', ...DESKTOP, seed: { 'admin.lang': 'en' } },
@@ -177,6 +175,43 @@ const SHOTS = [
   { file: 'admin/14-ar-dashboard', flow: '7. Arabic (RTL)', title: 'Dashboard', url: '/admin/#/', ...DESKTOP, full: true, seed: arabic(ADMIN) },
   { file: 'admin/15-ar-products', flow: '7. Arabic (RTL)', title: 'Products', url: '/admin/#/products', ...DESKTOP, full: true, seed: arabic(ADMIN) }
 ];
+
+// Number every folder's screens 01, 02, ... in the order listed above (new screens slot in without gaps).
+(function renumber() {
+  const n = {};
+  SHOTS.forEach(sh => { const d = sh.file.split('/')[0]; n[d] = (n[d] || 0) + 1; sh.file = d + '/' + String(n[d]).padStart(2, '0') + sh.file.replace(/^[^/]+\/\d+[a-z]?/, ''); });
+})();
+
+// AR_APP=1: every app screen in Arabic (RTL) only, written to figma-export-app-arabic/ (Arabic search terms, "-ar" file names).
+if (process.env.AR_APP) {
+  const ar = SHOTS.filter(s => s.file.startsWith('app/') && /-en$/.test(s.file)).map(s => ({
+    ...s, file: s.file.replace(/-en$/, '-ar'), title: s.title + ' (Arabic)',
+    url: s.url.replace('q=sony', 'q=' + encodeURIComponent('سوني')).replace('q=zzzz', 'q=' + encodeURIComponent('ززززز')),
+    seed: Object.assign(arabic(s.seed), 'app.welcomed' in s.seed ? { 'app.welcomed': s.seed['app.welcomed'] } : {})
+  }));
+  SHOTS.length = 0; SHOTS.push(...ar);
+}
+
+// AR_WEB=1: every website screen in Arabic (RTL) only, written to figma-export-web-arabic/ (Arabic search terms, "-ar" file names).
+if (process.env.AR_WEB) {
+  const AR = { apple: 'آبل', sony: 'سوني' };
+  const ar = SHOTS.filter(s => s.file.startsWith('web/') && /-en$/.test(s.file)).map(s => ({
+    ...s, file: s.file.replace(/-en$/, '-ar'), title: s.title + ' (Arabic)',
+    url: s.url.replace(/q=(apple|sony)/, (m, w) => 'q=' + encodeURIComponent(AR[w])),
+    action: s.action ? s.action.replace("'sony'", "'" + AR.sony + "'") : s.action,
+    seed: arabic(s.seed)
+  }));
+  ar.forEach((x, i) => { x.file = 'web/' + String(i + 1).padStart(2, '0') + x.file.replace(/^web\/\d+/, ''); });
+  SHOTS.length = 0; SHOTS.push(...ar);
+}
+
+// AR_ADMIN=1: every admin screen in Arabic (RTL) only, written to figma-export-admin-arabic/ ("-ar" file names, numbered without gaps).
+if (process.env.AR_ADMIN) {
+  const ar = SHOTS.filter(s => s.file.startsWith('admin/') && /-en$/.test(s.file)).map((s, i) => ({
+    ...s, file: 'admin/' + String(i + 1).padStart(2, '0') + s.file.replace(/^admin\/\d+/, '').replace(/-en$/, '-ar'), title: s.title + ' (Arabic)', seed: arabic(s.seed)
+  }));
+  SHOTS.length = 0; SHOTS.push(...ar);
+}
 
 // Waits for web fonts and for the images in view (offscreen lazy images never load, so they are skipped).
 const WAIT_ASSETS = `(async () => {
@@ -243,7 +278,7 @@ async function capture(page, shot) {
   await page.send('Page.navigate', { url: BASE + shot.url });
   await loaded;
   await page.send('Page.removeScriptToEvaluateOnNewDocument', { identifier });
-  await sleep(400 + (shot.wait || 0));
+  await sleep(400 + (shot.wait || 0) + (shot.url.startsWith('/admin/') ? 900 : 0)); // admin pages play a short entrance animation (about 1 s)
   await page.evaluate(WAIT_ASSETS);
   if (shot.action) { await page.evaluate(shot.action); await sleep(shot.settle || 700); await page.evaluate(WAIT_ASSETS); }
 
@@ -263,10 +298,20 @@ async function capture(page, shot) {
   }
 
   if (process.env.DEBUG_EXPR) console.log('debug after resize:', JSON.stringify(await page.evaluate(process.env.DEBUG_EXPR)));
+  if (shot.until) { // wait for the page's looping animation to reach the wanted scene (a full-length shot takes seconds, so a fixed delay lands anywhere in the loop)
+    const t0 = Date.now();
+    while (Date.now() - t0 < 15000 && !(await page.evaluate(shot.until))) await sleep(100);
+    await sleep(150);
+  }
   // Split anything taller than Figma's limit between sections.
   const limit = Math.floor(MAX_PX / dpr);
   const parts = [];
-  if (height <= limit) parts.push([0, height]);
+  if (shot.region) {
+    await sleep(shot.after || 0); // let an animation that starts once the element is in view reach the wanted scene
+    const r = await page.evaluate('(() => { const b = document.querySelector(' + JSON.stringify(shot.region) + ').getBoundingClientRect(); return { top: b.top + scrollY, h: b.height }; })()');
+    const winH = shot.h, y0 = Math.max(0, Math.min(Math.round(r.top - (winH - r.h) / 2), height - winH));
+    parts.push([y0, Math.min(height, y0 + winH)]);
+  } else if (height <= limit) parts.push([0, height]);
   else {
     const tops = (await page.evaluate(SECTION_TOPS)).sort((a, b) => a - b);
     let start = 0;
@@ -284,7 +329,7 @@ async function capture(page, shot) {
   const suffix = dpr === 1 ? '' : '@' + dpr + 'x';
   for (let i = 0; i < parts.length; i++) {
     const [y0, y1] = parts[i];
-    const { data } = await page.send('Page.captureScreenshot', { format: 'png', clip: { x: 0, y: y0 + scrollY0, width: shot.w, height: y1 - y0, scale: 1 }, captureBeyondViewport: parts.length > 1 || scrollY0 > 0 });
+    const { data } = await page.send('Page.captureScreenshot', { format: 'png', clip: { x: 0, y: parts.length > 1 ? y0 + scrollY0 : y0, width: shot.w, height: y1 - y0, scale: 1 }, captureBeyondViewport: parts.length > 1 });
     const name = shot.file + (parts.length > 1 ? '-part' + (i + 1) : '') + suffix + '.png';
     fs.mkdirSync(path.dirname(path.join(OUT, name)), { recursive: true });
     fs.writeFileSync(path.join(OUT, name), Buffer.from(data, 'base64'));

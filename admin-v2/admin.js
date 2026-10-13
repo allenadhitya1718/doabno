@@ -4,6 +4,10 @@
 (function () {
   const D = window.DOABNO_DATA;
   const A = D.admin;
+  // Real sign-in, roles and a database when assets/config.js is filled in; otherwise the demo keeps working from browser storage.
+  const ACC = window.DOABNO_ACCOUNT || { enabled: false, signedIn: () => false, user: () => null };
+  const DB = ACC.enabled && window.ADMIN_DB ? window.ADMIN_DB.make(ACC) : null;
+  const LIVE = () => !!(DB && ACC.signedIn());
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
   const MARKETS = Object.keys(D.MARKETS);
@@ -28,6 +32,13 @@
     collapsed: load('collapsed', false) === true
   };
   if (state.market !== 'all' && !MARKETS.includes(state.market)) state.market = 'all';
+  if (ACC.enabled && (!ACC.signedIn() || !(state.session && state.session.role))) state.session = null;   // a database sign-in is always required
+  let auditRows = [], dbUsers = [], dbRequests = [], liveTeam = [], liveFeeds = new Map(), liveClicks = new Map(), liveRecent = [];
+  // Who may change what. This mirrors the database's rules (0001_schema.sql): the database is what really enforces them,
+  // the screens just stop offering buttons a role cannot use. In demo mode everything is allowed.
+  const ROLE_RULES = { product: ['owner', 'catalog'], category: ['owner', 'catalog'], popular: ['owner', 'catalog'], store: ['owner', 'partners'], coupon: ['owner', 'partners'],
+    feed: ['owner', 'partners'], rates: ['owner'], team: ['owner'], users: ['owner', 'analyst'], userActions: ['owner'], privacy: ['owner'] };
+  const can = what => !LIVE() || ROLE_RULES[what].includes((state.session || {}).role);
   const ui = { editCat: null, keepScroll: false };
   let ov = A.loadOverrides();
   let current = { path: '', params: {} };
@@ -40,6 +51,18 @@
     A.refresh();
     Object.keys(cache).forEach(k => { delete cache[k]; });
     if (logKey) logActivity(logKey, vars);
+  }
+  // Saves to the database after the screen has been updated. A refused or failed save reloads the page, so what is shown is what is stored.
+  // quiet: a failure is only logged (used for the activity log, which must never get in the way).
+  function sync(label, fn, quiet) {
+    if (!LIVE()) return;
+    Promise.resolve().then(fn).catch(e => {
+      console.error('Save failed (' + label + ')', e);
+      if (quiet) return;
+      const refused = e.status === 401 || e.status === 403 || /42501|not allowed/i.test(e.message || '');
+      toast(t(refused ? 'err.noPermission' : 'err.saveFailed'));
+      setTimeout(() => location.reload(), 2200);
+    });
   }
 
   // ---------- helpers ----------
@@ -177,7 +200,7 @@
     ok: ['good', 'ok'], active: ['good', 'ok'], verified: ['good', 'ok'],
     warning: ['warn', 'alert'], expiring: ['warn', 'alert'], check: ['warn', 'alert'],
     error: ['bad', 'error'], out: ['bad', 'error'],
-    suspended: ['bad', 'error'], paused: ['muted', 'info'], hidden: ['muted', 'info'], expired: ['muted', 'info'], unverified: ['muted', 'info'], running: ['info', 'refresh']
+    suspended: ['bad', 'error'], none: ['muted', 'info'], paused: ['muted', 'info'], hidden: ['muted', 'info'], expired: ['muted', 'info'], unverified: ['muted', 'info'], running: ['info', 'refresh']
   };
   const badge = (kind, text) => '<span class="badge badge-' + BADGES[kind][0] + '">' + icon(ICONS[BADGES[kind][1]], 14) + text + '</span>';
 
@@ -194,8 +217,11 @@
   const offersIn = m => memo('offers:' + m, () => A.PRODUCTS.flatMap(p => D.offersFor(p, m).map(o => ({ p, o, m }))));
   const scopedOffers = () => scope().flatMap(offersIn);
 
-  // Daily "Visit store" clicks for one offer: product popularity × store rating × weekday × growth.
+  // Daily "Visit store" clicks for one offer. With a database these are the real recorded clicks (zero until there are some);
+  // the demo generates them from product popularity × store rating × weekday × growth.
+  const NO_CLICKS = new Array(DAYS).fill(0);
   function dailyClicks(x) {
+    if (LIVE()) return liveClicks.get(x.o.trackingId) || NO_CLICKS;
     return memo('clicks:' + x.o.trackingId, () => {
       const out = new Array(DAYS).fill(0);
       if (x.p.status === 'hidden') return out;
@@ -253,7 +279,10 @@
 
   // ---------- demo feeds, users, team, activity ----------
   const FEED_FORMATS = ['XML', 'CSV', 'JSON API', 'Google Merchant'];
+  const FEED_ORDER = { error: 0, warning: 1, running: 2, ok: 3, none: 4 };
+  const NO_FEED = { status: 'none', items: 0, rejected: 0, format: '', schedule: '', ts: 0, error: null };
   function feedOf(s) {
+    if (LIVE()) return liveFeeds.get(s.id) || NO_FEED;   // real runs recorded by the importer; a store without a feed row has none yet
     return memo('feed:' + s.id, () => {
       const rnd = D.seeded(s.id + 'feed');
       const r = rnd();
@@ -276,7 +305,7 @@
 
   const FIRST = ['Sara', 'Mohammed', 'Noura', 'Abdullah', 'Lina', 'Omar', 'Reem', 'Faisal', 'Huda', 'Khalid', 'Maha', 'Yousef',
     'Aisha', 'Tariq', 'Dana', 'Hamad', 'Emily', 'James', 'Olivia', 'Daniel', 'Sophie', 'Ahmed', 'Layla', 'Nasser'];
-  const users = () => memo('users', () => {
+  const users = () => LIVE() ? dbUsers : memo('users', () => {
     const rnd = D.seeded('doabno-users');
     return Array.from({ length: 64 }, (_, i) => {
       const first = FIRST[Math.floor(rnd() * FIRST.length)];
@@ -295,6 +324,7 @@
   });
 
   function team() {
+    if (LIVE()) return liveTeam;
     const me = state.session || { name: 'Admin', email: 'admin@example.com' };
     return [
       { name: me.name, email: me.email, role: 'owner', ts: Date.now() },
@@ -306,11 +336,12 @@
 
   function logActivity(key, vars) {
     save('log', [{ key, vars: vars || {}, ts: Date.now(), who: (state.session || {}).name || '' }].concat(load('log', [])).slice(0, 50));
+    if (LIVE()) { auditRows.unshift({ ts: Date.now(), key, vars: vars || {}, who: (state.session || {}).name || '' }); auditRows = auditRows.slice(0, 50); sync('activity log', () => DB.logAudit(key, vars), true); }
   }
   // Recent admin actions in this browser, mixed with the latest feed imports.
   function activity() {
-    const mine = load('log', []).map(e => ({ ts: e.ts, icon: 'edit', text: t(e.key, e.vars), who: e.who }));
-    const feeds = scope().flatMap(m => A.STORES[m]).filter(s => s.active !== false).map(s => {
+    const mine = (LIVE() ? auditRows : load('log', [])).map(e => ({ ts: e.ts, icon: 'edit', text: t(e.key, e.vars), who: e.who }));
+    const feeds = scope().flatMap(m => A.STORES[m]).filter(s => s.active !== false && feedOf(s).status !== 'none').map(s => {
       const f = feedOf(s);
       return { ts: f.ts, icon: f.status === 'error' ? 'error' : 'refresh', text: f.status === 'error' ? t('act.feedError', { s: s.name, e: feedMessage(f) }) : t('act.feedImported', { s: s.name, n: num(f.items) }) };
     });
@@ -319,6 +350,10 @@
 
   // Clicks on "Visit store" made on the site in this browser (the site logs them for this report).
   function siteClicks() {
+    if (LIVE()) return liveRecent.map(c => {
+      const x = (MARKETS.includes((c.id.split('-')[1] || '')) ? offersIn(c.id.split('-')[1]) : []).find(y => y.o.trackingId === c.id);
+      return x ? Object.assign({ ts: c.ts }, x) : null;
+    }).filter(Boolean);
     let log = [];
     try { log = JSON.parse(localStorage.getItem('doabno.clicks')) || []; } catch (e) { /* storage unavailable */ }
     return log.map(c => {
@@ -578,7 +613,7 @@
     const byCat = groupBy(rows, r => r.p.cat, r => L(catById(r.p.cat)));
     const byProduct = groupBy(rows, r => r.p.id, r => r.p).slice(0, 6);
     const barItem = g => ({ value: g.clicks, tip: '<strong>' + num(g.clicks) + '</strong> ' + t('unit.clicks') + ' · ' + sar(g.revenue, { whole: true }) });
-    const feedList = feeds.slice().sort((a, b) => ({ error: 0, warning: 1, ok: 2 }[a.f.status] - { error: 0, warning: 1, ok: 2 }[b.f.status]) || b.f.ts - a.f.ts).slice(0, 6);
+    const feedList = feeds.filter(x => x.f.status !== 'none').sort((a, b) => FEED_ORDER[a.f.status] - FEED_ORDER[b.f.status] || b.f.ts - a.f.ts).slice(0, 6);
 
     // Top performers, as products or as stores.
     const tab = ui.topTab === 'stores' ? 'stores' : 'products';
@@ -610,7 +645,7 @@
       card(t('dash.byStore'), barList(byStore.map(g => Object.assign(barItem(g), { label: storeCell(g.label) })), v => num(v)), { action: '<a class="link" href="#/reports?group=store">' + t('dash.fullReport') + '</a>' }) +
       card(t('dash.byCat'), barList(byCat.map(g => Object.assign(barItem(g), { label: esc(g.label) })), v => num(v)), { action: '<a class="link" href="#/reports?group=category">' + t('dash.fullReport') + '</a>' }) +
       '</div><div class="grid grid-2">' +
-      card(t('dash.feeds'), '<ul class="feed-list">' + feedList.map(({ s, f }) => '<li>' + storeCell(s) + '<span class="muted">' + t('feed.last', { t: ago(f.ts) }) + '</span>' + badge(f.status, t('status.' + f.status)) + '</li>').join('') + '</ul>',
+      card(t('dash.feeds'), feedList.length ? '<ul class="feed-list">' + feedList.map(({ s, f }) => '<li>' + storeCell(s) + '<span class="muted">' + t('feed.last', { t: ago(f.ts) }) + '</span>' + badge(f.status, t('status.' + f.status)) + '</li>').join('') + '</ul>' : '<p class="muted">' + t('feed.noneYet') + '</p>',
         { action: '<a class="link" href="#/feeds">' + t('dash.allFeeds') + '</a>' }) +
       card(t('dash.activity'), '<ul class="activity">' + activity().map(a => '<li><span class="act-ic">' + icon(ICONS[a.icon], 16) + '</span><span>' + esc(a.text) + '</span><time class="muted">' + ago(a.ts) + '</time></li>').join('') + '</ul>') +
       '</div>';
@@ -712,6 +747,7 @@
     Object.assign(p, data);
     ov.products = Object.assign(ov.products || {}, { [p.id]: data });
     commit('log.product', { p: data.en });
+    sync('product', () => DB.updateProduct(p.id, data));
     toast(t('toast.productSaved'));
     rerender();
   }
@@ -752,7 +788,7 @@
     A.PRODUCTS.forEach(p => { counts.set(p.cat, (counts.get(p.cat) || 0) + 1); counts.set(p.cat + '/' + p.sub, (counts.get(p.cat + '/' + p.sub) || 0) + 1); });
     const offerCounts = new Map();
     scopedOffers().forEach(x => { const k = x.p.cat + '/' + x.p.sub; offerCounts.set(k, (offerCounts.get(k) || 0) + 1); });
-    const custom = (catId, subId) => ((ov.newSubs || {})[catId] || []).some(s => s.id === subId);
+    const custom = (catId, subId) => LIVE() || ((ov.newSubs || {})[catId] || []).some(s => s.id === subId);
     const editRow = (key, en, ar, isNew) => '<form class="cat-edit" data-cat-key="' + key + '"' + (isNew ? ' data-new="1"' : '') + '>' +
       '<input name="en" required placeholder="' + t('field.english') + '" aria-label="' + t('field.nameEn') + '" value="' + esc(en) + '">' +
       '<input name="ar" required dir="rtl" lang="ar" placeholder="' + t('field.arabic') + '" aria-label="' + t('field.nameAr') + '" value="' + esc(ar) + '">' +
@@ -789,12 +825,14 @@
       ov.newSubs = ov.newSubs || {};
       ov.newSubs[c.id] = (ov.newSubs[c.id] || []).concat([Object.assign({}, s)]);
       commit('log.subAdded', { c: en });
+      sync('subcategory', () => DB.addSub(c.id, s, c.subs.length - 1));
     } else {
       const [catId, subId] = key.split('/');
       const target = subId ? catById(catId).subs.find(s => s.id === subId) : catById(catId);
       Object.assign(target, { en, ar });
       ov.catNames[key] = { en, ar };
       commit('log.category', { c: en });
+      sync('category', () => (subId ? DB.updateSub(catId, subId, { en, ar }) : DB.updateCategory(catId, { en, ar })));
     }
     ui.editCat = null;
     toast(t('toast.saved'));
@@ -871,9 +909,11 @@
         D.COUPONS.forEach(c => { if (c.market === s.market && c.store === s.name) c.store = name; });
         ov.coupons = D.COUPONS.map(c => Object.assign({}, c));
       }
+      const oldName = s.name;
       Object.assign(s, { name, cats, cpc, color: fd.get('color'), active: !!fd.get('active') });
       persistStore(s);
       commit('log.store', { s: name });
+      sync('store', async () => { await DB.updateStore(id, s); if (oldName !== name) await DB.renameStoreCoupons(s.market, oldName, name).catch(() => {}); });
     } else {
       const market = fd.get('market');
       let sid = slug(name) + '-' + market, i = 2;
@@ -883,6 +923,7 @@
       ov.newStores = (ov.newStores || []).concat([Object.assign({}, s)]);
       A.STORES[market].push(Object.assign(s, { rating: Math.round((3.8 + rnd() * 1.1) * 10) / 10, reviews: 300 + Math.floor(rnd() * 12000) }));
       commit('log.storeAdded', { s: name });
+      sync('new store', () => DB.addStore(s));
     }
     closeDrawer();
     toast(t('toast.storeSaved', { s: name }));
@@ -894,6 +935,7 @@
     s.active = on;
     persistStore(s);
     commit(on ? 'log.storeOn' : 'log.storeOff', { s: s.name });
+    sync('store', () => DB.updateStore(id, s));
     toast(t(on ? 'toast.storeOn' : 'toast.storeOff', { s: s.name }));
     rerender();
   }
@@ -902,18 +944,18 @@
   function pageFeeds(params) {
     const stores = scope().flatMap(m => A.STORES[m]).filter(s => s.active !== false);
     const feeds = stores.map(s => ({ s, f: feedOf(s) }));
-    const counts = { ok: 0, warning: 0, error: 0 };
-    feeds.forEach(x => { counts[x.f.status]++; });
+    const counts = { ok: 0, warning: 0, error: 0, running: 0, none: 0 };
+    feeds.forEach(x => { counts[x.f.status] = (counts[x.f.status] || 0) + 1; });
     const list = feeds.filter(x => !params.status || x.f.status === params.status)
-      .sort((a, b) => ({ error: 0, warning: 1, ok: 2 }[a.f.status] - { error: 0, warning: 1, ok: 2 }[b.f.status]) || a.s.name.localeCompare(b.s.name));
-    return pageHead(t('nav.feeds'), t('feeds.sub')) +
+      .sort((a, b) => FEED_ORDER[a.f.status] - FEED_ORDER[b.f.status] || a.s.name.localeCompare(b.s.name));
+    return pageHead(t('nav.feeds'), t('feeds.sub')) + (LIVE() ? '<p class="role-note" role="note">' + icon(ICONS.info, 16) + '<span>' + t('feeds.liveNote') + '</span></p>' : '') +
       '<nav class="chips"><a class="chip' + (!params.status ? ' on' : '') + '" href="#/feeds">' + t('filter.all') + ' · ' + num(feeds.length) + '</a>' +
-      ['error', 'warning', 'ok'].map(k => '<a class="chip' + (params.status === k ? ' on' : '') + '" href="#/feeds?status=' + k + '">' + badge(k, t('status.' + k)) + num(counts[k]) + '</a>').join('') + '</nav>' +
+      (LIVE() ? ['error', 'warning', 'ok', 'none'] : ['error', 'warning', 'ok']).map(k => '<a class="chip' + (params.status === k ? ' on' : '') + '" href="#/feeds?status=' + k + '">' + badge(k, t('status.' + k)) + num(counts[k]) + '</a>').join('') + '</nav>' +
       '<section class="card card-flush">' + (list.length ? '<div class="table-wrap"><table class="table"><thead><tr><th>' + t('col.store') + '</th><th>' + t('col.format') + '</th><th>' + t('col.schedule') + '</th><th>' + t('col.lastImport') + '</th><th class="num">' + t('col.items') + '</th><th class="num">' + t('col.rejected') + '</th><th>' + t('col.status') + '</th><th><span class="sr-only">' + t('col.actions') + '</span></th></tr></thead><tbody>' +
-        list.map(({ s, f }) => '<tr><td>' + storeCell(s) + '</td><td>' + f.format + '</td><td>' + t('schedule.' + f.schedule) + '</td><td class="muted">' + ago(f.ts) + '</td>' +
+        list.map(({ s, f }) => '<tr><td>' + storeCell(s) + '</td><td>' + (f.format || '—') + '</td><td>' + (f.schedule ? t('schedule.' + f.schedule) : '—') + '</td><td class="muted">' + (f.ts ? ago(f.ts) : '—') + '</td>' +
           '<td class="num">' + num(f.items) + '</td><td class="num">' + num(f.rejected) + '</td>' +
           '<td>' + badge(f.status, t('status.' + f.status)) + (feedMessage(f) ? '<small class="feed-msg">' + esc(feedMessage(f)) + '</small>' : '') + '</td>' +
-          '<td class="actions"><button type="button" class="btn btn-ghost btn-sm" data-run="' + s.id + '">' + icon(ICONS.refresh, 16) + t('feeds.run') + '</button></td></tr>').join('') +
+          '<td class="actions">' + (LIVE() ? '' : '<button type="button" class="btn btn-ghost btn-sm" data-run="' + s.id + '">' + icon(ICONS.refresh, 16) + t('feeds.run') + '</button>') + '</td></tr>').join('') +
         '</tbody></table></div>' : empty(t('empty.filters'))) + '</section>';
   }
 
@@ -982,9 +1024,12 @@
     };
     if (!c.store || !c.code || !c.en || !c.ar || isNaN(c.days)) { toast(t('form.required')); return; }
     const index = form.dataset.index;
+    const known = index !== '' ? D.COUPONS[+index] : null;
+    if (known && known.id != null) c.id = known.id;
     if (index !== '') D.COUPONS[+index] = c; else D.COUPONS.push(c);
     ov.coupons = D.COUPONS.map(x => Object.assign({}, x));
     commit(index !== '' ? 'log.coupon' : 'log.couponAdded', { c: c.code });
+    sync('coupon', async () => { if (c.id != null) await DB.updateCoupon(c.id, c); else c.id = await DB.addCoupon(c); });
     closeDrawer();
     toast(t('toast.couponSaved', { c: c.code }));
     rerender();
@@ -996,6 +1041,7 @@
       D.COUPONS.splice(index, 1);
       ov.coupons = D.COUPONS.map(x => Object.assign({}, x));
       commit('log.couponDeleted', { c: c.code });
+      if (c.id != null) sync('coupon', () => DB.deleteCoupon(c.id));
       toast(t('toast.couponDeleted', { c: c.code }));
       rerender();
     });
@@ -1035,8 +1081,8 @@
         return '<tr><td>' + g.label + '</td><td class="num">' + num(g.clicks) + '</td><td class="num">' + pct(clicks ? g.clicks / clicks : 0) + '</td><td class="num">' + sar(g.revenue, { whole: true }) + '</td>' +
           '<td class="num">' + sar(g.clicks ? g.revenue / g.clicks : 0) + '</td><td class="num"><span class="delta ' + (ch >= 0 ? 'good' : 'bad') + '">' + icon(ch >= 0 ? ICONS.up : ICONS.down, 12) + (ch >= 0 ? '+' : '−') + pct(Math.abs(ch)) + '</span></td></tr>';
       }).join('') + '</tbody></table></div></section>' +
-      card(t('rep.recent'), recent.length ? '<ul class="activity">' + recent.map(x => '<li>' + icon(ICONS.click, 16) + '<span>' + t('rep.recentItem', { p: esc(L(x.p)), s: esc(x.o.store.name) }) + ' ' + mk(x.m) + '</span><time class="muted">' + ago(x.ts) + '</time></li>').join('') + '</ul>' :
-        empty(t('rep.recentEmpty')), { sub: t('rep.recentSub') });
+      card(t(LIVE() ? 'rep.recentLive' : 'rep.recent'), recent.length ? '<ul class="activity">' + recent.map(x => '<li>' + icon(ICONS.click, 16) + '<span>' + t('rep.recentItem', { p: esc(L(x.p)), s: esc(x.o.store.name) }) + ' ' + mk(x.m) + '</span><time class="muted">' + ago(x.ts) + '</time></li>').join('') + '</ul>' :
+        empty(t(LIVE() ? 'rep.recentEmptyLive' : 'rep.recentEmpty')), { sub: t(LIVE() ? 'rep.recentSubLive' : 'rep.recentSub') });
   }
 
   function exportCsv(group) {
@@ -1056,6 +1102,7 @@
   // Admin actions on shopper accounts (suspend, note, delete) are kept per user id in this browser.
   const userStatus = u => (u.suspended ? 'suspended' : u.verified ? 'verified' : 'unverified');
   function liveUsers() {
+    if (LIVE()) return users().map(u => Object.assign({ note: '' }, u));   // real accounts: consent and suspension come from the database
     const edits = load('users', {});
     return users().filter(u => !(edits[u.id] && edits[u.id].deleted)).map(u => Object.assign({}, u, {
       marketing: D.seeded(u.id + 'consent')() < 0.46, suspended: false, note: '' }, edits[u.id] || {}));
@@ -1093,6 +1140,7 @@
   function userForm(id) {
     const u = liveUserById(id);
     if (!u) return;
+    const acts = !LIVE() || can('userActions');   // who may suspend, export or delete
     const row = (k, v) => '<div><dt>' + k + '</dt><dd>' + v + '</dd></div>';
     openDrawer(u.name,
       '<form id="userForm" data-id="' + u.id + '" class="form-stack">' +
@@ -1100,15 +1148,27 @@
         row(t('col.joined'), fmtDate(u.joined, YMD)) + row(t('col.alerts'), num(u.alerts)) + row(t('col.favs'), num(u.favs)) +
         row(t('users.email'), badge(u.verified ? 'verified' : 'unverified', t('status.' + (u.verified ? 'verified' : 'unverified')))) +
         row(t('users.marketing'), u.marketing ? t('users.consentYes') : t('users.consentNo')) + '</dl>' +
-      '<label class="check"><input type="checkbox" name="suspended"' + (u.suspended ? ' checked' : '') + '><span>' + t('users.suspend') + '</span></label>' +
-      '<p class="hint">' + t('users.suspendHint') + '</p>' +
-      '<label class="field"><span>' + t('users.note') + '</span><textarea name="note" rows="3" placeholder="' + t('users.notePh') + '">' + esc(u.note || '') + '</textarea></label>' +
-      '<div class="drawer-acts"><button type="button" class="btn btn-ghost btn-sm" data-user-export="' + u.id + '">' + icon(ICONS.download, 16) + t('users.export') + '</button>' +
-      '<button type="button" class="btn btn-ghost btn-sm btn-danger" data-user-delete="' + u.id + '">' + icon(ICONS.trash, 16) + t('users.delete') + '</button></div>' +
-      '<p class="hint">' + t('users.privacyHint') + '</p></form>', 'userForm');
+      (acts ? '<label class="check"><input type="checkbox" name="suspended"' + (u.suspended ? ' checked' : '') + '><span>' + t('users.suspend') + '</span></label>' +
+        '<p class="hint">' + t('users.suspendHint') + '</p>' : '') +
+      (LIVE() ? '' : '<label class="field"><span>' + t('users.note') + '</span><textarea name="note" rows="3" placeholder="' + t('users.notePh') + '">' + esc(u.note || '') + '</textarea></label>') +
+      (acts ? '<div class="drawer-acts"><button type="button" class="btn btn-ghost btn-sm" data-user-export="' + u.id + '">' + icon(ICONS.download, 16) + t('users.export') + '</button>' +
+        '<button type="button" class="btn btn-ghost btn-sm btn-danger" data-user-delete="' + u.id + '">' + icon(ICONS.trash, 16) + t('users.delete') + '</button></div>' +
+        '<p class="hint">' + t('users.privacyHint') + '</p>' : '<p class="hint">' + t('users.readOnly') + '</p>') + '</form>', 'userForm');
+    $('#drawerSave').hidden = !acts;
   }
 
   function saveUser(form) {
+    if (LIVE()) {   // only the suspension is stored (in the database); there is no admin note online yet
+      const id = form.dataset.id, row = dbUsers.find(x => x.id === id);
+      if (row && form.suspended && form.suspended.checked !== row.suspended) {
+        row.suspended = form.suspended.checked;
+        logActivity(row.suspended ? 'log.userSuspended' : 'log.userRestored', { u: row.email });
+        const on = row.suspended;
+        sync('suspend account', () => DB.setSuspended(id, on));
+      }
+      closeDrawer(); toast(t('toast.saved')); rerender();
+      return;
+    }
     const edits = load('users', {});
     const id = form.dataset.id, u = liveUserById(id);
     edits[id] = Object.assign(edits[id] || {}, { suspended: form.suspended.checked, note: form.note.value.trim() });
@@ -1122,6 +1182,14 @@
   // Everything held about a shopper, as one JSON file (data access request).
   function exportUser(id) {
     const u = liveUserById(id);
+    if (LIVE()) {
+      DB.exportUser(id).then(data => {
+        download(JSON.stringify(data, null, 2), 'application/json', 'doabno-user-' + id + '.json');
+        logActivity('log.userExport', { u: u.email });
+        toast(t('toast.userExported'));
+      }, e => toast(t(e.status === 403 || e.status === 401 ? 'err.noPermission' : 'err.saveFailed')));
+      return;
+    }
     const data = { id: u.id, name: u.name, email: u.email, market: u.market, language: u.lang, joined: u.joined.toISOString(), emailVerified: u.verified,
       marketingConsent: u.marketing, suspended: u.suspended, priceAlerts: u.alerts, favorites: u.favs, exportedAt: new Date().toISOString() };
     download(JSON.stringify(data, null, 2), 'application/json', 'doabno-user-' + u.id + '.json');
@@ -1132,6 +1200,13 @@
   function deleteUser(id) {
     const u = liveUserById(id);
     confirmDialog(t('users.confirmDelete', { u: u.email }), t('users.delete'), () => {
+      if (LIVE()) {
+        dbUsers = dbUsers.filter(x => x.id !== id);
+        logActivity('log.userDeleted', { u: u.email });
+        sync('delete account', () => DB.deleteUser(id));
+        closeDrawer(); toast(t('toast.userDeleted')); rerender();
+        return;
+      }
       const edits = load('users', {});
       edits[id] = { deleted: true };
       save('users', edits);
@@ -1154,9 +1229,10 @@
   // ---------- privacy requests ----------
   // Requests sent from the site's privacy form (access, deletion, correction, do-not-sell). The legal deadline
   // is 45 days under the CCPA (US) and 30 days elsewhere (UK GDPR, Saudi PDPL, UAE PDPL).
-  const REQ_TYPES = ['access', 'delete', 'correct', 'optout'];
+  const REQ_TYPES = ['access', 'delete', 'correct', 'restrict', 'port', 'object', 'consent', 'optout'];
   const reqDays = m => (m === 'us' ? 45 : 30);
   function requests() {
+    if (LIVE()) return dbRequests;
     const done = load('requests', {});
     return memo('requests', () => {
       const rnd = D.seeded('doabno-requests');
@@ -1206,9 +1282,14 @@
   }
 
   function setRequest(id, status) {
-    const done = load('requests', {});
-    done[id] = status;
-    save('requests', done);
+    if (LIVE()) {
+      const r = dbRequests.find(x => x.id === id);
+      if (r) { r.status = status; sync('privacy request', () => DB.setRequestStatus(r.dbId, status)); }
+    } else {
+      const done = load('requests', {});
+      done[id] = status;
+      save('requests', done);
+    }
     logActivity(status === 'done' ? 'log.reqDone' : 'log.reqStarted', { r: id });
     toast(t(status === 'done' ? 'toast.reqDone' : 'toast.reqStarted', { r: id }));
     rerender();
@@ -1248,9 +1329,22 @@
   function pageSettings(params) {
     const tab = TABS.includes(params.tab) ? params.tab : 'general';
     return pageHead(t('nav.settings'), t('settings.sub')) +
+      (LIVE() ? '<p class="role-note" role="note">' + icon(ICONS.info, 16) + '<span>' + t('set.localNote') + '</span></p>' : '') +
       '<nav class="seg set-tabs" aria-label="' + t('nav.settings') + '">' + TABS.map(k => '<a href="#/settings' + (k === 'general' ? '' : '?tab=' + k) + '"' + (k === tab ? ' aria-current="page"' : '') + '>' + t('set.tab.' + k) + '</a>').join('') + '</nav>' +
       ({ general: setGeneral, notifications: setNotifications, content: setContent, tracking: setTracking, security: setSecurity, log: setLog })[tab]();
   }
+
+  // With a database the roles are fixed by its rules: show them, do not offer switches that would do nothing.
+  const REAL_AREAS = { catalog: ['owner', 'catalog'], stores: ['owner', 'partners'], reports: ['owner', 'partners', 'analyst'], users: ['owner', 'analyst'], privacy: ['owner'], settings: ['owner'] };
+  function rolesLive() {
+    return '<div class="table-wrap"><table class="table table-compact perm-table"><thead><tr><th>' + t('set.area') + '</th>' + ROLES.map(r => '<th>' + t('role.' + r) + '</th>').join('') + '</tr></thead><tbody>' +
+      AREAS.map(a => '<tr><td>' + t('set.area.' + a) + '</td>' + ROLES.map(r => '<td><input type="checkbox" disabled' + (REAL_AREAS[a].includes(r) ? ' checked' : '') + ' aria-label="' + t('role.' + r) + ': ' + t('set.area.' + a) + '"></td>').join('') + '</tr>').join('') +
+      '</tbody></table></div><p class="hint">' + t('set.rolesLive') + '</p>';
+  }
+  const teamCard = () => card(t('settings.team'), '<div class="table-wrap"><table class="table"><thead><tr><th>' + t('col.name') + '</th><th>' + t('col.email') + '</th><th>' + t('col.role') + '</th><th>' + t('col.lastActive') + '</th>' + (LIVE() ? '<th><span class="sr-only">' + t('col.actions') + '</span></th>' : '') + '</tr></thead><tbody>' +
+    team().map(m => '<tr><td><span class="user-cell"><span class="avatar">' + esc(m.name.charAt(0)) + '</span>' + esc(m.name) + '</span></td><td class="muted">' + esc(m.email) + '</td><td>' + t('role.' + m.role) + '</td><td class="muted">' + (m.ts ? ago(m.ts) : '—') + '</td>' +
+      (LIVE() ? '<td class="actions">' + (state.session.role === 'owner' && m.id && m.id !== (ACC.user() || {}).id ? '<button type="button" class="btn btn-ghost btn-sm btn-danger" data-remove-member="' + esc(m.id) + '" data-name="' + esc(m.name) + '">' + icon(ICONS.trash, 16) + t('act.remove') + '</button>' : '') + '</td>' : '') + '</tr>').join('') +
+    '</tbody></table></div>', { cls: 'card-flush', action: '<button type="button" class="btn btn-ghost btn-sm" data-invite>' + icon(ICONS.plus, 16) + t('settings.invite') + '</button>' });
 
   function setNotifications() {
     return '<div class="grid grid-2">' +
@@ -1301,18 +1395,16 @@
         sw('twoFactor', t('set.twoFactor'), t('set.twoFactorHint')) + sw('sso', t('set.sso'), t('set.ssoHint')) +
         '<div class="form-grid">' + fld('session', t('set.session'), { options: [['30m', t('set.min30')], ['1h', t('set.h1')], ['8h', t('set.h8')], ['24h', t('set.h24')]] }) +
         fld('adminDomain', t('set.adminDomain'), { hint: t('set.adminDomainHint') }) + '</div>'), { icon: 'settings' }) +
-      card(t('set.roles'), '<form class="form-stack set-form" data-set="roles"><div class="table-wrap"><table class="table table-compact perm-table"><thead><tr><th>' + t('set.area') + '</th>' +
+      card(t('set.roles'), LIVE() ? rolesLive() : '<form class="form-stack set-form" data-set="roles"><div class="table-wrap"><table class="table table-compact perm-table"><thead><tr><th>' + t('set.area') + '</th>' +
         ROLES.map(r => '<th>' + t('role.' + r) + '</th>').join('') + '</tr></thead><tbody>' +
         AREAS.map(a => '<tr><td>' + t('set.area.' + a) + '</td>' + ROLES.map(r => '<td>' + (r === 'owner' ? '<input type="checkbox" checked disabled aria-label="' + t('role.owner') + ': ' + t('set.area.' + a) + '">'
           : '<input type="checkbox" name="perm_' + r + '_' + a + '"' + (s['perm_' + r + '_' + a] ? ' checked' : '') + ' aria-label="' + t('role.' + r) + ': ' + t('set.area.' + a) + '">') + '</td>').join('') + '</tr>').join('') +
         '</tbody></table></div><p class="hint">' + t('set.rolesHint') + '</p><div><button class="btn btn-primary" type="submit">' + t('act.save') + '</button></div></form>', { icon: 'users' }) +
-      card(t('settings.team'), '<div class="table-wrap"><table class="table"><thead><tr><th>' + t('col.name') + '</th><th>' + t('col.email') + '</th><th>' + t('col.role') + '</th><th>' + t('col.lastActive') + '</th></tr></thead><tbody>' +
-        team().map(m => '<tr><td><span class="user-cell"><span class="avatar">' + esc(m.name.charAt(0)) + '</span>' + esc(m.name) + '</span></td><td class="muted">' + esc(m.email) + '</td><td>' + t('role.' + m.role) + '</td><td class="muted">' + ago(m.ts) + '</td></tr>').join('') +
-        '</tbody></table></div>', { cls: 'card-flush', action: '<button type="button" class="btn btn-ghost btn-sm" data-invite>' + icon(ICONS.plus, 16) + t('settings.invite') + '</button>' });
+      teamCard();
   }
 
   function setLog() {
-    const log = load('log', []);
+    const log = LIVE() ? auditRows : load('log', []);
     return card(t('set.log'), log.length ? '<div class="table-wrap"><table class="table"><thead><tr><th>' + t('col.date') + '</th><th>' + t('set.who') + '</th><th>' + t('set.action') + '</th></tr></thead><tbody>' +
       log.map(e => '<tr><td class="muted">' + fmtDate(new Date(e.ts), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + '</td><td>' + esc(e.who || '—') + '</td><td>' + esc(t(e.key, e.vars)) + '</td></tr>').join('') +
       '</tbody></table></div>' : empty(t('set.logEmpty')), { cls: 'card-flush', sub: t('set.logSub') });
@@ -1350,7 +1442,7 @@
       card(t('settings.popular'), '<form id="popularForm" class="form-stack"><label class="field"><span class="sr-only">' + t('settings.popular') + '</span><textarea name="popular" rows="9">' + esc(D.POPULAR.join('\n')) + '</textarea></label>' +
         '<p class="hint">' + t('settings.popularHint') + '</p><div><button class="btn btn-primary" type="submit">' + t('act.save') + '</button></div></form>') +
       '</div>' +
-      card(t('settings.demo'), '<p>' + t('settings.demoText') + '</p><div class="form-actions"><button type="button" class="btn btn-danger-solid" data-reset>' + t('settings.reset') + '</button></div>');
+      (LIVE() ? '' : card(t('settings.demo'), '<p>' + t('settings.demoText') + '</p><div class="form-actions"><button type="button" class="btn btn-danger-solid" data-reset>' + t('settings.reset') + '</button></div>'));
   }
 
   function saveRates(form) {
@@ -1363,6 +1455,7 @@
     Object.assign(D.RATES, rates);
     ov.rates = rates;
     commit('log.rates');
+    sync('rates', () => DB.saveRates(rates));
     toast(t('toast.saved'));
     rerender();
   }
@@ -1373,7 +1466,32 @@
     D.POPULAR.splice(0, D.POPULAR.length, ...list);
     ov.popular = list;
     commit('log.popular');
+    sync('popular searches', () => DB.savePopular(list));
     toast(t('toast.saved'));
+  }
+
+  function noAccess() {
+    return pageHead(t('err.noAccessTitle'), t('err.noAccessPage', { r: t('role.' + ((state.session || {}).role || 'analyst')) })) + '<p><a class="btn btn-primary" href="#/">' + t('nav.dashboard') + '</a></p>';
+  }
+
+  // Takes away the buttons and fields a role cannot use on the page just drawn, and says why. (The database refuses the change anyway.)
+  function limitToRole(section, parts, main) {
+    if (!LIVE()) return;
+    const drop = sel => { const els = $$(sel, main); els.forEach(el => el.remove()); return els.length; };
+    const lock = sel => { const els = $$(sel, main); els.forEach(el => { el.disabled = true; }); return els.length; };
+    let limited = false;
+    if (section === 'products' && parts[1] && !can('product')) { limited = lock('#productForm input, #productForm select, #productForm textarea') > 0; drop('button[form="productForm"]'); }
+    if (section === 'categories' && !can('category')) { limited = drop('[data-edit-cat], [data-del-sub], .cat-card .card-foot') > 0; }
+    if (section === 'stores' && !can('store')) { limited = drop('[data-store-form]') > 0; lock('[data-store-toggle]'); }
+    if (section === 'coupons' && !can('coupon')) { limited = drop('[data-coupon-form], [data-del-coupon]') > 0; }
+    if (section === 'feeds' && !can('feed')) { limited = drop('[data-run]') > 0; }
+    if (section === 'settings') {
+      if (!can('rates')) { limited = lock('#ratesForm input') > 0 || limited; drop('#ratesForm button[type=submit]'); }
+      if (!can('popular')) { limited = lock('#popularForm textarea') > 0 || limited; drop('#popularForm button[type=submit]'); }
+      if (!can('team')) { limited = drop('[data-invite]') > 0 || limited; }
+    }
+    const head = $('.page-head', main);
+    if (limited && head) head.insertAdjacentHTML('afterend', '<p class="role-note" role="note">' + icon(ICONS.info, 16) + '<span>' + t('role.viewOnly', { r: t('role.' + state.session.role) }) + '</span></p>');
   }
 
   function notFound() {
@@ -1385,6 +1503,7 @@
     $('#drawerTitle').textContent = title;
     $('#drawerBody').innerHTML = body;
     $('#drawerSave').setAttribute('form', formId);
+    $('#drawerSave').hidden = false;
     $('#drawer').hidden = false;
     $('#drawerBackdrop').hidden = false;
     const first = $('#drawerBody input:not([type=hidden]), #drawerBody select');
@@ -1412,12 +1531,83 @@
   function renderNav(section) {
     const feedErrors = MARKETS.flatMap(m => A.STORES[m]).filter(s => s.active !== false && feedOf(s).status === 'error').length;
     const openReq = openRequests();
-    $('#nav').innerHTML = NAV.map(([group, items]) => '<p class="nav-group">' + t(group) + '</p><ul>' + items.map(([path, ic, key]) =>
+    $('#nav').innerHTML = NAV.map(([group, items]) => '<p class="nav-group">' + t(group) + '</p><ul>' + items.filter(([path]) => (path !== 'users' || can('users')) && (path !== 'privacy' || can('privacy'))).map(([path, ic, key]) =>
       '<li><a href="#/' + path + '"' + (section === path ? ' aria-current="page"' : '') + ' data-tip="' + esc(t(key)) + '">' + icon(ICONS[ic], 20) + '<span>' + t(key) + '</span>' +
       (path === 'feeds' && feedErrors ? '<b class="nav-count" aria-label="' + t('attn.feedErrors', { n: tp('n.feeds', feedErrors) }) + '">' + num(feedErrors) + '</b>' : '') +
       (path === 'privacy' && openReq ? '<b class="nav-count" aria-label="' + t('req.openCount', { n: num(openReq) }) + '">' + num(openReq) + '</b>' : '') + '</a></li>').join('') + '</ul>').join('');
     const dot = $('#bellDot');
     if (dot) { dot.hidden = !feedErrors; dot.textContent = num(feedErrors); }
+  }
+
+  // ---------- database sign-in, people, team ----------
+  async function adminSignIn(form) {
+    const err = $('#loginErr'), btn = $('button[type=submit]', form);
+    const fail = k => { err.textContent = t(k); err.hidden = false; btn.disabled = false; };
+    err.hidden = true; btn.disabled = true;
+    try {
+      await ACC.signIn({ email: form.email.value.trim(), password: form.password.value });
+      const role = await DB.myRole();
+      if (!role) { await ACC.signOut(); return fail('login.noAccess'); }
+      const u = ACC.user();
+      state.session = { email: u.email, name: u.name, role };
+      save('session', state.session);
+      location.hash = '#/';
+      location.reload();   // reload so the catalog is requested with this admin's token (hidden products and paused stores included)
+    } catch (e) { fail(e.code === 'invalid_credentials' ? 'login.errCreds' : e.code === 'email_not_confirmed' ? 'login.errConfirm' : e.code === 'network' ? 'login.errNet' : 'login.errGeneric'); }
+  }
+  async function loadLive() {
+    try {
+      const role = await DB.myRole();
+      if (!role) { await ACC.signOut(); state.session = null; save('session', null); location.reload(); return; }
+      if (state.session.role !== role) { state.session.role = role; save('session', state.session); applyChrome(); }
+      // The first page load may have asked for the catalog before the sign-in token was refreshed; once, ask again with it.
+      if (!window.__CATALOG_AUTH && !sessionStorage.getItem('doabno.admin.reloaded')) { sessionStorage.setItem('doabno.admin.reloaded', '1'); location.reload(); return; }
+    } catch (e) { console.error(e); return; }
+    const jobs = [DB.recentAudit(30).then(rows => { auditRows = rows.map(r => ({ ts: r.ts, key: r.key, vars: r.vars, who: '' })); }, () => {}),
+      DB.listUsers().then(u => { dbUsers = u; Object.keys(cache).forEach(k => { delete cache[k]; }); }, () => { dbUsers = []; }),
+      DB.listRequests().then(rows => { dbRequests = rows; }, () => { dbRequests = []; }),
+      DB.listTeam().then(m => { liveTeam = m; }, () => { liveTeam = []; }),
+      DB.clickStats(DAYS).then(rows => {
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        liveClicks = new Map();
+        rows.forEach(r => {
+          const idx = DAYS - 1 - Math.round((today - new Date(r.day + 'T00:00:00')) / 864e5);
+          if (idx < 0 || idx >= DAYS) return;
+          if (!liveClicks.has(r.trackingId)) liveClicks.set(r.trackingId, new Array(DAYS).fill(0));
+          liveClicks.get(r.trackingId)[idx] += r.clicks;
+        });
+        Object.keys(cache).forEach(k => { delete cache[k]; });
+      }, () => {}),
+      DB.recentClicks(10).then(rows => { liveRecent = rows; }, () => {}),
+      DB.listFeeds().then(rows => { liveFeeds = new Map(rows.map(r => [r.storeId, r])); Object.keys(cache).forEach(k => { delete cache[k]; }); }, () => {})];
+    await Promise.all(jobs);
+    rerender();
+  }
+  function inviteForm() {
+    openDrawer(t('settings.invite'),
+      '<form id="inviteForm" class="form-stack">' +
+      '<label class="field"><span>' + t('col.name') + '</span><input name="name" maxlength="60"></label>' +
+      '<label class="field"><span>' + t('col.email') + '</span><input name="email" type="email" required autocomplete="off"></label>' +
+      '<label class="field"><span>' + t('col.role') + '</span><select name="role">' + selectOpts(['owner', 'catalog', 'partners', 'analyst'].map(r => [r, t('role.' + r)]), 'catalog') + '</select></label>' +
+      '<p class="hint">' + t('invite.hint') + '</p></form>', 'inviteForm');
+  }
+  async function saveInvite(form) {
+    const email = form.email.value.trim(), role = form.role.value, name = form.name.value.trim();
+    if (!email) { toast(t('form.required')); return; }
+    try {
+      await DB.addMember(email, role, name);
+      closeDrawer();
+      toast(t('toast.memberAdded', { e: email }));
+      liveTeam = await DB.listTeam();
+      DB.recentAudit(30).then(rows => { auditRows = rows.map(r => ({ ts: r.ts, key: r.key, vars: r.vars, who: '' })); rerender(); }, () => {});
+      rerender();
+    } catch (e) { toast(t(/no account/i.test(e.message) ? 'err.noAccount' : e.status === 403 || e.status === 401 || /42501|not allowed/i.test(e.message) ? 'err.noPermission' : 'err.saveFailed')); }
+  }
+  function removeMember(id, name) {
+    confirmDialog(t('team.confirmRemove', { n: name }), t('act.remove'), async () => {
+      try { await DB.removeMember(id); liveTeam = await DB.listTeam(); toast(t('toast.memberRemoved')); rerender(); }
+      catch (e) { toast(t('err.saveFailed')); }
+    });
   }
 
   function applyChrome() {
@@ -1434,7 +1624,9 @@
     if (s) {
       $('#userName').textContent = s.name;
       $('#userAvatar').textContent = s.name.charAt(0).toUpperCase();
+      const rl = $('.user-t small'); if (rl && s.role) rl.textContent = t('role.' + s.role);
     }
+    const hint = $('#loginHint'); if (hint && ACC.enabled) hint.hidden = true;
   }
 
   function route() {
@@ -1462,11 +1654,12 @@
       '': () => pageDashboard(), reports: () => pageReports(params),
       products: () => (parts[1] ? productEditor(parts[1]) : pageProducts(params)),
       offers: () => pageOffers(params), categories: () => pageCategories(), stores: () => pageStores(params),
-      feeds: () => pageFeeds(params), coupons: () => pageCoupons(params), users: () => pageUsers(params), privacy: () => pageRequests(params), settings: () => pageSettings(params)
+      feeds: () => pageFeeds(params), coupons: () => pageCoupons(params), users: () => (can('users') ? pageUsers(params) : noAccess()), privacy: () => (can('privacy') ? pageRequests(params) : noAccess()), settings: () => pageSettings(params)
     };
     const main = $('#main');
     main.classList.remove('enter');
     main.innerHTML = (pages[section] || notFound)();
+    limitToRole(section, parts, main);
     if (fresh) { void main.offsetWidth; main.classList.add('enter'); } // replays the entrance animation (CSS) only when arriving on a page
     renderNav(pages[section] ? section : null);
     const h1 = $('#main h1');
@@ -1500,7 +1693,7 @@
   // ---------- events ----------
   document.addEventListener('click', e => {
     if (!e.target.closest('#userBtn, #userMenu')) setUserMenu(false);
-    const el = e.target.closest('[data-top-tab],[data-range],[data-run],[data-store-form],[data-coupon-form],[data-del-coupon],[data-edit-cat],[data-cancel-cat],[data-del-sub],[data-user],[data-user-export],[data-user-delete],[data-req],[data-invite],[data-reset],[data-export],[data-logout],[data-close-drawer],[data-close-menu],[data-dialog-cancel],#dialogOk,#menuBtn,#sideToggle,#userBtn,.lang-toggle,.nav a');
+    const el = e.target.closest('[data-top-tab],[data-range],[data-run],[data-store-form],[data-coupon-form],[data-del-coupon],[data-edit-cat],[data-cancel-cat],[data-del-sub],[data-user],[data-user-export],[data-user-delete],[data-req],[data-invite],[data-remove-member],[data-reset],[data-export],[data-logout],[data-close-drawer],[data-close-menu],[data-dialog-cancel],#dialogOk,#menuBtn,#sideToggle,#userBtn,.lang-toggle,.nav a');
     if (!el) return;
     if (el.dataset.topTab) { ui.topTab = el.dataset.topTab; rerender(); }
     else if (el.dataset.range) { state.range = +el.dataset.range; save('range', state.range); ui.barsAnim = true; rerender(); }
@@ -1518,13 +1711,15 @@
       ov.newSubs[catId] = (ov.newSubs[catId] || []).filter(s => s.id !== subId);
       if (ov.catNames) delete ov.catNames[el.dataset.delSub];
       commit('log.subRemoved', { c: subId });
+      sync('remove subcategory', () => DB.removeSub(catId, subId));
       rerender();
     }
     else if (el.dataset.user) userForm(el.dataset.user);
     else if (el.dataset.userExport) exportUser(el.dataset.userExport);
     else if (el.dataset.userDelete) deleteUser(el.dataset.userDelete);
     else if (el.dataset.req) { const [id, st] = el.dataset.req.split('/'); setRequest(id, st); }
-    else if (el.hasAttribute('data-invite')) toast(t('toast.invite'));
+    else if (el.hasAttribute('data-invite')) { if (LIVE()) inviteForm(); else toast(t('toast.invite')); }
+    else if (el.dataset.removeMember) removeMember(el.dataset.removeMember, el.dataset.name);
     else if (el.hasAttribute('data-reset')) {
       confirmDialog(t('settings.confirmReset'), t('settings.reset'), () => {
         try { [A.OVERRIDE_KEY, 'doabno.admin.feeds', 'doabno.admin.log', 'doabno.admin.users', 'doabno.admin.requests', 'doabno.admin.settings'].forEach(k => localStorage.removeItem(k)); } catch (err) { /* storage unavailable */ }
@@ -1532,7 +1727,10 @@
       });
     }
     else if (el.dataset.export) exportCsv(el.dataset.export);
-    else if (el.hasAttribute('data-logout')) { state.session = null; save('session', null); location.hash = '#/'; route(); }
+    else if (el.hasAttribute('data-logout')) {
+      if (ACC.enabled) { ACC.signOut().then(() => { state.session = null; save('session', null); location.hash = '#/'; location.reload(); }); }
+      else { state.session = null; save('session', null); location.hash = '#/'; route(); }
+    }
     else if (el.hasAttribute('data-close-drawer')) closeDrawer();
     else if (el.hasAttribute('data-close-menu')) setMenu(false);
     else if (el.hasAttribute('data-dialog-cancel')) closeDialog();
@@ -1580,6 +1778,7 @@
       setMenu(false);
       return;
     }
+    if (form.id === 'loginForm' && ACC.enabled) { adminSignIn(form); return; }
     if (form.id === 'loginForm') {
       const email = form.email.value.trim();
       const local = email.split('@')[0] || 'admin';
@@ -1595,6 +1794,7 @@
     else if (form.id === 'productForm') saveProduct(form);
     else if (form.id === 'storeForm') saveStore(form);
     else if (form.id === 'couponForm') saveCoupon(form);
+    else if (form.id === 'inviteForm') saveInvite(form);
     else if (form.classList.contains('cat-edit')) saveCategory(form);
     else if (form.id === 'ratesForm') saveRates(form);
     else if (form.id === 'popularForm') savePopular(form);
@@ -1635,4 +1835,5 @@
   window.addEventListener('hashchange', route);
   applyChrome();
   route();
+  if (LIVE() && state.session) loadLive();
 })();

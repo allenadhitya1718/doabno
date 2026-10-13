@@ -24,9 +24,10 @@
       <form id="loginForm" class="form-stack">
         <label class="field"><span data-i18n="login.email">Work email</span><input type="email" name="email" required autocomplete="username"></label>
         <label class="field"><span data-i18n="login.password">Password</span><input type="password" name="password" required autocomplete="current-password"></label>
+        <p class="form-err" id="loginErr" role="alert" hidden></p>
         <button class="btn btn-primary btn-block" type="submit" data-i18n="login.submit">Sign in</button>
       </form>
-      <p class="hint" data-i18n="login.demo">Demo: any email and password work.</p>
+      <p class="hint" id="loginHint" data-i18n="login.demo">Demo: any email and password work.</p>
       <button type="button" class="lang-toggle link">العربية</button>
     </div>
   </section>
@@ -118,8 +119,7 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="assets/data.js"></script>
-  <script src="admin-i18n.js"></script>
-  <script src="admin.js"></script>
+  <script src="assets/config.js"></script>
+  <script src="assets/boot.js" data-scripts="assets/data.js,assets/account.js,admin-db.js,admin-i18n.js,admin.js"></script>
 </body>
 </html>

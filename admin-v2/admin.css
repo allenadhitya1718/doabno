@@ -549,6 +549,23 @@ a.prod-cell:hover strong, a.prod-cell:hover > span { text-decoration: underline;
 .app:not(.side-collapsed) .nav { flex: none; }
 .app:not(.side-collapsed) .side-promo { margin-top: 0; flex: none; }
 .app:not(.side-collapsed) .side-user { flex: none; margin-top: auto; position: sticky; bottom: 0;  background: linear-gradient(rgba(255, 255, 255, .06), rgba(255, 255, 255, .06)), var(--navy); z-index: 2; box-shadow: 0 14px 0 var(--navy), 0 -10px 12px -4px var(--navy); }
+@media (max-height: 860px) {
+  .nav a { padding-block: 7px; }
+  .nav-group { margin: 8px 10px 4px; }
+  .side-promo { padding: 0; background: none; }
+  .side-promo > strong { display: none; }
+  .side-promo-btn { margin-top: 0; height: 36px; border-radius: 12px; background: rgba(255, 255, 255, .08); color: #fff; font-weight: 600; }
+}
+@media (max-height: 760px) {
+  .sidebar { gap: 8px; padding-block: 12px; }
+  .side-search input { height: 38px; }
+  .nav a { padding-block: 6px; font-size: 13.5px; }
+  .side-promo { display: none; }
+}
+@media (max-height: 680px) {
+  .nav a { padding-block: 5px; }
+  .nav-group { margin: 6px 10px 3px; }
+}
 /* ---------- collapsed sidebar (desktop): an icon rail, the logo expands it again ---------- */
 @media (min-width: 901px) {
   .app { transition: grid-template-columns .26s cubic-bezier(.2, 0, 0, 1); }
@@ -612,3 +629,7 @@ a.prod-cell:hover strong, a.prod-cell:hover > span { text-decoration: underline;
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; }
 }
+
+/* shown when the signed-in role can look at a page but not change it */
+.role-note { display: flex; align-items: center; gap: 10px; margin: -6px 0 16px; padding: 10px 14px; border-radius: 12px; background: var(--info-bg, #E6F0FA); color: var(--navy); font-size: 13px; font-weight: 500; }
+.role-note svg { flex: none; }
