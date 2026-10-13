@@ -4,6 +4,10 @@
 (function () {
   const D = window.DOABNO_DATA;
   const A = D.admin;
+  // Real sign-in, roles and a database when assets/config.js is filled in; otherwise the demo keeps working from browser storage.
+  const ACC = window.DOABNO_ACCOUNT || { enabled: false, signedIn: () => false, user: () => null };
+  const DB = ACC.enabled && window.ADMIN_DB ? window.ADMIN_DB.make(ACC) : null;
+  const LIVE = () => !!(DB && ACC.signedIn());
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
   const MARKETS = Object.keys(D.MARKETS);
@@ -28,6 +32,8 @@
     collapsed: load('collapsed', false) === true
   };
   if (state.market !== 'all' && !MARKETS.includes(state.market)) state.market = 'all';
+  if (ACC.enabled && (!ACC.signedIn() || !(state.session && state.session.role))) state.session = null;   // a database sign-in is always required
+  let auditRows = [], liveUsers = [], liveTeam = [];
   const ui = { editCat: null, keepScroll: false };
   let ov = A.loadOverrides();
   let current = { path: '', params: {} };
@@ -40,6 +46,18 @@
     A.refresh();
     Object.keys(cache).forEach(k => { delete cache[k]; });
     if (logKey) logActivity(logKey, vars);
+  }
+  // Saves to the database after the screen has been updated. A refused or failed save reloads the page, so what is shown is what is stored.
+  // quiet: a failure is only logged (used for the activity log, which must never get in the way).
+  function sync(label, fn, quiet) {
+    if (!LIVE()) return;
+    Promise.resolve().then(fn).catch(e => {
+      console.error('Save failed (' + label + ')', e);
+      if (quiet) return;
+      const refused = e.status === 401 || e.status === 403 || /42501|not allowed/i.test(e.message || '');
+      toast(t(refused ? 'err.noPermission' : 'err.saveFailed'));
+      setTimeout(() => location.reload(), 2200);
+    });
   }
 
   // ---------- helpers ----------
@@ -275,7 +293,7 @@
 
   const FIRST = ['Sara', 'Mohammed', 'Noura', 'Abdullah', 'Lina', 'Omar', 'Reem', 'Faisal', 'Huda', 'Khalid', 'Maha', 'Yousef',
     'Aisha', 'Tariq', 'Dana', 'Hamad', 'Emily', 'James', 'Olivia', 'Daniel', 'Sophie', 'Ahmed', 'Layla', 'Nasser'];
-  const users = () => memo('users', () => {
+  const users = () => LIVE() ? liveUsers : memo('users', () => {
     const rnd = D.seeded('doabno-users');
     return Array.from({ length: 64 }, (_, i) => {
       const first = FIRST[Math.floor(rnd() * FIRST.length)];
@@ -294,6 +312,7 @@
   });
 
   function team() {
+    if (LIVE()) return liveTeam;
     const me = state.session || { name: 'Admin', email: 'admin@example.com' };
     return [
       { name: me.name, email: me.email, role: 'owner', ts: Date.now() },
@@ -305,10 +324,11 @@
 
   function logActivity(key, vars) {
     save('log', [{ key, vars: vars || {}, ts: Date.now(), who: (state.session || {}).name || '' }].concat(load('log', [])).slice(0, 50));
+    if (LIVE()) { auditRows.unshift({ ts: Date.now(), key, vars: vars || {}, who: (state.session || {}).name || '' }); auditRows = auditRows.slice(0, 50); sync('activity log', () => DB.logAudit(key, vars), true); }
   }
   // Recent admin actions in this browser, mixed with the latest feed imports.
   function activity() {
-    const mine = load('log', []).map(e => ({ ts: e.ts, icon: 'edit', text: t(e.key, e.vars), who: e.who }));
+    const mine = (LIVE() ? auditRows : load('log', [])).map(e => ({ ts: e.ts, icon: 'edit', text: t(e.key, e.vars), who: e.who }));
     const feeds = scope().flatMap(m => A.STORES[m]).filter(s => s.active !== false).map(s => {
       const f = feedOf(s);
       return { ts: f.ts, icon: f.status === 'error' ? 'error' : 'refresh', text: f.status === 'error' ? t('act.feedError', { s: s.name, e: feedMessage(f) }) : t('act.feedImported', { s: s.name, n: num(f.items) }) };
@@ -711,6 +731,7 @@
     Object.assign(p, data);
     ov.products = Object.assign(ov.products || {}, { [p.id]: data });
     commit('log.product', { p: data.en });
+    sync('product', () => DB.updateProduct(p.id, data));
     toast(t('toast.productSaved'));
     rerender();
   }
@@ -751,7 +772,7 @@
     A.PRODUCTS.forEach(p => { counts.set(p.cat, (counts.get(p.cat) || 0) + 1); counts.set(p.cat + '/' + p.sub, (counts.get(p.cat + '/' + p.sub) || 0) + 1); });
     const offerCounts = new Map();
     scopedOffers().forEach(x => { const k = x.p.cat + '/' + x.p.sub; offerCounts.set(k, (offerCounts.get(k) || 0) + 1); });
-    const custom = (catId, subId) => ((ov.newSubs || {})[catId] || []).some(s => s.id === subId);
+    const custom = (catId, subId) => LIVE() || ((ov.newSubs || {})[catId] || []).some(s => s.id === subId);
     const editRow = (key, en, ar, isNew) => '<form class="cat-edit" data-cat-key="' + key + '"' + (isNew ? ' data-new="1"' : '') + '>' +
       '<input name="en" required placeholder="' + t('field.english') + '" aria-label="' + t('field.nameEn') + '" value="' + esc(en) + '">' +
       '<input name="ar" required dir="rtl" lang="ar" placeholder="' + t('field.arabic') + '" aria-label="' + t('field.nameAr') + '" value="' + esc(ar) + '">' +
@@ -788,12 +809,14 @@
       ov.newSubs = ov.newSubs || {};
       ov.newSubs[c.id] = (ov.newSubs[c.id] || []).concat([Object.assign({}, s)]);
       commit('log.subAdded', { c: en });
+      sync('subcategory', () => DB.addSub(c.id, s, c.subs.length - 1));
     } else {
       const [catId, subId] = key.split('/');
       const target = subId ? catById(catId).subs.find(s => s.id === subId) : catById(catId);
       Object.assign(target, { en, ar });
       ov.catNames[key] = { en, ar };
       commit('log.category', { c: en });
+      sync('category', () => (subId ? DB.updateSub(catId, subId, { en, ar }) : DB.updateCategory(catId, { en, ar })));
     }
     ui.editCat = null;
     toast(t('toast.saved'));
@@ -870,9 +893,11 @@
         D.COUPONS.forEach(c => { if (c.market === s.market && c.store === s.name) c.store = name; });
         ov.coupons = D.COUPONS.map(c => Object.assign({}, c));
       }
+      const oldName = s.name;
       Object.assign(s, { name, cats, cpc, color: fd.get('color'), active: !!fd.get('active') });
       persistStore(s);
       commit('log.store', { s: name });
+      sync('store', async () => { await DB.updateStore(id, s); if (oldName !== name) await DB.renameStoreCoupons(s.market, oldName, name).catch(() => {}); });
     } else {
       const market = fd.get('market');
       let sid = slug(name) + '-' + market, i = 2;
@@ -882,6 +907,7 @@
       ov.newStores = (ov.newStores || []).concat([Object.assign({}, s)]);
       A.STORES[market].push(Object.assign(s, { rating: Math.round((3.8 + rnd() * 1.1) * 10) / 10, reviews: 300 + Math.floor(rnd() * 12000) }));
       commit('log.storeAdded', { s: name });
+      sync('new store', () => DB.addStore(s));
     }
     closeDrawer();
     toast(t('toast.storeSaved', { s: name }));
@@ -893,6 +919,7 @@
     s.active = on;
     persistStore(s);
     commit(on ? 'log.storeOn' : 'log.storeOff', { s: s.name });
+    sync('store', () => DB.updateStore(id, s));
     toast(t(on ? 'toast.storeOn' : 'toast.storeOff', { s: s.name }));
     rerender();
   }
@@ -981,9 +1008,12 @@
     };
     if (!c.store || !c.code || !c.en || !c.ar || isNaN(c.days)) { toast(t('form.required')); return; }
     const index = form.dataset.index;
+    const known = index !== '' ? D.COUPONS[+index] : null;
+    if (known && known.id != null) c.id = known.id;
     if (index !== '') D.COUPONS[+index] = c; else D.COUPONS.push(c);
     ov.coupons = D.COUPONS.map(x => Object.assign({}, x));
     commit(index !== '' ? 'log.coupon' : 'log.couponAdded', { c: c.code });
+    sync('coupon', async () => { if (c.id != null) await DB.updateCoupon(c.id, c); else c.id = await DB.addCoupon(c); });
     closeDrawer();
     toast(t('toast.couponSaved', { c: c.code }));
     rerender();
@@ -995,6 +1025,7 @@
       D.COUPONS.splice(index, 1);
       ov.coupons = D.COUPONS.map(x => Object.assign({}, x));
       commit('log.couponDeleted', { c: c.code });
+      if (c.id != null) sync('coupon', () => DB.deleteCoupon(c.id));
       toast(t('toast.couponDeleted', { c: c.code }));
       rerender();
     });
@@ -1090,10 +1121,10 @@
       card(t('settings.popular'), '<form id="popularForm" class="form-stack"><label class="field"><span class="sr-only">' + t('settings.popular') + '</span><textarea name="popular" rows="9">' + esc(D.POPULAR.join('\n')) + '</textarea></label>' +
         '<p class="hint">' + t('settings.popularHint') + '</p><div><button class="btn btn-primary" type="submit">' + t('act.save') + '</button></div></form>') +
       '</div>' +
-      card(t('settings.team'), '<div class="table-wrap"><table class="table"><thead><tr><th>' + t('col.name') + '</th><th>' + t('col.email') + '</th><th>' + t('col.role') + '</th><th>' + t('col.lastActive') + '</th></tr></thead><tbody>' +
-        team().map(m => '<tr><td><span class="user-cell"><span class="avatar">' + esc(m.name.charAt(0)) + '</span>' + esc(m.name) + '</span></td><td class="muted">' + esc(m.email) + '</td><td>' + t('role.' + m.role) + '</td><td class="muted">' + ago(m.ts) + '</td></tr>').join('') +
+      card(t('settings.team'), '<div class="table-wrap"><table class="table"><thead><tr><th>' + t('col.name') + '</th><th>' + t('col.email') + '</th><th>' + t('col.role') + '</th><th>' + t('col.lastActive') + '</th>' + (LIVE() ? '<th><span class="sr-only">' + t('col.actions') + '</span></th>' : '') + '</tr></thead><tbody>' +
+        team().map(m => '<tr><td><span class="user-cell"><span class="avatar">' + esc(m.name.charAt(0)) + '</span>' + esc(m.name) + '</span></td><td class="muted">' + esc(m.email) + '</td><td>' + t('role.' + m.role) + '</td><td class="muted">' + (m.ts ? ago(m.ts) : '—') + '</td>' + (LIVE() ? '<td class="actions">' + (state.session.role === 'owner' && m.id && m.id !== (ACC.user() || {}).id ? '<button type="button" class="btn btn-ghost btn-sm btn-danger" data-remove-member="' + esc(m.id) + '" data-name="' + esc(m.name) + '">' + icon(ICONS.trash, 16) + t('act.remove') + '</button>' : '') + '</td>' : '') + '</tr>').join('') +
         '</tbody></table></div>', { cls: 'card-flush', action: '<button type="button" class="btn btn-ghost btn-sm" data-invite>' + icon(ICONS.plus, 16) + t('settings.invite') + '</button>' }) +
-      card(t('settings.demo'), '<p>' + t('settings.demoText') + '</p><div class="form-actions"><button type="button" class="btn btn-danger-solid" data-reset>' + t('settings.reset') + '</button></div>');
+      (LIVE() ? '' : card(t('settings.demo'), '<p>' + t('settings.demoText') + '</p><div class="form-actions"><button type="button" class="btn btn-danger-solid" data-reset>' + t('settings.reset') + '</button></div>'));
   }
 
   function saveRates(form) {
@@ -1106,6 +1137,7 @@
     Object.assign(D.RATES, rates);
     ov.rates = rates;
     commit('log.rates');
+    sync('rates', () => DB.saveRates(rates));
     toast(t('toast.saved'));
     rerender();
   }
@@ -1116,6 +1148,7 @@
     D.POPULAR.splice(0, D.POPULAR.length, ...list);
     ov.popular = list;
     commit('log.popular');
+    sync('popular searches', () => DB.savePopular(list));
     toast(t('toast.saved'));
   }
 
@@ -1161,6 +1194,63 @@
     if (dot) { dot.hidden = !feedErrors; dot.textContent = num(feedErrors); }
   }
 
+  // ---------- database sign-in, people, team ----------
+  async function adminSignIn(form) {
+    const err = $('#loginErr'), btn = $('button[type=submit]', form);
+    const fail = k => { err.textContent = t(k); err.hidden = false; btn.disabled = false; };
+    err.hidden = true; btn.disabled = true;
+    try {
+      await ACC.signIn({ email: form.email.value.trim(), password: form.password.value });
+      const role = await DB.myRole();
+      if (!role) { await ACC.signOut(); return fail('login.noAccess'); }
+      const u = ACC.user();
+      state.session = { email: u.email, name: u.name, role };
+      save('session', state.session);
+      location.hash = '#/';
+      location.reload();   // reload so the catalog is requested with this admin's token (hidden products and paused stores included)
+    } catch (e) { fail(e.code === 'invalid_credentials' ? 'login.errCreds' : e.code === 'email_not_confirmed' ? 'login.errConfirm' : e.code === 'network' ? 'login.errNet' : 'login.errGeneric'); }
+  }
+  async function loadLive() {
+    try {
+      const role = await DB.myRole();
+      if (!role) { await ACC.signOut(); state.session = null; save('session', null); location.reload(); return; }
+      if (state.session.role !== role) { state.session.role = role; save('session', state.session); applyChrome(); }
+      // The first page load may have asked for the catalog before the sign-in token was refreshed; once, ask again with it.
+      if (!window.__CATALOG_AUTH && !sessionStorage.getItem('doabno.admin.reloaded')) { sessionStorage.setItem('doabno.admin.reloaded', '1'); location.reload(); return; }
+    } catch (e) { console.error(e); return; }
+    const jobs = [DB.recentAudit(30).then(rows => { auditRows = rows.map(r => ({ ts: r.ts, key: r.key, vars: r.vars, who: '' })); }, () => {}),
+      DB.listUsers().then(u => { liveUsers = u; Object.keys(cache).forEach(k => { delete cache[k]; }); }, () => { liveUsers = []; }),
+      DB.listTeam().then(m => { liveTeam = m; }, () => { liveTeam = []; })];
+    await Promise.all(jobs);
+    rerender();
+  }
+  function inviteForm() {
+    openDrawer(t('settings.invite'),
+      '<form id="inviteForm" class="form-stack">' +
+      '<label class="field"><span>' + t('col.name') + '</span><input name="name" maxlength="60"></label>' +
+      '<label class="field"><span>' + t('col.email') + '</span><input name="email" type="email" required autocomplete="off"></label>' +
+      '<label class="field"><span>' + t('col.role') + '</span><select name="role">' + selectOpts(['owner', 'catalog', 'partners', 'analyst'].map(r => [r, t('role.' + r)]), 'catalog') + '</select></label>' +
+      '<p class="hint">' + t('invite.hint') + '</p></form>', 'inviteForm');
+  }
+  async function saveInvite(form) {
+    const email = form.email.value.trim(), role = form.role.value, name = form.name.value.trim();
+    if (!email) { toast(t('form.required')); return; }
+    try {
+      await DB.addMember(email, role, name);
+      closeDrawer();
+      toast(t('toast.memberAdded', { e: email }));
+      liveTeam = await DB.listTeam();
+      DB.recentAudit(30).then(rows => { auditRows = rows.map(r => ({ ts: r.ts, key: r.key, vars: r.vars, who: '' })); rerender(); }, () => {});
+      rerender();
+    } catch (e) { toast(t(/no account/i.test(e.message) ? 'err.noAccount' : e.status === 403 || e.status === 401 || /42501|not allowed/i.test(e.message) ? 'err.noPermission' : 'err.saveFailed')); }
+  }
+  function removeMember(id, name) {
+    confirmDialog(t('team.confirmRemove', { n: name }), t('act.remove'), async () => {
+      try { await DB.removeMember(id); liveTeam = await DB.listTeam(); toast(t('toast.memberRemoved')); rerender(); }
+      catch (e) { toast(t('err.saveFailed')); }
+    });
+  }
+
   function applyChrome() {
     const html = document.documentElement;
     html.lang = state.lang;
@@ -1175,7 +1265,9 @@
     if (s) {
       $('#userName').textContent = s.name;
       $('#userAvatar').textContent = s.name.charAt(0).toUpperCase();
+      const rl = $('.user-t small'); if (rl && s.role) rl.textContent = t('role.' + s.role);
     }
+    const hint = $('#loginHint'); if (hint && ACC.enabled) hint.hidden = true;
   }
 
   function route() {
@@ -1241,7 +1333,7 @@
   // ---------- events ----------
   document.addEventListener('click', e => {
     if (!e.target.closest('#userBtn, #userMenu')) setUserMenu(false);
-    const el = e.target.closest('[data-top-tab],[data-range],[data-run],[data-store-form],[data-coupon-form],[data-del-coupon],[data-edit-cat],[data-cancel-cat],[data-del-sub],[data-invite],[data-reset],[data-export],[data-logout],[data-close-drawer],[data-close-menu],[data-dialog-cancel],#dialogOk,#menuBtn,#sideToggle,#userBtn,.lang-toggle,.nav a');
+    const el = e.target.closest('[data-top-tab],[data-range],[data-run],[data-store-form],[data-coupon-form],[data-del-coupon],[data-edit-cat],[data-cancel-cat],[data-del-sub],[data-invite],[data-remove-member],[data-reset],[data-export],[data-logout],[data-close-drawer],[data-close-menu],[data-dialog-cancel],#dialogOk,#menuBtn,#sideToggle,#userBtn,.lang-toggle,.nav a');
     if (!el) return;
     if (el.dataset.topTab) { ui.topTab = el.dataset.topTab; rerender(); }
     else if (el.dataset.range) { state.range = +el.dataset.range; save('range', state.range); ui.barsAnim = true; rerender(); }
@@ -1259,9 +1351,11 @@
       ov.newSubs[catId] = (ov.newSubs[catId] || []).filter(s => s.id !== subId);
       if (ov.catNames) delete ov.catNames[el.dataset.delSub];
       commit('log.subRemoved', { c: subId });
+      sync('remove subcategory', () => DB.removeSub(catId, subId));
       rerender();
     }
-    else if (el.hasAttribute('data-invite')) toast(t('toast.invite'));
+    else if (el.hasAttribute('data-invite')) { if (LIVE()) inviteForm(); else toast(t('toast.invite')); }
+    else if (el.dataset.removeMember) removeMember(el.dataset.removeMember, el.dataset.name);
     else if (el.hasAttribute('data-reset')) {
       confirmDialog(t('settings.confirmReset'), t('settings.reset'), () => {
         try { [A.OVERRIDE_KEY, 'doabno.admin.feeds', 'doabno.admin.log'].forEach(k => localStorage.removeItem(k)); } catch (err) { /* storage unavailable */ }
@@ -1269,7 +1363,10 @@
       });
     }
     else if (el.dataset.export) exportCsv(el.dataset.export);
-    else if (el.hasAttribute('data-logout')) { state.session = null; save('session', null); location.hash = '#/'; route(); }
+    else if (el.hasAttribute('data-logout')) {
+      if (ACC.enabled) { ACC.signOut().then(() => { state.session = null; save('session', null); location.hash = '#/'; location.reload(); }); }
+      else { state.session = null; save('session', null); location.hash = '#/'; route(); }
+    }
     else if (el.hasAttribute('data-close-drawer')) closeDrawer();
     else if (el.hasAttribute('data-close-menu')) setMenu(false);
     else if (el.hasAttribute('data-dialog-cancel')) closeDialog();
@@ -1317,6 +1414,7 @@
       setMenu(false);
       return;
     }
+    if (form.id === 'loginForm' && ACC.enabled) { adminSignIn(form); return; }
     if (form.id === 'loginForm') {
       const email = form.email.value.trim();
       const local = email.split('@')[0] || 'admin';
@@ -1332,6 +1430,7 @@
     else if (form.id === 'productForm') saveProduct(form);
     else if (form.id === 'storeForm') saveStore(form);
     else if (form.id === 'couponForm') saveCoupon(form);
+    else if (form.id === 'inviteForm') saveInvite(form);
     else if (form.classList.contains('cat-edit')) saveCategory(form);
     else if (form.id === 'ratesForm') saveRates(form);
     else if (form.id === 'popularForm') savePopular(form);
@@ -1370,4 +1469,5 @@
   window.addEventListener('hashchange', route);
   applyChrome();
   route();
+  if (LIVE() && state.session) loadLive();
 })();

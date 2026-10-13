@@ -277,7 +277,7 @@
   function saveOverrides(o) {
     try { localStorage.setItem(OVERRIDE_KEY, JSON.stringify(o)); } catch (e) { /* storage unavailable */ }
   }
-  const OV = loadOverrides();
+  const OV = CAT ? {} : loadOverrides();   // with a database catalog, edits live in the database, not in this browser
 
   ['SAR', 'AED', 'GBP'].forEach(c => { if (OV.rates && +OV.rates[c] > 0) RATES[c] = +OV.rates[c]; });
   if (Array.isArray(OV.coupons)) COUPONS.splice(0, COUPONS.length, ...OV.coupons);

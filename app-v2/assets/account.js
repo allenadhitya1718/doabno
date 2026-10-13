@@ -118,6 +118,11 @@
       write(null); remoteFavs = remoteAlerts = null;
     },
 
+    // Signed-in requests to Supabase's tables and database functions (used by the admin). The user's own token is sent,
+    // so row-level security decides what is allowed.
+    rest: (pathAndQuery, o) => rest(pathAndQuery, o),
+    rpc: (name, body) => rest('rpc/' + name, { method: 'POST', body: body || {} }),
+
     // ---- data ----
     // { favs: [productId], alerts: [{product_id, target_price, currency, notify_email, notify_push, consent_at}], profile }
     async pull() {

@@ -101,7 +101,7 @@ const catalog = {
   stores: Object.keys(FULL.STORES).reduce((o, m) => { o[m] = FULL.STORES[m].map(s => ({ id: s.id, name: s.name, cats: s.cats, color: s.color, cpc: s.cpc, rating: s.rating, reviews: s.reviews, active: s.active !== false, market: m })); return o; }, {}),
   products: products.map(p => ({ id: p.id, cat: p.cat, sub: p.sub, brand: p.brand, en: p.en, ar: p.ar, specs: p.specs, gtin: p.gtin, base: p.base, drop: p.drop, rating: p.rating, reviews: p.reviews, status: p.status, photos: p.photos })),
   offers: {}, history: catHistory,
-  coupons: D.COUPONS.map(c => ({ store: c.store, market: c.market, code: c.code, en: c.en, ar: c.ar, cat: c.cat, days: c.days, active: c.active !== false })),
+  coupons: D.COUPONS.map((c, i) => ({ id: i + 1, store: c.store, market: c.market, code: c.code, en: c.en, ar: c.ar, cat: c.cat, days: c.days, active: c.active !== false })),
   popular: D.POPULAR
 };
 Object.keys(D.MARKETS).forEach(m => products.forEach(p => {

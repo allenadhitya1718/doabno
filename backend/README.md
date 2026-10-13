@@ -14,7 +14,7 @@ Plan: see [../BACKEND-PLAN.md](../BACKEND-PLAN.md). Database: Supabase (Postgres
 3. Check: **Table Editor** shows 43 rows in `stores`, 20 in `products`, 355 in `offers`.
 4. Send the **Project URL** and the **publishable (anon) key** (Settings, API Keys). These two are meant to be public; never share the `service_role` key or the database password.
 
-Run `0002_get_catalog.sql` too (after `0001`). It creates `get_catalog()`, which the three apps call for the whole catalog.
+Run `0002_get_catalog.sql`, `0003_account_functions.sql` and `0004_admin.sql` too, in that order (after `0001`). It creates `get_catalog()`, which the three apps call for the whole catalog.
 
 Status: the SQL has not been run against a real database yet; the first run is the test.
 
@@ -26,3 +26,13 @@ If a run stops with an error: fix is pushed here first (pull, then re-open the f
 - `../.github/workflows/import-feeds.yml`: runs the importer daily once it is on `main` and the two secrets are set.
 - `tests/`: `npm test` from this folder (no installs needed). 13 importer tests + 250 loader checks.
 - Apps read the catalog through `*/assets/boot.js` and `*/assets/config.js`. Leave `config.js` empty to keep demo data.
+
+## Making the first admin (once)
+The admin portal signs in with a normal Supabase account that also has a row in the `admins` table. Nobody can make the first one from the portal, so do it once in the SQL Editor, after that person has created an account on the website or app (use their email):
+
+```sql
+insert into public.admins (user_id, name, role)
+select id, 'Their Name', 'owner' from auth.users where lower(email) = lower('owner@example.com');
+```
+
+After that, the owner adds the rest of the team from the portal (Settings, Team, Invite member; the person must have an account first). Roles: **owner** (everything), **catalog** (products, categories, popular searches), **partners** (stores, coupons, feeds), **analyst** (read only, plus the users list). The database enforces this, not the screens: a change a role is not allowed to make is refused and the page reloads.

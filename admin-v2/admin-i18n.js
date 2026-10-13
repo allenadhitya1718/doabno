@@ -294,3 +294,19 @@ Object.assign(window.ADMIN_I18N.ar, {
   'dash.prevPeriod': 'الفترة السابقة', 'dash.prevShort': 'الفترة السابقة: {v}', 'dash.top': 'الأعلى أداءً', 'dash.tabProducts': 'المنتجات',
   'dash.tabStores': 'المتاجر', 'dash.tabs': 'عرض الأعلى'
 });
+
+Object.assign(ADMIN_I18N.en, {
+  'login.noAccess': 'This account is not an admin. Ask an owner to add you.', 'login.errCreds': 'Wrong email or password.', 'login.errConfirm': 'Please confirm your email first, then sign in.',
+  'login.errNet': 'Could not reach the server. Check your connection.', 'login.errGeneric': 'Could not sign in. Please try again.',
+  'err.noPermission': 'Your role does not allow this change. The page will reload.', 'err.saveFailed': 'The change could not be saved. The page will reload.', 'err.noAccount': 'No account with that email. They must sign up on the DOABNO website or app first.',
+  'invite.hint': 'The person must first create an account on the DOABNO website or app with this email address. Then add them here.', 'toast.memberAdded': '{e} was added to the team.', 'toast.memberRemoved': 'Team member removed.',
+  'team.confirmRemove': 'Remove {n} from the admin team?', 'log.memberAdded': 'Added {e} to the team as {r}', 'log.memberRemoved': 'Removed a team member'
+});
+
+Object.assign(ADMIN_I18N.ar, {
+  'login.noAccess': 'هذا الحساب ليس حساب مشرف. اطلب من المالك إضافتك.', 'login.errCreds': 'البريد الإلكتروني أو كلمة المرور غير صحيحة.', 'login.errConfirm': 'يرجى تأكيد بريدك الإلكتروني أولًا ثم سجّل الدخول.',
+  'login.errNet': 'تعذّر الاتصال بالخادم. تحقق من الاتصال.', 'login.errGeneric': 'تعذّر تسجيل الدخول. حاول مرة أخرى.',
+  'err.noPermission': 'دورك لا يسمح بهذا التغيير. ستُعاد تحميل الصفحة.', 'err.saveFailed': 'تعذّر حفظ التغيير. ستُعاد تحميل الصفحة.', 'err.noAccount': 'لا يوجد حساب بهذا البريد. يجب أن يسجّل أولًا في موقع دوابنو أو تطبيقه.',
+  'invite.hint': 'يجب أن ينشئ الشخص حسابًا في موقع دوابنو أو تطبيقه بهذا البريد الإلكتروني أولًا. ثم أضفه هنا.', 'toast.memberAdded': 'تمت إضافة {e} إلى الفريق.', 'toast.memberRemoved': 'تمت إزالة عضو الفريق.',
+  'team.confirmRemove': 'إزالة {n} من فريق الإدارة؟', 'log.memberAdded': 'أضاف {e} إلى الفريق بدور {r}', 'log.memberRemoved': 'أزال عضوًا من الفريق'
+});

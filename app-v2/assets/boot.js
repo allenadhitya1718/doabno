@@ -20,6 +20,15 @@
     })();
   }
 
+  // A signed-in person's own token (saved by assets/account.js). Admins then also receive hidden products and paused stores;
+  // everyone else gets the same public catalog as a visitor.
+  function savedToken() {
+    try {
+      const s = JSON.parse(localStorage.getItem(window.DOABNO_AUTH_KEY || 'doabno.auth'));
+      return s && s.access_token && s.expires_at - Date.now() > 30000 ? s.access_token : null;
+    } catch (e) { return null; }
+  }
+
   function fetchCatalog() {
     var ctl = typeof AbortController === 'function' ? new AbortController() : null;
     var timer = ctl ? setTimeout(function () { ctl.abort(); }, 8000) : null;
@@ -28,7 +37,7 @@
       // The database function get_catalog() returns the whole public catalog as one JSON document.
       req = fetch(cfg.supabaseUrl.replace(/\/$/, '') + '/rest/v1/rpc/get_catalog', {
         method: 'POST',
-        headers: { apikey: cfg.anonKey, Authorization: 'Bearer ' + cfg.anonKey, 'Content-Type': 'application/json' },
+        headers: { apikey: cfg.anonKey, Authorization: 'Bearer ' + (window.__CATALOG_AUTH ? savedToken() : cfg.anonKey), 'Content-Type': 'application/json' },
         body: '{}',
         signal: ctl ? ctl.signal : undefined
       });
@@ -51,6 +60,7 @@
     });
   }
 
+  window.__CATALOG_AUTH = !!savedToken();   // true when the catalog is requested with a signed-in token
   fetchCatalog().then(function (cat) {
     if (cat) window.__CATALOG = cat;
     loadScripts();
