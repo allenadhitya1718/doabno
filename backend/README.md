@@ -14,7 +14,7 @@ Plan: see [../BACKEND-PLAN.md](../BACKEND-PLAN.md). Database: Supabase (Postgres
 3. Check: **Table Editor** shows 43 rows in `stores`, 20 in `products`, 355 in `offers`.
 4. Send the **Project URL** and the **publishable (anon) key** (Settings, API Keys). These two are meant to be public; never share the `service_role` key or the database password.
 
-Run `0002_get_catalog.sql`, `0003_account_functions.sql` and `0004_admin.sql` too, in that order (after `0001`). It creates `get_catalog()`, which the three apps call for the whole catalog.
+Run `0002_get_catalog.sql`, `0003_account_functions.sql`, `0004_admin.sql` and `0005_alerts.sql` too, in that order (after `0001`). It creates `get_catalog()`, which the three apps call for the whole catalog.
 
 Status: the SQL has not been run against a real database yet; the first run is the test.
 
@@ -36,3 +36,8 @@ select id, 'Their Name', 'owner' from auth.users where lower(email) = lower('own
 ```
 
 After that, the owner adds the rest of the team from the portal (Settings, Team, Invite member; the person must have an account first). Roles: **owner** (everything), **catalog** (products, categories, popular searches), **partners** (stores, coupons, feeds), **analyst** (read only, plus the users list). The database enforces this, not the screens: a change a role is not allowed to make is refused and the page reloads.
+## Price-drop emails
+
+`node importer/cli.js alerts [--dry true]` emails people whose alert target was reached (needs `RESEND_API_KEY`, `ALERT_FROM`, `SITE_URL`; `--dry true` only lists who would get one). The daily import runs it automatically when those are set. Rules: only alerts with email on and a recorded consent; one email per drop; re-armed when the price rises above the target; at most `ALERT_MAX_EMAILS` (default 80) per run.
+
+Full handover guide: `../HANDOVER.md`.
