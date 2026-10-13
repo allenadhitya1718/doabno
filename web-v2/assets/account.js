@@ -164,7 +164,11 @@
     // Privacy request form: anyone may file one (no sign-in needed); only the owner can read them.
     async filePrivacyRequest({ reference, type, name, email, details, market }) {
       const t = session ? await token() : null;
-      await raw('/rest/v1/privacy_requests', { method: 'POST', token: t, body: { reference, type, name, email, details: details || null, market: market || null }, prefer: 'return=minimal' });
+      const send = body => raw('/rest/v1/privacy_requests', { method: 'POST', token: t, body, prefer: 'return=minimal' });
+      const row = { reference, type, name, email, details: details || null };
+      // The market column arrives with migration 0007; until it is run, a refusal for it must not lose the person's request.
+      try { await send(Object.assign({ market: market || null }, row)); }
+      catch (e) { if (e.status === 400 || e.status === 404) await send(row); else throw e; }
     }
   };
   return api;

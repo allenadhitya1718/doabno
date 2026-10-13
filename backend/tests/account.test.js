@@ -170,3 +170,16 @@ test('Google and Apple sign-in: the address goes through Supabase and back to th
   assert.deepEqual(a.providers(), ['google', 'apple']);                           // unknown providers are ignored
   assert.deepEqual(make(fake()).providers(), []);                                 // nothing listed, nothing offered
 });
+test('privacy request: sent with the market; if the database does not know the market column yet, it is sent again without it', async () => {
+  const f = fake(); const a = make(f);
+  await a.filePrivacyRequest({ reference: 'PR-1', type: 'delete', name: 'S', email: 's@x.co', market: 'us' });
+  assert.equal(f.calls.find(c => c.path === '/rest/v1/privacy_requests').body.market, 'us');
+  const bodies = [];
+  const old = createAccount({ cfg: CFG, fetchImpl: async (url, init) => {
+    const b = JSON.parse(init.body); bodies.push(b);
+    return 'market' in b ? { ok: false, status: 400, text: async () => JSON.stringify({ message: "Could not find the 'market' column" }) } : { ok: true, status: 201, text: async () => '' };
+  } });
+  await old.filePrivacyRequest({ reference: 'PR-2', type: 'access', name: 'O', email: 'o@x.co', market: 'sa' });
+  assert.equal(bodies.length, 2); assert.ok('market' in bodies[0]); assert.ok(!('market' in bodies[1])); assert.equal(bodies[1].reference, 'PR-2');
+  await assert.rejects(createAccount({ cfg: CFG, fetchImpl: async () => ({ ok: false, status: 500, text: async () => '{}' }) }).filePrivacyRequest({ reference: 'x', type: 'a', name: 'n', email: 'e@x.co' }));   // other failures are still reported
+});
