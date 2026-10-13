@@ -2,6 +2,8 @@
 (function () {
   'use strict';
   const D = window.DOABNO_DATA;
+  // Real accounts (Supabase) when assets/config.js is filled in; otherwise everything stays in browser storage as before.
+  const ACC = window.DOABNO_ACCOUNT || { enabled: false, signedIn: () => false, user: () => null };
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -9,7 +11,7 @@
   /* ---------- storage ---------- */
   const store = {
     get(k, d) { try { const v = localStorage.getItem('doabno2.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
-    set(k, v) { try { localStorage.setItem('doabno2.' + k, JSON.stringify(v)); } catch (e) { /* private mode */ } }
+    set(k, v) { try { localStorage.setItem('doabno2.' + k, JSON.stringify(v)); } catch (e) { /* private mode */ } if (k === 'favs' || k === 'alerts') queueSync(); }
   };
   let lang = store.get('lang', 'en');
   let market = store.get('market', 'sa');
@@ -43,7 +45,7 @@
       'cp.title': 'Coupons and promo codes', 'cp.sub': 'Codes from stores in {m}. Copy a code, then paste it at checkout.', 'cp.copy': 'Copy code', 'cp.copied': 'Code {c} copied', 'cp.exp': 'Expires in {n} days', 'cp.exp0': 'Expires today', 'cp.all': 'All', 'cp.none': 'No coupons in this category yet.', 'cp.shop': 'Shop at {s}',
       'ac.signup': 'Create account', 'ac.name': 'Full name', 'ac.have': 'Already have an account? Sign in', 'ac.new': 'New to DOABNO? Create an account', 'ac.title': 'My profile', 'ac.prefs': 'Notifications', 'ac.notif': 'Email me when a price alert triggers', 'ac.promo': 'Send me deals and coupons',
       'ac.data': 'Your data', 'ac.dataD': 'You can download everything we keep about you, or delete your account. In production this also removes server-side records (PDPL, GDPR and CCPA rights).', 'ac.export': 'Download my data', 'ac.delete': 'Delete my account', 'ac.signout': 'Sign out', 'ac.deleted': 'Account deleted', 'ac.saved': 'Saved',
-      'ac.consent': 'I agree to the Terms of use and Privacy policy', 'ac.hello': 'Hello, {n}', 'ac.confirmDel': 'Delete your account and all saved data from this browser?', 'ac.pw8': 'Password (8+ characters)', 'ac.err': 'Enter a valid email and a password of 8+ characters.', 'ac.errName': 'Enter your name and accept the terms.', 'ac.signedUp': 'Welcome to DOABNO', 'ac.demo': 'Demo only: accounts are stored in this browser and nothing is sent.', 'viz.s0': 'Searching…', 'viz.s1': 'Checking {n} stores…', 'viz.s2': 'Comparing total prices…', 'viz.s3': 'Lowest price found', 'viz.s4': 'Price history · 30 days',
+      'ac.consent': 'I agree to the Terms of use and Privacy policy', 'ac.hello': 'Hello, {n}', 'ac.confirmDel': 'Delete your account and all saved data from this browser?', 'ac.pw8': 'Password (8+ characters)', 'ac.err': 'Enter a valid email and a password of 8+ characters.', 'ac.errName': 'Enter your name and accept the terms.', 'ac.signedUp': 'Welcome to DOABNO', 'ac.demo': 'Demo only: accounts are stored in this browser and nothing is sent.', 'ac.live': 'Save favorites and price alerts on every device.', 'ac.errAuth': 'Wrong email or password.', 'ac.errConfirm': 'Please confirm your email first. Check your inbox for our message.', 'ac.errExists': 'This email already has an account. Try signing in.', 'ac.errWeak': 'Choose a stronger password (at least 8 characters).', 'ac.errRate': 'Too many attempts. Please wait a few minutes and try again.', 'ac.errNet': 'Could not reach DOABNO. Check your connection and try again.', 'ac.errGeneric': 'Something went wrong. Please try again.', 'ac.checkMail': 'Almost done: we sent a confirmation link to {e}. Open it, then sign in.', 'ac.needSignIn': 'Sign in to create price alerts.', 'ac.syncErr': 'Could not save your changes online. Check your connection.', 'pr.errSend': 'Could not send your request. Please try again.', 'viz.s0': 'Searching…', 'viz.s1': 'Checking {n} stores…', 'viz.s2': 'Comparing total prices…', 'viz.s3': 'Lowest price found', 'viz.s4': 'Price history · 30 days',
       'viz.low': 'Lowest total price', 'viz.save': 'Save {x}', 'viz.more': '+ {n} more stores', 'viz.drop': '↓ {n}% below 30-day average', 'viz.today': 'Best price today', 'viz.alt': 'Example: {p} compared across {n} stores, lowest total {x}.', 'app.soon': 'Coming soon', 'app.pill': 'Coming soon', 'app.title2': 'Get the DOABNO app', 'app.alerts': 'Price alerts', 'app.target': 'Target {x}', 'app.hit': 'Target reached', 'app.deals': 'Today’s drops', 'app.title': 'Compare prices wherever you go.', 'app.text': 'The DOABNO app is coming soon for iPhone and Android.',
       'app.f1': '<b>Compare prices</b> across every store we track', 'app.f2': '<b>Get notified</b> when a price drops', 'app.f3': '<b>Keep saved products</b> in sync',
       'app.mock.search': 'Search products', 'app.mock.alert': 'Price dropped', 'app.mock.now': 'Now {p} at {s}', 'app.mock.saved': 'Saved',
@@ -94,7 +96,7 @@
       'cp.title': 'الكوبونات وأكواد الخصم', 'cp.sub': 'أكواد من متاجر {m}. انسخ الكود ثم الصقه عند الدفع.', 'cp.copy': 'نسخ الكود', 'cp.copied': 'تم نسخ الكود {c}', 'cp.exp': 'ينتهي بعد {n} يومًا', 'cp.exp0': 'ينتهي اليوم', 'cp.all': 'الكل', 'cp.none': 'لا توجد كوبونات في هذا القسم حاليًا.', 'cp.shop': 'تسوّق من {s}',
       'ac.signup': 'إنشاء حساب', 'ac.name': 'الاسم الكامل', 'ac.have': 'لديك حساب؟ سجّل الدخول', 'ac.new': 'جديد في دوابنو؟ أنشئ حسابًا', 'ac.title': 'ملفي الشخصي', 'ac.prefs': 'الإشعارات', 'ac.notif': 'أرسل لي بريدًا عند تفعيل تنبيه سعر', 'ac.promo': 'أرسل لي العروض والكوبونات',
       'ac.data': 'بياناتك', 'ac.dataD': 'يمكنك تنزيل كل ما نحتفظ به عنك أو حذف حسابك. في النسخة الفعلية يشمل ذلك السجلات على الخادم (حقوق PDPL وGDPR وCCPA).', 'ac.export': 'تنزيل بياناتي', 'ac.delete': 'حذف حسابي', 'ac.signout': 'تسجيل الخروج', 'ac.deleted': 'تم حذف الحساب', 'ac.saved': 'تم الحفظ',
-      'ac.consent': 'أوافق على شروط الاستخدام وسياسة الخصوصية', 'ac.hello': 'مرحبًا، {n}', 'ac.confirmDel': 'هل تريد حذف حسابك وكل البيانات المحفوظة في هذا المتصفح؟', 'ac.pw8': 'كلمة المرور (8 أحرف فأكثر)', 'ac.err': 'أدخل بريدًا صحيحًا وكلمة مرور من 8 أحرف فأكثر.', 'ac.errName': 'أدخل اسمك ووافق على الشروط.', 'ac.signedUp': 'أهلاً بك في دوابنو', 'ac.demo': 'نسخة تجريبية: الحسابات تُحفظ في هذا المتصفح ولا يُرسل شيء.', 'viz.s0': 'جارٍ البحث…', 'viz.s1': 'فحص {n} متاجر…', 'viz.s2': 'مقارنة الأسعار الإجمالية…', 'viz.s3': 'تم العثور على أقل سعر', 'viz.s4': 'سجل الأسعار · 30 يومًا',
+      'ac.consent': 'أوافق على شروط الاستخدام وسياسة الخصوصية', 'ac.hello': 'مرحبًا، {n}', 'ac.confirmDel': 'هل تريد حذف حسابك وكل البيانات المحفوظة في هذا المتصفح؟', 'ac.pw8': 'كلمة المرور (8 أحرف فأكثر)', 'ac.err': 'أدخل بريدًا صحيحًا وكلمة مرور من 8 أحرف فأكثر.', 'ac.errName': 'أدخل اسمك ووافق على الشروط.', 'ac.signedUp': 'أهلاً بك في دوابنو', 'ac.demo': 'نسخة تجريبية: الحسابات تُحفظ في هذا المتصفح ولا يُرسل شيء.', 'ac.live': 'احفظ المفضلة وتنبيهات الأسعار على جميع أجهزتك.', 'ac.errAuth': 'البريد الإلكتروني أو كلمة المرور غير صحيحة.', 'ac.errConfirm': 'يرجى تأكيد بريدك الإلكتروني أولًا. تحقق من صندوق الوارد.', 'ac.errExists': 'هذا البريد لديه حساب بالفعل. جرّب تسجيل الدخول.', 'ac.errWeak': 'اختر كلمة مرور أقوى (8 أحرف على الأقل).', 'ac.errRate': 'محاولات كثيرة. انتظر بضع دقائق ثم حاول مجددًا.', 'ac.errNet': 'تعذّر الاتصال بدوابنو. تحقق من الاتصال وحاول مجددًا.', 'ac.errGeneric': 'حدث خطأ ما. حاول مرة أخرى.', 'ac.checkMail': 'أوشكنا على الانتهاء: أرسلنا رابط تأكيد إلى {e}. افتحه ثم سجّل الدخول.', 'ac.needSignIn': 'سجّل الدخول لإنشاء تنبيهات الأسعار.', 'ac.syncErr': 'تعذّر حفظ التغييرات عبر الإنترنت. تحقق من الاتصال.', 'pr.errSend': 'تعذّر إرسال طلبك. حاول مرة أخرى.', 'viz.s0': 'جارٍ البحث…', 'viz.s1': 'فحص {n} متاجر…', 'viz.s2': 'مقارنة الأسعار الإجمالية…', 'viz.s3': 'تم العثور على أقل سعر', 'viz.s4': 'سجل الأسعار · 30 يومًا',
       'viz.low': 'أقل سعر إجمالي', 'viz.save': 'وفّر {x}', 'viz.more': '+ {n} متاجر أخرى', 'viz.drop': '↓ {n}% أقل من متوسط 30 يومًا', 'viz.today': 'أفضل سعر اليوم', 'viz.alt': 'مثال: مقارنة {p} عبر {n} متاجر، أقل سعر إجمالي {x}.', 'app.soon': 'قريبًا', 'app.pill': 'قريبًا', 'app.title2': 'حمّل تطبيق دوابنو', 'app.alerts': 'تنبيهات الأسعار', 'app.target': 'المستهدف {x}', 'app.hit': 'وصل للمستهدف', 'app.deals': 'انخفاضات اليوم', 'app.title': 'قارن الأسعار أينما كنت.', 'app.text': 'تطبيق دوابنو قادم قريبًا لأجهزة iPhone وAndroid.',
       'app.f1': '<b>قارن الأسعار</b> بين كل المتاجر التي نتابعها', 'app.f2': '<b>احصل على تنبيه</b> عند انخفاض السعر', 'app.f3': '<b>حافظ على منتجاتك المحفوظة</b> متزامنة',
       'app.mock.search': 'ابحث عن منتج', 'app.mock.alert': 'انخفض السعر', 'app.mock.now': 'الآن {p} لدى {s}', 'app.mock.saved': 'تم الحفظ',
@@ -455,7 +457,7 @@
     updateCounts();
     $$('.cookie [data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
   }
-  let user = store.get('user', null);
+  let user = ACC.enabled ? ACC.user() : store.get('user', null);
   function refreshAccountBtn() {
     const b = $('#signInBtn'); if (!b) return;
     const s = $('span', b); if (s) { s.textContent = user ? user.name.split(' ')[0] : t('signin'); }
@@ -1064,9 +1066,41 @@
       '<section class="card"><h2>' + t('favsT') + ' / ' + t('alertsT') + '</h2><p><a class="btn ghost sm" href="#/favorites">' + t('favsNav') + ' (' + favs.length + ')</a> <a class="btn ghost sm" href="#/alerts">' + t('alerts') + ' (' + Object.keys(alerts).length + ')</a></p></section>' +
       '<section class="card"><h2>' + t('ac.data') + '</h2><p class="muted">' + t('ac.dataD') + '</p><div class="acc-btns"><button class="btn ghost" type="button" id="exportData">' + t('ac.export') + '</button><button class="btn ghost danger" type="button" id="deleteAcc">' + t('ac.delete') + '</button></div></section></div></div></div>';
   }
+  /* ---------- account sync (only when ACC.enabled) ---------- */
+  let syncing = false, syncTimer = null;
+  const alertRows = () => Object.keys(alerts).map(id => {
+    const a = alerts[id];
+    return { product_id: id, target_price: a.target, currency: a.currency || mcur(), notify_email: a.email !== undefined ? !!a.email : true, notify_push: true,
+      consent_at: a.consent && a.consent.at ? new Date(a.consent.at).toISOString() : null };
+  });
+  function queueSync() {
+    if (!ACC.enabled || !ACC.signedIn() || syncing) return;
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(async () => {
+      try { await ACC.saveFavs(favs); await ACC.saveAlerts(alertRows()); }
+      catch (e) { if (e.code === 'signed_out') { user = null; refreshAccountBtn(); } else toast(t('ac.syncErr')); }
+    }, 400);
+  }
+  // After sign-in (or on a page load with a saved session): merge this browser's items with the account's, then save the result back.
+  async function syncFromAccount() {
+    if (!ACC.enabled || !ACC.signedIn()) return;
+    try {
+      const r = await ACC.pull();
+      syncing = true;
+      favs = Array.from(new Set(r.favs.concat(favs))).filter(id => byId(id));
+      r.alerts.forEach(a => { if (byId(a.product_id)) alerts[a.product_id] = { target: a.target_price, email: user && user.email, currency: a.currency, consent: a.consent_at ? { marketing: true, at: Date.parse(a.consent_at) } : undefined }; });
+      store.set('favs', favs); store.set('alerts', alerts);
+      if (r.profile) { const pr = store.get('prefs', { notif: true, promo: false }); pr.notif = r.profile.notify_email !== false; pr.promo = !!r.profile.marketing_consent; store.set('prefs', pr); }
+      syncing = false;
+      await ACC.saveFavs(favs); await ACC.saveAlerts(alertRows());
+      updateCounts(); route();
+    } catch (e) { syncing = false; if (e.code === 'signed_out') { user = null; refreshAccountBtn(); } else toast(t('ac.syncErr')); }
+  }
+  const authErr = e => ({ invalid_credentials: 'ac.errAuth', email_not_confirmed: 'ac.errConfirm', exists: 'ac.errExists', weak_password: 'ac.errWeak', rate_limited: 'ac.errRate', network: 'ac.errNet', invalid_email: 'ac.err' }[e.code] || 'ac.errGeneric');
+
   function openAuth(mode) {
     const m = $('#modal'), up = mode === 'signup';
-    m.innerHTML = '<button class="x" type="button" aria-label="Close" id="mx">×</button><h2>' + (up ? t('ac.signup') : t('siTitle')) + '</h2><p>' + t('ac.demo') + '</p><form id="siForm" novalidate>' +
+    m.innerHTML = '<button class="x" type="button" aria-label="Close" id="mx">×</button><h2>' + (up ? t('ac.signup') : t('siTitle')) + '</h2><p>' + (ACC.enabled ? t('ac.live') : t('ac.demo')) + '</p><form id="siForm" novalidate>' +
       (up ? '<input type="text" name="name" placeholder="' + t('ac.name') + '" aria-label="' + t('ac.name') + '" autocomplete="name">' : '') +
       '<input type="email" name="email" placeholder="' + t('email') + '" aria-label="' + t('email') + '" autocomplete="email"><input type="password" name="pw" placeholder="' + (up ? t('ac.pw8') : t('pass')) + '" aria-label="' + t('pass') + '" autocomplete="' + (up ? 'new-password' : 'current-password') + '">' +
       (up ? '<label class="switch"><input type="checkbox" name="agree"><span>' + t('ac.consent') + ' (<a href="#/legal/terms" data-close-modal>' + t('foot.terms') + '</a> · <a href="#/legal/privacy" data-close-modal>' + t('foot.privacy') + '</a>)</span></label>' +
@@ -1076,12 +1110,23 @@
     if (!m.open) m.showModal();
     $('#mx').onclick = () => m.close();
     $('#authSwap').onclick = () => openAuth(up ? 'signin' : 'signup');
-    $('#siForm').onsubmit = e => {
+    $('#siForm').onsubmit = async e => {
       e.preventDefault();
       const f = e.target, email = f.email.value.trim(), pw = f.pw.value, err = $('#siErr');
       const fail = k => { err.textContent = t(k); err.hidden = false; };
       if (!/^\S+@\S+\.\S+$/.test(email) || (up && pw.length < 8) || (!up && !pw)) return fail('ac.err');
       if (up && (!f.name.value.trim() || !f.agree.checked)) return fail('ac.errName');
+      if (ACC.enabled) {
+        const btn = $('button[type=submit]', f); btn.disabled = true; err.hidden = true;
+        try {
+          if (up) {
+            const res = await ACC.signUp({ email, password: pw, name: f.name.value.trim(), lang, market, marketing: !!f.marketing.checked });
+            if (res.status === 'confirm') { m.innerHTML = '<button class="x" type="button" aria-label="Close" id="mx">×</button><h2>' + t('ac.signup') + '</h2><p>' + t('ac.checkMail', { e: '<b>' + esc(email) + '</b>' }) + '</p>'; $('#mx').onclick = () => m.close(); return; }
+          } else await ACC.signIn({ email, password: pw });
+          user = ACC.user(); m.close(); refreshAccountBtn(); toast(up ? t('ac.signedUp') : t('siDone')); syncFromAccount();
+        } catch (ex) { btn.disabled = false; fail(authErr(ex)); }
+        return;
+      }
       user = { name: up ? f.name.value.trim() : (user && user.email === email ? user.name : email.split('@')[0]), email };
       store.set('user', user); if (up) { const pr = store.get('prefs', { notif: true, promo: false }); pr.promo = !!f.marketing.checked; pr.consentAt = f.marketing.checked ? Date.now() : null; store.set('prefs', pr); } m.close(); refreshAccountBtn(); toast(up ? t('ac.signedUp') : t('siDone'));
     };
@@ -1102,7 +1147,7 @@
       const fail = k => { err.textContent = t(k); err.hidden = false; };
       if (!(target > 0)) return fail('al.errT');
       if (!/^\S+@\S+\.\S+$/.test(email) || !f.consent.checked) return fail('al.err');
-      alerts[it.p.id] = { target, email, consent: { marketing: true, at: Date.now() } };
+      alerts[it.p.id] = { target, email, currency: cur(), consent: { marketing: true, at: Date.now() } };
       store.set('alerts', alerts); m.close(); updateCounts(); route(); toast(t('al.done'));
     };
   }
@@ -1192,7 +1237,7 @@
   /* ---------- events ---------- */
   // Demo data: on the first visit, fill Favorites and Price alerts so the pages are not empty (runs once; users can remove items).
   function seedDemo() {
-    if (store.get('demoSeeded', false)) return;
+    if (ACC.enabled || store.get('demoSeeded', false)) return;   // real accounts start empty
     store.set('demoSeeded', true);
     if (!favs.length) { favs = ['sony-wh1000xm6', 'dyson-v15', 'nike-af1', 'dior-sauvage', 'nespresso-vertuo'].filter(id => byId(id)); store.set('favs', favs); }
     if (!Object.keys(alerts).length) {
@@ -1207,13 +1252,16 @@
     seedDemo();
     applyLang();
     document.addEventListener('click', e => { const b = e.target.closest('[data-toc]'); if (b) { const el = document.getElementById(b.dataset.toc); if (el) el.scrollIntoView({ block: 'start' }); } });
-    document.addEventListener('submit', e => {
+    document.addEventListener('submit', async e => {
       if (e.target.id !== 'prForm') return;
       e.preventDefault();
       const f = e.target, err = $('#prErr'), email = f.email.value.trim();
       if (!f.name.value.trim() || !/^\S+@\S+\.\S+$/.test(email) || !f.confirm.checked) { err.textContent = t('pr.err'); err.hidden = false; return; }
       const ref = 'PR-' + Date.now().toString(36).toUpperCase();
-      const all = store.get('privacyRequests', []); all.push({ ref, type: f.type.value, name: f.name.value.trim(), email, details: f.details.value.trim(), at: Date.now() }); store.set('privacyRequests', all);
+      if (ACC.enabled) {
+        try { await ACC.filePrivacyRequest({ reference: ref, type: f.type.value, name: f.name.value.trim(), email, details: f.details.value.trim() }); }
+        catch (ex) { err.textContent = t('pr.errSend'); err.hidden = false; return; }
+      } else { const all = store.get('privacyRequests', []); all.push({ ref, type: f.type.value, name: f.name.value.trim(), email, details: f.details.value.trim(), at: Date.now() }); store.set('privacyRequests', all); }
       f.outerHTML = '<div class="pr-done"><h2>' + t('pr.doneT') + '</h2><p>' + t('pr.doneP', { r: '<b>' + ref + '</b>', e: esc(email) }) + '</p></div>';
     });
     document.addEventListener('change', e => { if (e.target.id === 'sortSel') { F.sort = e.target.value; paintListing(); } });
@@ -1227,7 +1275,7 @@
     $('#langBtn').addEventListener('click', () => { lang = lang === 'en' ? 'ar' : 'en'; store.set('lang', lang); applyLang(); route(); });
     $('#signInBtn').addEventListener('click', () => { if (user) location.hash = '#/account'; else openAuth('signin'); });
     $('#modal').addEventListener('click', e => { if (e.target === e.currentTarget || e.target.closest('[data-close-modal]')) e.currentTarget.close(); });
-    document.addEventListener('click', e => {
+    document.addEventListener('click', async e => {
       const v = e.target.closest('[data-visit]');
       if (v) { toast(t('redirect', { s: v.dataset.visit })); return; }
       if (e.target.closest('#more')) { F.shown += 20; paintListing(); return; }
@@ -1241,7 +1289,9 @@
       }
       if (e.target.closest('#alertBtn')) {
         const id = location.hash.split('/')[2], it = byId(id);
-        if (alerts[id]) { delete alerts[id]; store.set('alerts', alerts); updateCounts(); route(); } else openAlert(it);
+        if (alerts[id]) { delete alerts[id]; store.set('alerts', alerts); updateCounts(); route(); }
+        else if (ACC.enabled && !ACC.signedIn()) { openAuth('signin'); toast(t('ac.needSignIn')); }
+        else openAlert(it);
         return;
       }
       const rf = e.target.closest('[data-rmfav]');
@@ -1251,14 +1301,20 @@
       const cp = e.target.closest('[data-copy]');
       if (cp) { const c = cp.dataset.copy; (navigator.clipboard ? navigator.clipboard.writeText(c) : Promise.reject()).catch(() => {}).finally(() => toast(t('cp.copied', { c }))); return; }
       if (e.target.closest('[data-cookie-reset]')) { store.set('cookie', null); $('#cookie').hidden = false; return; }
-      if (e.target.closest('#signOut')) { user = null; store.set('user', null); refreshAccountBtn(); location.hash = '#/'; return; }
+      if (e.target.closest('#signOut')) {
+        if (ACC.enabled) { ACC.signOut(); syncing = true; favs = []; alerts = {}; store.set('favs', favs); store.set('alerts', alerts); syncing = false; updateCounts(); }
+        user = null; store.set('user', null); refreshAccountBtn(); location.hash = '#/'; return;
+      }
       if (e.target.closest('#exportData')) {
         const blob = new Blob([JSON.stringify({ user, favorites: favs, alerts, recentSearches: recents, market, currency, prefs: store.get('prefs', {}) }, null, 2)], { type: 'application/json' });
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'doabno-my-data.json'; a.click(); URL.revokeObjectURL(a.href); return;
       }
       if (e.target.closest('#deleteAcc')) {
         if (!confirm(t('ac.confirmDel'))) return;
+        if (ACC.enabled) { try { await ACC.deleteAccount(); } catch (ex) { toast(t('ac.errGeneric')); return; } }
+        syncing = true;
         ['user', 'favs', 'alerts', 'recents', 'prefs', 'optout'].forEach(k => store.set(k, null));
+        syncing = false;
         user = null; favs = []; alerts = {}; recents = []; refreshAccountBtn(); updateCounts(); toast(t('ac.deleted')); location.hash = '#/'; return;
       }
       const ck = e.target.closest('[data-cookie]');
@@ -1267,7 +1323,12 @@
     document.addEventListener('change', e => {
       if (e.target.id === 'optOut') { store.set('optout', e.target.checked); toast(t('ac.saved')); return; }
       const pf = e.target.closest('[data-pref]');
-      if (pf) { const pr = store.get('prefs', { notif: true, promo: false }); pr[pf.dataset.pref] = pf.checked; store.set('prefs', pr); toast(t('ac.saved')); return; }
+      if (pf) {
+        const pr = store.get('prefs', { notif: true, promo: false }); pr[pf.dataset.pref] = pf.checked; if (pf.dataset.pref === 'promo') pr.consentAt = pf.checked ? Date.now() : null; store.set('prefs', pr);
+        if (ACC.enabled && ACC.signedIn()) ACC.saveProfile({ notify_email: !!pr.notif, marketing_consent: !!pr.promo, consent_at: pr.promo && pr.consentAt ? new Date(pr.consentAt).toISOString() : null }).then(() => toast(t('ac.saved')), () => toast(t('ac.syncErr')));
+        else toast(t('ac.saved'));
+        return;
+      }
       const f = e.target.closest('[data-f]'); if (!f) return;
       const k = f.dataset.f;
       if (k === 'stores' || k === 'brands') F[k] = $$('[data-f="' + k + '"]:checked').map(x => x.value);
@@ -1278,6 +1339,7 @@
     $('#cookie').hidden = !!store.get('cookie', null);
     window.addEventListener('hashchange', route);
     route();
+    syncFromAccount();
   }
   init();
 })();
