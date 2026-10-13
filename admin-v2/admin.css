@@ -598,3 +598,7 @@ a.prod-cell:hover strong, a.prod-cell:hover > span { text-decoration: underline;
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; }
 }
+
+/* shown when the signed-in role can look at a page but not change it */
+.role-note { display: flex; align-items: center; gap: 10px; margin: -6px 0 16px; padding: 10px 14px; border-radius: 12px; background: var(--info-bg, #E6F0FA); color: var(--navy); font-size: 13px; font-weight: 500; }
+.role-note svg { flex: none; }

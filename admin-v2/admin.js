@@ -33,7 +33,12 @@
   };
   if (state.market !== 'all' && !MARKETS.includes(state.market)) state.market = 'all';
   if (ACC.enabled && (!ACC.signedIn() || !(state.session && state.session.role))) state.session = null;   // a database sign-in is always required
-  let auditRows = [], liveUsers = [], liveTeam = [];
+  let auditRows = [], liveUsers = [], liveTeam = [], liveFeeds = new Map();
+  // Who may change what. This mirrors the database's rules (0001_schema.sql): the database is what really enforces them,
+  // the screens just stop offering buttons a role cannot use. In demo mode everything is allowed.
+  const PERMS = { product: ['owner', 'catalog'], category: ['owner', 'catalog'], popular: ['owner', 'catalog'], store: ['owner', 'partners'], coupon: ['owner', 'partners'],
+    feed: ['owner', 'partners'], rates: ['owner'], team: ['owner'], users: ['owner', 'analyst'] };
+  const can = what => !LIVE() || PERMS[what].includes((state.session || {}).role);
   const ui = { editCat: null, keepScroll: false };
   let ov = A.loadOverrides();
   let current = { path: '', params: {} };
@@ -194,7 +199,7 @@
     ok: ['good', 'ok'], active: ['good', 'ok'], verified: ['good', 'ok'],
     warning: ['warn', 'alert'], expiring: ['warn', 'alert'], check: ['warn', 'alert'],
     error: ['bad', 'error'], out: ['bad', 'error'],
-    paused: ['muted', 'info'], hidden: ['muted', 'info'], expired: ['muted', 'info'], unverified: ['muted', 'info'], running: ['info', 'refresh']
+    none: ['muted', 'info'], paused: ['muted', 'info'], hidden: ['muted', 'info'], expired: ['muted', 'info'], unverified: ['muted', 'info'], running: ['info', 'refresh']
   };
   const badge = (kind, text) => '<span class="badge badge-' + BADGES[kind][0] + '">' + icon(ICONS[BADGES[kind][1]], 14) + text + '</span>';
 
@@ -270,7 +275,10 @@
 
   // ---------- demo feeds, users, team, activity ----------
   const FEED_FORMATS = ['XML', 'CSV', 'JSON API', 'Google Merchant'];
+  const FEED_ORDER = { error: 0, warning: 1, running: 2, ok: 3, none: 4 };
+  const NO_FEED = { status: 'none', items: 0, rejected: 0, format: '', schedule: '', ts: 0, error: null };
   function feedOf(s) {
+    if (LIVE()) return liveFeeds.get(s.id) || NO_FEED;   // real runs recorded by the importer; a store without a feed row has none yet
     return memo('feed:' + s.id, () => {
       const rnd = D.seeded(s.id + 'feed');
       const r = rnd();
@@ -329,7 +337,7 @@
   // Recent admin actions in this browser, mixed with the latest feed imports.
   function activity() {
     const mine = (LIVE() ? auditRows : load('log', [])).map(e => ({ ts: e.ts, icon: 'edit', text: t(e.key, e.vars), who: e.who }));
-    const feeds = scope().flatMap(m => A.STORES[m]).filter(s => s.active !== false).map(s => {
+    const feeds = scope().flatMap(m => A.STORES[m]).filter(s => s.active !== false && feedOf(s).status !== 'none').map(s => {
       const f = feedOf(s);
       return { ts: f.ts, icon: f.status === 'error' ? 'error' : 'refresh', text: f.status === 'error' ? t('act.feedError', { s: s.name, e: feedMessage(f) }) : t('act.feedImported', { s: s.name, n: num(f.items) }) };
     });
@@ -597,7 +605,7 @@
     const byCat = groupBy(rows, r => r.p.cat, r => L(catById(r.p.cat)));
     const byProduct = groupBy(rows, r => r.p.id, r => r.p).slice(0, 6);
     const barItem = g => ({ value: g.clicks, tip: '<strong>' + num(g.clicks) + '</strong> ' + t('unit.clicks') + ' · ' + sar(g.revenue, { whole: true }) });
-    const feedList = feeds.slice().sort((a, b) => ({ error: 0, warning: 1, ok: 2 }[a.f.status] - { error: 0, warning: 1, ok: 2 }[b.f.status]) || b.f.ts - a.f.ts).slice(0, 6);
+    const feedList = feeds.filter(x => x.f.status !== 'none').sort((a, b) => FEED_ORDER[a.f.status] - FEED_ORDER[b.f.status] || b.f.ts - a.f.ts).slice(0, 6);
 
     // Top performers, as products or as stores.
     const tab = ui.topTab === 'stores' ? 'stores' : 'products';
@@ -629,7 +637,7 @@
       card(t('dash.byStore'), barList(byStore.map(g => Object.assign(barItem(g), { label: storeCell(g.label) })), v => num(v)), { action: '<a class="link" href="#/reports?group=store">' + t('dash.fullReport') + '</a>' }) +
       card(t('dash.byCat'), barList(byCat.map(g => Object.assign(barItem(g), { label: esc(g.label) })), v => num(v)), { action: '<a class="link" href="#/reports?group=category">' + t('dash.fullReport') + '</a>' }) +
       '</div><div class="grid grid-2">' +
-      card(t('dash.feeds'), '<ul class="feed-list">' + feedList.map(({ s, f }) => '<li>' + storeCell(s) + '<span class="muted">' + t('feed.last', { t: ago(f.ts) }) + '</span>' + badge(f.status, t('status.' + f.status)) + '</li>').join('') + '</ul>',
+      card(t('dash.feeds'), feedList.length ? '<ul class="feed-list">' + feedList.map(({ s, f }) => '<li>' + storeCell(s) + '<span class="muted">' + t('feed.last', { t: ago(f.ts) }) + '</span>' + badge(f.status, t('status.' + f.status)) + '</li>').join('') + '</ul>' : '<p class="muted">' + t('feed.noneYet') + '</p>',
         { action: '<a class="link" href="#/feeds">' + t('dash.allFeeds') + '</a>' }) +
       card(t('dash.activity'), '<ul class="activity">' + activity().map(a => '<li><span class="act-ic">' + icon(ICONS[a.icon], 16) + '</span><span>' + esc(a.text) + '</span><time class="muted">' + ago(a.ts) + '</time></li>').join('') + '</ul>') +
       '</div>';
@@ -928,18 +936,18 @@
   function pageFeeds(params) {
     const stores = scope().flatMap(m => A.STORES[m]).filter(s => s.active !== false);
     const feeds = stores.map(s => ({ s, f: feedOf(s) }));
-    const counts = { ok: 0, warning: 0, error: 0 };
-    feeds.forEach(x => { counts[x.f.status]++; });
+    const counts = { ok: 0, warning: 0, error: 0, running: 0, none: 0 };
+    feeds.forEach(x => { counts[x.f.status] = (counts[x.f.status] || 0) + 1; });
     const list = feeds.filter(x => !params.status || x.f.status === params.status)
-      .sort((a, b) => ({ error: 0, warning: 1, ok: 2 }[a.f.status] - { error: 0, warning: 1, ok: 2 }[b.f.status]) || a.s.name.localeCompare(b.s.name));
-    return pageHead(t('nav.feeds'), t('feeds.sub')) +
+      .sort((a, b) => FEED_ORDER[a.f.status] - FEED_ORDER[b.f.status] || a.s.name.localeCompare(b.s.name));
+    return pageHead(t('nav.feeds'), t('feeds.sub')) + (LIVE() ? '<p class="role-note" role="note">' + icon(ICONS.info, 16) + '<span>' + t('feeds.liveNote') + '</span></p>' : '') +
       '<nav class="chips"><a class="chip' + (!params.status ? ' on' : '') + '" href="#/feeds">' + t('filter.all') + ' · ' + num(feeds.length) + '</a>' +
-      ['error', 'warning', 'ok'].map(k => '<a class="chip' + (params.status === k ? ' on' : '') + '" href="#/feeds?status=' + k + '">' + badge(k, t('status.' + k)) + num(counts[k]) + '</a>').join('') + '</nav>' +
+      (LIVE() ? ['error', 'warning', 'ok', 'none'] : ['error', 'warning', 'ok']).map(k => '<a class="chip' + (params.status === k ? ' on' : '') + '" href="#/feeds?status=' + k + '">' + badge(k, t('status.' + k)) + num(counts[k]) + '</a>').join('') + '</nav>' +
       '<section class="card card-flush">' + (list.length ? '<div class="table-wrap"><table class="table"><thead><tr><th>' + t('col.store') + '</th><th>' + t('col.format') + '</th><th>' + t('col.schedule') + '</th><th>' + t('col.lastImport') + '</th><th class="num">' + t('col.items') + '</th><th class="num">' + t('col.rejected') + '</th><th>' + t('col.status') + '</th><th><span class="sr-only">' + t('col.actions') + '</span></th></tr></thead><tbody>' +
-        list.map(({ s, f }) => '<tr><td>' + storeCell(s) + '</td><td>' + f.format + '</td><td>' + t('schedule.' + f.schedule) + '</td><td class="muted">' + ago(f.ts) + '</td>' +
+        list.map(({ s, f }) => '<tr><td>' + storeCell(s) + '</td><td>' + (f.format || '—') + '</td><td>' + (f.schedule ? t('schedule.' + f.schedule) : '—') + '</td><td class="muted">' + (f.ts ? ago(f.ts) : '—') + '</td>' +
           '<td class="num">' + num(f.items) + '</td><td class="num">' + num(f.rejected) + '</td>' +
           '<td>' + badge(f.status, t('status.' + f.status)) + (feedMessage(f) ? '<small class="feed-msg">' + esc(feedMessage(f)) + '</small>' : '') + '</td>' +
-          '<td class="actions"><button type="button" class="btn btn-ghost btn-sm" data-run="' + s.id + '">' + icon(ICONS.refresh, 16) + t('feeds.run') + '</button></td></tr>').join('') +
+          '<td class="actions">' + (LIVE() ? '' : '<button type="button" class="btn btn-ghost btn-sm" data-run="' + s.id + '">' + icon(ICONS.refresh, 16) + t('feeds.run') + '</button>') + '</td></tr>').join('') +
         '</tbody></table></div>' : empty(t('empty.filters'))) + '</section>';
   }
 
@@ -1152,6 +1160,30 @@
     toast(t('toast.saved'));
   }
 
+  function noAccess() {
+    return pageHead(t('err.noAccessTitle'), t('err.noAccessPage', { r: t('role.' + ((state.session || {}).role || 'analyst')) })) + '<p><a class="btn btn-primary" href="#/">' + t('nav.dashboard') + '</a></p>';
+  }
+
+  // Takes away the buttons and fields a role cannot use on the page just drawn, and says why. (The database refuses the change anyway.)
+  function limitToRole(section, parts, main) {
+    if (!LIVE()) return;
+    const drop = sel => { const els = $$(sel, main); els.forEach(el => el.remove()); return els.length; };
+    const lock = sel => { const els = $$(sel, main); els.forEach(el => { el.disabled = true; }); return els.length; };
+    let limited = false;
+    if (section === 'products' && parts[1] && !can('product')) { limited = lock('#productForm input, #productForm select, #productForm textarea') > 0; drop('button[form="productForm"]'); }
+    if (section === 'categories' && !can('category')) { limited = drop('[data-edit-cat], [data-del-sub], .cat-card .card-foot') > 0; }
+    if (section === 'stores' && !can('store')) { limited = drop('[data-store-form]') > 0; lock('[data-store-toggle]'); }
+    if (section === 'coupons' && !can('coupon')) { limited = drop('[data-coupon-form], [data-del-coupon]') > 0; }
+    if (section === 'feeds' && !can('feed')) { limited = drop('[data-run]') > 0; }
+    if (section === 'settings') {
+      if (!can('rates')) { limited = lock('#ratesForm input') > 0 || limited; drop('#ratesForm button[type=submit]'); }
+      if (!can('popular')) { limited = lock('#popularForm textarea') > 0 || limited; drop('#popularForm button[type=submit]'); }
+      if (!can('team')) { limited = drop('[data-invite]') > 0 || limited; }
+    }
+    const head = $('.page-head', main);
+    if (limited && head) head.insertAdjacentHTML('afterend', '<p class="role-note" role="note">' + icon(ICONS.info, 16) + '<span>' + t('role.viewOnly', { r: t('role.' + state.session.role) }) + '</span></p>');
+  }
+
   function notFound() {
     return pageHead('404', t('notFound')) + '<p><a class="btn btn-primary" href="#/">' + t('nav.dashboard') + '</a></p>';
   }
@@ -1187,7 +1219,7 @@
   ];
   function renderNav(section) {
     const feedErrors = MARKETS.flatMap(m => A.STORES[m]).filter(s => s.active !== false && feedOf(s).status === 'error').length;
-    $('#nav').innerHTML = NAV.map(([group, items]) => '<p class="nav-group">' + t(group) + '</p><ul>' + items.map(([path, ic, key]) =>
+    $('#nav').innerHTML = NAV.map(([group, items]) => '<p class="nav-group">' + t(group) + '</p><ul>' + items.filter(([path]) => path !== 'users' || can('users')).map(([path, ic, key]) =>
       '<li><a href="#/' + path + '"' + (section === path ? ' aria-current="page"' : '') + ' data-tip="' + esc(t(key)) + '">' + icon(ICONS[ic], 20) + '<span>' + t(key) + '</span>' +
       (path === 'feeds' && feedErrors ? '<b class="nav-count" aria-label="' + t('attn.feedErrors', { n: tp('n.feeds', feedErrors) }) + '">' + num(feedErrors) + '</b>' : '') + '</a></li>').join('') + '</ul>').join('');
     const dot = $('#bellDot');
@@ -1220,7 +1252,8 @@
     } catch (e) { console.error(e); return; }
     const jobs = [DB.recentAudit(30).then(rows => { auditRows = rows.map(r => ({ ts: r.ts, key: r.key, vars: r.vars, who: '' })); }, () => {}),
       DB.listUsers().then(u => { liveUsers = u; Object.keys(cache).forEach(k => { delete cache[k]; }); }, () => { liveUsers = []; }),
-      DB.listTeam().then(m => { liveTeam = m; }, () => { liveTeam = []; })];
+      DB.listTeam().then(m => { liveTeam = m; }, () => { liveTeam = []; }),
+      DB.listFeeds().then(rows => { liveFeeds = new Map(rows.map(r => [r.storeId, r])); Object.keys(cache).forEach(k => { delete cache[k]; }); }, () => {})];
     await Promise.all(jobs);
     rerender();
   }
@@ -1295,11 +1328,12 @@
       '': () => pageDashboard(), reports: () => pageReports(params),
       products: () => (parts[1] ? productEditor(parts[1]) : pageProducts(params)),
       offers: () => pageOffers(params), categories: () => pageCategories(), stores: () => pageStores(params),
-      feeds: () => pageFeeds(params), coupons: () => pageCoupons(params), users: () => pageUsers(params), settings: () => pageSettings()
+      feeds: () => pageFeeds(params), coupons: () => pageCoupons(params), users: () => (can('users') ? pageUsers(params) : noAccess()), settings: () => pageSettings()
     };
     const main = $('#main');
     main.classList.remove('enter');
     main.innerHTML = (pages[section] || notFound)();
+    limitToRole(section, parts, main);
     if (fresh) { void main.offsetWidth; main.classList.add('enter'); } // replays the entrance animation (CSS) only when arriving on a page
     renderNav(pages[section] ? section : null);
     const h1 = $('#main h1');

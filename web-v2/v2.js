@@ -910,7 +910,7 @@
     const rows = it.offers.map(o => '<tr class="' + (o === bestOffer ? 'best' : '') + '"><td class="store-c"><div class="store">' + dot(o.store) + '<span>' + esc(o.store.name) + (o === bestOffer ? ' <span class="tag best">' + icon.check + t('bestTag') + '</span>' : '') + '</span></div>' + (o.promo ? '<small><span class="tag tag-code">' + esc(t('promo', { c: o.promo.code })) + '</span></small>' : '') + '</td>' +
       '<td class="p-c num money">' + money(o.price) + '</td><td class="d-c num">' + (o.shipping ? money(o.shipping) : t('free')) + '<small>' + t('days', { a: o.days[0], b: o.days[1] }) + '</small></td>' +
       '<td class="tot-c num tot">' + money(o.total) + '</td><td class="s-c">' + (o.inStock ? '<span class="stock-ok">' + t('inStock') + '</span>' : '<span class="stock-no">' + t('outStock') + '</span>') + '<small>' + fresh(o) + '</small></td>' +
-      '<td class="a-c num"><button class="btn ' + (o === bestOffer ? 'primary' : 'visit') + ' sm" type="button" data-visit="' + esc(o.store.name) + '">' + t('visit') + '</button></td></tr>').join('');
+      '<td class="a-c num"><button class="btn ' + (o === bestOffer ? 'primary' : 'visit') + ' sm" type="button" data-visit="' + esc(o.store.name) + '" data-track="' + esc(o.trackingId) + '"' + (o.url ? ' data-url="1"' : '') + '>' + t('visit') + '</button></td></tr>').join('');
     return '<div class="page"><div class="wrap"><div class="crumbs"><a href="#/">' + t('home') + '</a> / ' + (c ? '<a href="#/c/' + c.id + '">' + esc(nm(c)) + '</a>' : '') + (sub ? ' / <a href="#/c/' + c.id + '/' + sub.id + '">' + esc(nm(sub)) + '</a>' : '') + '</div>' +
       '<div class="phead"><div class="im">' + thumb(p, 140, 140) + '</div><div><h1 dir="auto">' + esc(nm(p)) + '</h1><div class="pmeta"><span>' + esc(p.brand) + '</span><span><span class="stars" aria-hidden="true">★</span> <b>' + p.rating + '</b> · ' + t('p.reviews', { n: p.reviews.toLocaleString('en-US') }) + '</span><span>' + storesLabel(it.n) + '</span></div></div></div>' +
       '<div class="pgrid"><div>' +
@@ -921,7 +921,7 @@
       (Math.abs(diff) >= 1 ? '<div class="vs">' + (diff > 0 ? '↓ ' + t('p.vs', { x: moneyText(diff) }) : '↑ ' + t('p.vsUp', { x: moneyText(-diff) })) + '</div>' : '') +
       '<div style="margin-top:6px">' + fresh(b) + '</div>' +
       '<div class="bd"><div><span>' + t('p.product') + '</span>' + money(b.price, true) + '</div><div><span>' + t('p.delivery') + '</span>' + (b.shipping ? money(b.shipping, true) : '<span>' + t('free') + '</span>') + '</div><div class="tot"><span>' + t('p.total') + '</span>' + money(b.total, true) + '</div></div>' +
-      '<div class="bc-actions"><button class="btn primary block" type="button" data-visit="' + esc(b.store.name) + '">' + t('p.visit', { s: esc(b.store.name) }) + '</button>' +
+      '<div class="bc-actions"><button class="btn primary block" type="button" data-visit="' + esc(b.store.name) + '" data-track="' + esc(b.trackingId) + '"' + (b.url ? ' data-url="1"' : '') + '>' + t('p.visit', { s: esc(b.store.name) }) + '</button>' +
       '<button class="btn ghost block" type="button" id="alertBtn" aria-pressed="' + !!al + '">' + icon.bell + ' ' + (al ? t('p.alertOn', { x: moneyText(al.target) }) : t('p.alert')) + '</button>' +
       '<button class="btn ghost block" type="button" id="favBtn" aria-pressed="' + isFav + '">' + icon.heart(isFav) + ' ' + (isFav ? t('p.saved') : t('p.save')) + '</button></div></div></aside></div></div></div>';
   }
@@ -1277,7 +1277,12 @@
     $('#modal').addEventListener('click', e => { if (e.target === e.currentTarget || e.target.closest('[data-close-modal]')) e.currentTarget.close(); });
     document.addEventListener('click', async e => {
       const v = e.target.closest('[data-visit]');
-      if (v) { toast(t('redirect', { s: v.dataset.visit })); return; }
+      if (v) {
+        // With the click function configured and a store link on the offer: log the click and go to the store. Otherwise the demo message.
+        const go = (window.DOABNO_CONFIG || {}).clickOutUrl;
+        if (go && v.dataset.url === '1' && v.dataset.track) { window.open(go.replace(/\/$/, '') + '?t=' + encodeURIComponent(v.dataset.track), '_blank', 'noopener'); return; }
+        toast(t('redirect', { s: v.dataset.visit })); return;
+      }
       if (e.target.closest('#more')) { F.shown += 20; paintListing(); return; }
       if (e.target.closest('#fToggle')) { $('#filters').classList.toggle('open'); return; }
       if (e.target.closest('#clearF')) { const s = F.sort; F = freshF(); F.sort = s; route(); return; }

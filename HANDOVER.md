@@ -56,7 +56,7 @@ If a secret is ever exposed, rotate it (section 7) before anything else.
    - URL Configuration: Site URL = the real web address; Redirect URLs = that address with `/**` (and `/app/**`).
    - Email: keep "Confirm email" **on**. Turn on **custom SMTP** with Resend, because Supabase's built-in sender is limited to a few emails an hour.
 5. **Hosting (Cloudflare Pages):** Workers & Pages, Create, Pages, connect the GitHub repo. Production branch `main`, build command `node scripts/build-site.js`, output directory `dist`. Add the custom domain. Every push to `main` then redeploys. (Merge `redesign-v2` into `main` first; `main` still holds the older website and app.)
-6. **Click tracking (when real store links exist):** Supabase, Edge Functions, create `go` from `backend/supabase/functions/go/index.ts`, switch **JWT verification off**, set secrets `CLICK_SALT` and `SITE_URL`. Or from a terminal: `supabase functions deploy go --no-verify-jwt`.
+6. **Click tracking (when real store links exist):** Supabase, Edge Functions, create `go` from `backend/supabase/functions/go/index.ts`, switch **JWT verification off**, set secrets `CLICK_SALT` and `SITE_URL`. Or from a terminal: `supabase functions deploy go --no-verify-jwt`. Then put its address (`https://<project>.supabase.co/functions/v1/go`) in `clickOutUrl` in the three `assets/config.js` files: from then on, "Visit store" for an offer that has a store link logs the click and goes to the store.
 7. **Scheduled jobs:** add the GitHub secrets in section 3. The daily importer (`import-feeds.yml`) and weekly backup (`backup-db.yml`) only run from `main`.
 
 ## 5. Everyday jobs
@@ -72,6 +72,7 @@ If a secret is ever exposed, rotate it (section 7) before anything else.
 - **Run the importer by hand:** GitHub, Actions, "Import store feeds", Run workflow (optionally a feed id). Results appear in the `feed_runs` and `feed_rejects` tables.
 - **Try a feed file without saving anything:** `node backend/importer/cli.js dry-run --file feed.csv --format csv --store noon-sa`.
 - **Privacy requests and deletion:** requests land in the `privacy_requests` table (owner can read them in the SQL Editor or Table Editor); answer within the 30 days the site promises. A signed-in user can delete their own account from the profile page; that removes their favorites and alerts too.
+- **Try the hosted site on this computer:** `node scripts/build-site.js`, then `node scripts/serve-dist.js` (serves `dist/` with the same security headers as the host).
 - **Run all tests:** `cd backend && npm test` (no installs needed).
 
 ## 6. Restoring a backup
@@ -87,16 +88,15 @@ If a secret is ever exposed, rotate it (section 7) before anything else.
 - **Resend key:** create a new one in Resend, update the GitHub secret, delete the old one.
 
 ## 8. What is real and what is still demo
-**Real:** accounts, sign-in by email, favorites and price alerts saved per account, profile and consent records, privacy requests, account deletion, the admin (sign-in with roles, all edits saved, activity log, users, team), hiding products and pausing stores, the importer and alert-email code, hosting build, backups.
+**Real:** accounts, sign-in by email, favorites and price alerts saved per account, profile and consent records, privacy requests, account deletion, the admin (sign-in with roles, all edits saved, activity log, users, team), hiding products and pausing stores, buttons hidden by role (and checked against the database rules by a test), the real Store feeds page, the importer and alert-email code, hosting build, backups.
 
 **Still demo or not done:**
 - **Prices and stores are demo data** until real feeds are connected. Needs the affiliate approvals and feeds from the client.
-- **"Visit store" does not track clicks yet.** The function is written but not deployed, and demo offers have no links.
-- **Admin traffic and revenue numbers, the Store feeds page and its "Run now" button** are generated demo numbers. They become real once clicks and feed runs exist.
+- **"Visit store" does not track clicks yet.** The function is written but not deployed (and `clickOutUrl` is empty), and demo offers have no store links.
+- **Admin traffic and revenue numbers** (dashboard and Clicks and revenue) are generated demo numbers. They become real once clicks are recorded. The Store feeds page is real: it shows each feed's latest run, and "No feed yet" for stores without one.
 - Price-drop emails are written and tested but need a Resend account and domain to send.
 - **Apple and Google sign-in:** buttons say "coming soon" (need developer accounts).
-- **Admin buttons** are shown to every role; the database refuses what a role may not do, and the page reloads.
-- **No Content-Security-Policy header** yet (pages use inline scripts; needs a careful pass).
+- **Content-Security-Policy is moderate:** it blocks other sites' scripts and limits where data can go, but still allows inline scripts and styles because the pages use a few inline event handlers. Removing those would allow a stricter policy.
 - **SEO:** page addresses use `#/`, so search engines cannot index product pages. Fixing it means moving the website to a server-rendered framework (Next.js), about three weeks.
 - **Native iOS and Android apps:** not built; the app folder is a mobile-sized prototype.
 - **Other Gulf markets** (Qatar, Kuwait, Bahrain, Oman): listed as "soon", no stores or prices yet.

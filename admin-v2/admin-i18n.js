@@ -310,3 +310,17 @@ Object.assign(ADMIN_I18N.ar, {
   'invite.hint': 'يجب أن ينشئ الشخص حسابًا في موقع دوابنو أو تطبيقه بهذا البريد الإلكتروني أولًا. ثم أضفه هنا.', 'toast.memberAdded': 'تمت إضافة {e} إلى الفريق.', 'toast.memberRemoved': 'تمت إزالة عضو الفريق.',
   'team.confirmRemove': 'إزالة {n} من فريق الإدارة؟', 'log.memberAdded': 'أضاف {e} إلى الفريق بدور {r}', 'log.memberRemoved': 'أزال عضوًا من الفريق'
 });
+Object.assign(ADMIN_I18N.en, {
+  'role.viewOnly': 'Your role ({r}) can view this page but not change it.', 'err.noAccessTitle': 'No access', 'err.noAccessPage': 'Your role ({r}) does not have access to this page.'
+});
+Object.assign(ADMIN_I18N.ar, {
+  'role.viewOnly': 'دورك ({r}) يتيح لك عرض هذه الصفحة دون تعديلها.', 'err.noAccessTitle': 'لا يوجد صلاحية', 'err.noAccessPage': 'دورك ({r}) لا يملك صلاحية الوصول إلى هذه الصفحة.'
+});
+Object.assign(ADMIN_I18N.en, {
+  'status.none': 'No feed yet', 'feed.err.other': 'Import failed', 'feed.noneYet': 'No store feeds are set up yet. Add one in the database (see HANDOVER.md, "Add a store\'s feed").',
+  'feeds.liveNote': 'Feeds import automatically (daily). To import now: GitHub, Actions, "Import store feeds", Run workflow.'
+});
+Object.assign(ADMIN_I18N.ar, {
+  'status.none': 'لا توجد بيانات بعد', 'feed.err.other': 'فشل الاستيراد', 'feed.noneYet': 'لم يتم إعداد أي مصدر بيانات للمتاجر بعد. أضف واحدًا في قاعدة البيانات (راجع HANDOVER.md).',
+  'feeds.liveNote': 'يتم استيراد البيانات تلقائيًا (يوميًا). للاستيراد الآن: GitHub ثم Actions ثم "Import store feeds" ثم Run workflow.'
+});

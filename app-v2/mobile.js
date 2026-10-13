@@ -579,7 +579,7 @@
         (o.promo ? '<button type="button" class="tag tag-promo" data-copy="' + esc(o.promo.code) + '">' + t('offer.promo') + ': ' + esc(o.promo.code) + '</button>' : '') + '</p>' : '') + '</div>' +
       '<div class="orow-side"><strong>' + money(o.total, o.currency) + '</strong>' +
       '<small' + (o.shipping ? '' : ' class="free"') + '>' + (o.shipping ? t('o.inclDelivery', { p: moneyText(o.shipping, o.currency) }) : t('o.freeDelivery')) + '</small>' +
-      '<button type="button" class="btn-visit" data-visit="' + o.trackingId + '" data-store="' + esc(o.store.name) + '"' + (o.inStock ? '' : ' disabled') + '>' + t('offer.visit') + icon(ICONS.chevron, 14, 'flip') + '</button></div></div>';
+      '<button type="button" class="btn-visit" data-visit="' + o.trackingId + '" data-store="' + esc(o.store.name) + '"' + (o.url ? ' data-url="1"' : '') + (o.inStock ? '' : ' disabled') + '>' + t('offer.visit') + icon(ICONS.chevron, 14, 'flip') + '</button></div></div>';
   }
 
   let compareToken = 0;
@@ -644,7 +644,7 @@
           (p.photos.length ? '<p class="card-note">' + t('p.photoCredit', { n: esc(p.photos[0].by) }) + '</p>' : '') + '</div></section>' +
         (similar.length ? '<section class="section">' + sectionHead(t('p.similar')) + '<div class="hscroll">' + similar.map(miniCard).join('') + '</div></section>' : '') +
         '<div class="bottombar"><button type="button" class="btn btn-outline" data-sheet="alert">' + icon(ICONS.bell, 20) + t('p.alertShort') + '</button>' +
-          (bestId ? '<button type="button" class="btn btn-primary btn-visit-main" data-visit="' + bestId + '" data-store="' + esc(s.best.store.name) + '"><span class="vm-text"><small>' + t('p.visitAt', { s: esc(s.best.store.name) }) + '</small><b>' + money(s.min, s.cur) + '</b></span>' + icon(ICONS.chevron, 20, 'flip') + '</button>' : '') + '</div>';
+          (bestId ? '<button type="button" class="btn btn-primary btn-visit-main" data-visit="' + bestId + '" data-store="' + esc(s.best.store.name) + '"' + (s.best.url ? ' data-url="1"' : '') + '><span class="vm-text"><small>' + t('p.visitAt', { s: esc(s.best.store.name) }) + '</small><b>' + money(s.min, s.cur) + '</b></span>' + icon(ICONS.chevron, 20, 'flip') + '</button>' : '') + '</div>';
     return {
       noTabs: true,
       bar: appBar({ back: true, actions:
@@ -1001,6 +1001,10 @@
     else if (el.hasAttribute('data-scan-stop')) stopCamera();
     else if (el.dataset.scanCode) { const i = $('#sheet input[name="code"]'); if (i) i.value = el.dataset.scanCode; scanByCode(el.dataset.scanCode); }
     else if (el.hasAttribute('data-scan-hit')) closeSheet();
+    else if (el.dataset.visit && el.dataset.url === '1' && (window.DOABNO_CONFIG || {}).clickOutUrl) {
+      // The click function logs the click, then sends the visitor to the store.
+      window.open(window.DOABNO_CONFIG.clickOutUrl.replace(/\/$/, '') + '?t=' + encodeURIComponent(el.dataset.visit), '_blank', 'noopener');
+    }
     else if (el.dataset.visit) {
       // Production: the app opens /out/{trackingId}, which logs the click and redirects to the store. The prototype logs it for the admin click report.
       save('clicks', [{ id: el.dataset.visit, m: state.market, ts: Date.now() }].concat(load('clicks', [])).slice(0, 200));

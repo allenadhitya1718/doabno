@@ -33,6 +33,9 @@ function hasSecretKey(source) {
     try { return JSON.parse(Buffer.from(jwt.split('.')[1], 'base64url').toString('utf8')).role === 'service_role'; } catch (e) { return false; }
   });
 }
+const CSP = ["default-src 'self'", "script-src 'self' 'unsafe-inline'", "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com", "font-src 'self' https://fonts.gstatic.com data:",
+  "img-src 'self' data: blob: https://images.unsplash.com https://t3.gstatic.com", "media-src 'self' blob:", "connect-src 'self' https://*.supabase.co", "object-src 'none'", "base-uri 'self'", "form-action 'self'", "frame-ancestors 'self'"].join('; ');
+
 function build() {
 fs.rmSync(OUT, { recursive: true, force: true });
 const problems = [];
@@ -49,14 +52,17 @@ for (const [dir, mount] of MOUNTS) {
 // Count what is being published.
 (function walk(d) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walk(p); else { files++; bytes += fs.statSync(p).size; } } })(OUT);
 
-// Response headers (Cloudflare Pages reads _headers). No Content-Security-Policy yet: the pages use inline scripts and styles,
-// so one needs a careful pass first (listed in HANDOVER.md).
+// Response headers (Cloudflare Pages reads _headers).
+// Content-Security-Policy: pages may load code only from themselves, talk only to themselves and Supabase, and take images from the
+// photo, favicon and logo hosts they use. 'unsafe-inline' stays for scripts and styles because the pages still use a few inline event
+// handlers and style attributes; removing those would allow a stricter policy later.
 fs.writeFileSync(path.join(OUT, '_headers'), [
   '/*',
   '  X-Content-Type-Options: nosniff',
   '  Referrer-Policy: strict-origin-when-cross-origin',
   '  X-Frame-Options: SAMEORIGIN',
   '  Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=()',
+  '  Content-Security-Policy: ' + CSP + '',
   '  Cache-Control: public, max-age=0, must-revalidate',
   '',
   '/admin/*',

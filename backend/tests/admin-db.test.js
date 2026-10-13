@@ -99,3 +99,20 @@ test('people: users and team are converted to the shapes the pages use; adding a
   await db.removeMember('o');
   assert.deepEqual(calls.at(-1), { kind: 'rpc', name: 'admin_remove_member', body: { p_user: 'o' } });
 });
+
+test('feeds: each active feed is paired with its latest run; a feed that never ran has status none; errors keep their code', async () => {
+  const { db } = rig({
+    feeds: [{ id: 1, store_id: 'noon-sa', format: 'google_merchant', schedule: 'six_hourly', active: true }, { id: 2, store_id: 'jarir', format: 'csv', schedule: 'daily', active: true },
+      { id: 3, store_id: 'extra', format: 'xml', schedule: 'daily', active: true }, { id: 4, store_id: 'off', format: 'xml', schedule: 'daily', active: false }],
+    feed_runs: [{ feed_id: 1, started_at: '2026-10-13T08:00:00Z', finished_at: '2026-10-13T08:02:00Z', status: 'ok', items: 1200, rejected: 3, error: null },
+      { feed_id: 1, started_at: '2026-10-12T08:00:00Z', finished_at: '2026-10-12T08:01:00Z', status: 'error', items: 0, rejected: 0, error: 'timeout' },
+      { feed_id: 3, started_at: '2026-10-13T07:00:00Z', finished_at: null, status: 'error', items: 0, rejected: 0, error: null }]
+  });
+  const rows = await db.listFeeds();
+  const by = Object.fromEntries(rows.map(r => [r.storeId, r]));
+  assert.equal(rows.length, 3);                                                   // the switched-off feed is left out
+  assert.deepEqual([by['noon-sa'].status, by['noon-sa'].format, by['noon-sa'].schedule, by['noon-sa'].items, by['noon-sa'].rejected], ['ok', 'Google Merchant', 'six', 1200, 3]);   // newest run wins
+  assert.deepEqual([by.jarir.status, by.jarir.ts, by.jarir.format], ['none', 0, 'CSV']);
+  assert.deepEqual([by.extra.status, by.extra.error], ['error', 'other']);       // a failed run without a code is shown as "other"
+  assert.equal(by['noon-sa'].ts, Date.parse('2026-10-13T08:02:00Z'));
+});

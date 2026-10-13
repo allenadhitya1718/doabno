@@ -54,6 +54,20 @@
       return rows.map(r => ({ ts: Date.parse(r.ts), key: r.action, vars: r.detail || {}, user_id: r.user_id }));
     },
 
+    // ---- store feeds: every active feed with the result of its latest run ----
+    async listFeeds() {
+      const feeds = await acc.rest('feeds?select=id,store_id,format,schedule,active&order=id');
+      const runs = await acc.rest('feed_runs?select=feed_id,started_at,finished_at,status,items,rejected,error&order=started_at.desc&limit=1000');
+      const last = new Map();
+      runs.forEach(r => { if (!last.has(r.feed_id)) last.set(r.feed_id, r); });
+      const FORMAT = { xml: 'XML', csv: 'CSV', json: 'JSON API', google_merchant: 'Google Merchant' }, SCHEDULE = { hourly: 'hourly', six_hourly: 'six', daily: 'daily' };
+      return feeds.filter(f => f.active).map(f => {
+        const r = last.get(f.id);
+        return { storeId: f.store_id, format: FORMAT[f.format] || f.format, schedule: SCHEDULE[f.schedule] || f.schedule,
+          status: r ? r.status : 'none', ts: r ? Date.parse(r.finished_at || r.started_at) : 0, items: r ? r.items : 0, rejected: r ? r.rejected : 0, error: r && r.status === 'error' ? (r.error || 'other') : null };
+      });
+    },
+
     // ---- people ----
     async listUsers() {
       const rows = await acc.rpc('admin_list_users');
