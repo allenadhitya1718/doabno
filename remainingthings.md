@@ -4,6 +4,8 @@ Written 2026-10-13. Everything that could be built without outside accounts, pap
 
 **Who** column: **Client** = the company (papers, approvals, payment) · **Owner** = whoever will own the technical accounts · **Dev** = the developer / Claude session · **Anyone** = a person following the steps.
 
+**Doing section 2 with a browser and Claude Code:** follow `SETUP-WITH-BROWSER.md` (opens the sign-in tabs, you log in, Claude does the settings; you paste the secrets).
+
 Companion files: `HANDOVER.md` (how it all works and everyday jobs) · `ClientRequirements.pdf` (the one-page list sent to the client) · `ROADMAP.md` (status) · `backend/README.md` (database details).
 
 ---
