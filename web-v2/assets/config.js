@@ -9,6 +9,6 @@ window.DOABNO_CONFIG = {
   supabaseUrl: 'https://hmanlftkhvruqgvkencn.supabase.co',
   anonKey: 'sb_publishable_-bpLYU0crmM1-amgU5sjjQ_EOhLHipA',
   catalogUrl: '',
-  clickOutUrl: '',
+  clickOutUrl: 'https://hmanlftkhvruqgvkencn.supabase.co/functions/v1/go',
   socialLogin: []
 };
