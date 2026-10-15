@@ -82,7 +82,7 @@ function normalizeRow(row, ctx) {
   const was = reg && reg.amount > p.amount ? convert(reg.amount) : null;
   return {
     offer: { gtinKey: gtinKey(gtin), price, shipping: convert(ship ? ship.amount : 0), was_price: was, currency: ctx.marketCurrency,
-      in_stock: parseStock(r.availability), url: r.url || null, ref: String(ref).slice(0, 80) }
+      in_stock: parseStock(r.availability), url: /^https:\/\/\S{1,2040}$/i.test(String(r.url || '').trim()) ? String(r.url).trim() : null, ref: String(ref).slice(0, 80) }
   };
 }
 
