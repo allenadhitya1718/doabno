@@ -77,7 +77,7 @@ If a secret is ever exposed, rotate it (section 7) before anything else.
 
 ## 6. Restoring a backup
 1. GitHub, Actions, "Back up database", open the latest run, download the artifact `database-backup`.
-2. Decrypt: `openssl enc -d -aes-256-cbc -pbkdf2 -pass env:BACKUP_PASSPHRASE -in doabno-DATE.dump.enc -out doabno.dump` (set `BACKUP_PASSPHRASE` first).
+2. Decrypt: `openssl enc -d -aes-256-cbc -pbkdf2 -iter 600000 -pass env:BACKUP_PASSPHRASE -in doabno-DATE.dump.enc -out doabno.dump` (set `BACKUP_PASSPHRASE` first).
 3. Restore into a **new, empty** Supabase project, never over a live one without care: `pg_restore --no-owner --no-privileges --dbname "<session pooler connection string>" doabno.dump` (PostgreSQL 17 client). Then point `config.js` at the new project.
 4. **Test a restore once, before you need it,** on a throwaway project. Restoring the login (`auth`) tables into a fresh Supabase project can need small adjustments.
 5. Free-plan projects have no automatic daily backups, so this weekly file is the safety net. Pro includes daily backups.

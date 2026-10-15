@@ -23,3 +23,10 @@ backend/seed/catalog.local.json
 
 # Built by scripts/build-site.js
 dist/
+
+# Local secrets: never commit these
+.env
+.env.*
+*.pem
+*.key
+secrets.*

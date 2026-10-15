@@ -2,6 +2,8 @@
 # NOT ACTIVE YET: GitHub only runs scheduled workflows from the default branch (main), and it needs two repository
 # secrets: SUPABASE_URL and SUPABASE_SERVICE_KEY (Settings > Secrets and variables > Actions). Without them it skips safely.
 name: Import store feeds
+permissions:
+  contents: read
 on:
   schedule:
     - cron: "0 3 * * *"          # 03:00 UTC daily
