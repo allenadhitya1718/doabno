@@ -49,6 +49,8 @@ for (const [dir, mount] of MOUNTS) {
   if (!/supabaseUrl:\s*'https:\/\/[^']+'/.test(text) || !/anonKey:\s*'[^']+'/.test(text)) problems.push(dir + '/assets/config.js has no Supabase address and key: this page would show demo data only');
   if (hasSecretKey(text)) throw new Error(dir + '/assets/config.js contains a secret Supabase key: remove it, that key must never be in the site');
 }
+// Browsers ask for /favicon.ico on every page load; answer with the brand icon (PNG data works under this name).
+fs.copyFileSync(path.join(ROOT, 'web-v2', 'assets', 'brand', 'doabno-app-icon-32.png'), path.join(OUT, 'favicon.ico'));
 // Count what is being published.
 (function walk(d) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walk(p); else { files++; bytes += fs.statSync(p).size; } } })(OUT);
 
