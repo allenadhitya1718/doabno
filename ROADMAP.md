@@ -49,11 +49,16 @@ Plan and reasoning: [BACKEND-PLAN.md](BACKEND-PLAN.md). Back-end setup: [backend
 - App accounts: email sign-up and sign-in sheet, account card with sign out and delete, favorites and alerts synced, notification choices saved to the profile (`app-v2/mobile.js`, same `account.js`; tested in a browser against the mock server).
 - `ClientRequirements.pdf`: one-page list of what the client must provide (stores and feeds, affiliate accounts, legal approval, domain and accounts, content).
 
+- **Site live (2026-10-15):** https://doabno.pages.dev (Cloudflare Pages, direct upload; updating it is a manual rebuild of `dist/` and re-upload). Backup workflow green, second admin owner added, `go` function deployed and in sync with the repo.
+- **Security audit (2026-10-15), fixes merged in PR #4 and #5:** admin Privacy page escaping (stored XSS), privacy form locked down (`0009`), table privileges tightened (`0008`), feed addresses may only use `FEED_*` variables, https-only feeds with a size cap, `feed_id` workflow injection, least-privilege workflow tokens. `0008` and `0009` are applied on the live database.
+- **Prepared, waiting for the owner to review and run:** `backend/supabase/migrations/0010_audit_and_limits.sql` (offers of hidden products no longer public, repeat clicks within 10 minutes counted once, audit-log entries for suspend / restore / delete / export, admin invites need a confirmed email).
+- **Still open from the audit:** backups in a public repo (make the repo private or use a private bucket; strong `BACKUP_PASSPHRASE`); `stores.cpc_usd` (commission rates) readable by anyone (needs a `store_terms` table or column privileges plus admin changes); admin shares one origin and sign-in key with the public site (move admin to its own address when the domain exists); sign-in link fixation via the URL fragment.
+
 ## Not planned for the first 3 days
 Next.js rebuild for Google, native app, extra Gulf markets, hourly refresh. See `BACKEND-PLAN.md`.
 
 ## Requests for the owner of a claimed area
 _(add a line: who, what you need, which file)_
-- allenadhitya1718 -> owner of `*/` frontends: the pages answer `/favicon.ico` with 404 (cosmetic, shows in the console). Please add a favicon (the brand app icon in `web-v2/assets/brand/` can be reused) to `web-v2`, `app-v2` and `admin-v2` root, or a `<link rel="icon">`.
-- allenadhitya1718 -> owner of `.github/**`: GitHub warns that `actions/upload-artifact@v4` runs on Node 20 and that `ubuntu-latest` becomes Ubuntu 26 on 2026-10-19. The backup still passes; bump the action version when convenient.
+- ~~allenadhitya1718 -> owner of `*/` frontends: `/favicon.ico` 404.~~ **Done 2026-10-15:** `scripts/build-site.js` publishes the brand icon as `/favicon.ico`.
+- ~~allenadhitya1718 -> owner of `.github/**`: Node 20 / Ubuntu 26 warnings.~~ **Done 2026-10-15:** workflows pinned to `ubuntu-24.04`; `checkout`, `setup-node` and `upload-artifact` moved to v5.
 - allenadhitya1718 -> owner of `backend/**`: `backend/supabase/functions/go/index.ts` returns 500 for an unknown, paused or link-less offer when `SITE_URL` is not set, because `Response.redirect("/")` needs a full address. A live hotfix is deployed (2026-10-15): `const SITE = ... ?? ""` plus `home()` that redirects only when `SITE` starts with http(s), else answers 404 "Link not available". Please copy that into the repo file so the next deploy does not undo it.

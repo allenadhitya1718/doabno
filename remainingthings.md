@@ -102,14 +102,14 @@ Two jobs: price-drop alert emails (sent by the importer job), and sign-up / conf
 | `BACKUP_PASSPHRASE` | a long random phrase, saved in the password manager | weekly backup |
 | one per store feed key, for example `NOON_FEED_KEY` | the store's feed login | daily import (also add it to the `env:` list in `.github/workflows/import-feeds.yml`) |
 
-5. [ ] Actions tab: run **"Back up database"** by hand once (Run workflow) and confirm it ends green with an artifact `database-backup`.
+5. [x] Actions tab: run **"Back up database"** by hand once (Run workflow) and confirm it ends green with an artifact `database-backup`. *(Green on 2026-10-14. The artifact of a public repo is downloadable by any signed-in GitHub user: make the repo private or use a private bucket, and use a long random `BACKUP_PASSPHRASE`. Decrypt command: `HANDOVER.md` section 6.)*
 6. [ ] Optional: branch protection on `main` (require a pull request); turn on Dependabot alerts.
 - Never put these values in the repo, in `config.js`, or in chat.
 
 ### 2.5 Supabase *(Owner, about 30 minutes)*
 Already created (project `hmanlftkhvruqgvkencn`, Frankfurt, free). To finish:
 1. [ ] **Ownership:** make sure the project sits in an organization owned by the company; add the technical people as members; 2FA on.
-2. [ ] **SQL Editor:** run `backend/supabase/migrations/0001` to `0007` in order, then the two seed files only if demo data is wanted. Done so far: 0001 to 0004. **Still to run: `0005_alerts.sql`, `0006_click_stats.sql` and `0007_admin_people.sql`.**
+2. [ ] **SQL Editor:** run `backend/supabase/migrations/0001` to `0007` in order, then the two seed files only if demo data is wanted. Done so far: 0001 to 0009 (0008 and 0009 are the security fixes of 2026-10-15). **Still to run after review: `0010_audit_and_limits.sql`.**
 3. [ ] **First owner:** after that person signs up on the website, run the SQL in `backend/README.md` ("Making the first admin"). Done once for the current owner account.
 4. [ ] **Authentication, URL Configuration:** Site URL = `https://domain`; Redirect URLs = `https://domain/**` and `https://domain/app/**` (keep the localhost ones only while testing).
 5. [ ] **Authentication, Providers, Email:** keep **Confirm email ON** for launch.
