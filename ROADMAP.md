@@ -54,3 +54,4 @@ Next.js rebuild for Google, native app, extra Gulf markets, hourly refresh. See 
 
 ## Requests for the owner of a claimed area
 _(add a line: who, what you need, which file)_
+- allenadhitya1718 -> owner of `backend/**`: `backend/supabase/functions/go/index.ts` returns 500 for an unknown, paused or link-less offer when `SITE_URL` is not set, because `Response.redirect("/")` needs a full address. A live hotfix is deployed (2026-10-15): `const SITE = ... ?? ""` plus `home()` that redirects only when `SITE` starts with http(s), else answers 404 "Link not available". Please copy that into the repo file so the next deploy does not undo it.
