@@ -44,7 +44,7 @@ Never put any of these in the repository, in `config.js`, or in chat.
 | `RESEND_API_KEY`, `ALERT_FROM`, `SITE_URL` | Sends the alert emails; sender address; the site's web address | GitHub secrets |
 | `SUPABASE_DB_URL`, `BACKUP_PASSPHRASE` | Backup connection (session pooler string) and its encryption passphrase | GitHub secrets |
 | `CLICK_SALT` | Random text for hashing visitors in click tracking | Supabase function secret |
-| Feed keys (for example `NOON_FEED_KEY`) | A store's feed login | GitHub secret, referenced in the feed address as `${NOON_FEED_KEY}` |
+| Feed keys (for example `FEED_NOON_KEY`) | A store's feed login | GitHub secret, referenced in the feed address as `${FEED_NOON_KEY}` (feed key names must start with `FEED_`) |
 
 If a secret is ever exposed, rotate it (section 7) before anything else.
 
@@ -66,7 +66,7 @@ If a secret is ever exposed, rotate it (section 7) before anything else.
 - **Add a store's feed** (there is no screen for this yet): add the store in the admin, then in the SQL Editor:
   ```sql
   insert into public.feeds (store_id, format, schedule, url)
-  values ('noon-sa', 'google_merchant', 'daily', 'https://example.com/feed.xml?key=${NOON_FEED_KEY}');
+  values ('noon-sa', 'google_merchant', 'daily', 'https://example.com/feed.xml?key=${FEED_NOON_KEY}');
   ```
   Formats: `xml`, `csv`, `json`, `google_merchant`. Add the secret to the workflow's `env:` list in `.github/workflows/import-feeds.yml`.
 - **Run the importer by hand:** GitHub, Actions, "Import store feeds", Run workflow (optionally a feed id). Results appear in the `feed_runs` and `feed_rejects` tables.
