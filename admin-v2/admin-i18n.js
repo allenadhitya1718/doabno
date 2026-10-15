@@ -428,7 +428,7 @@ Object.assign(ADMIN_I18N.en, {
   'login.errNet': 'Could not reach the server. Check your connection.', 'login.errGeneric': 'Could not sign in. Please try again.',
   'err.noPermission': 'Your role does not allow this change. The page will reload.', 'err.saveFailed': 'The change could not be saved. The page will reload.', 'err.noAccount': 'No account with that email. They must sign up on the DOABNO website or app first.',
   'invite.hint': 'The person must first create an account on the DOABNO website or app with this email address. Then add them here.', 'toast.memberAdded': '{e} was added to the team.', 'toast.memberRemoved': 'Team member removed.',
-  'team.confirmRemove': 'Remove {n} from the admin team?', 'log.memberAdded': 'Added {e} to the team as {r}', 'log.memberRemoved': 'Removed a team member'
+  'team.confirmRemove': 'Remove {n} from the admin team?', 'log.memberAdded': 'Added {e} to the team as {r}', 'log.memberRemoved': 'Removed a team member', 'log.userSuspended': 'Suspended a user account', 'log.userRestored': 'Restored a user account', 'log.userDeleted': 'Deleted a user account', 'log.userExported': 'Exported a user data file'
 });
 
 Object.assign(ADMIN_I18N.ar, {
@@ -436,7 +436,7 @@ Object.assign(ADMIN_I18N.ar, {
   'login.errNet': 'تعذّر الاتصال بالخادم. تحقق من الاتصال.', 'login.errGeneric': 'تعذّر تسجيل الدخول. حاول مرة أخرى.',
   'err.noPermission': 'دورك لا يسمح بهذا التغيير. ستُعاد تحميل الصفحة.', 'err.saveFailed': 'تعذّر حفظ التغيير. ستُعاد تحميل الصفحة.', 'err.noAccount': 'لا يوجد حساب بهذا البريد. يجب أن يسجّل أولًا في موقع دوابنو أو تطبيقه.',
   'invite.hint': 'يجب أن ينشئ الشخص حسابًا في موقع دوابنو أو تطبيقه بهذا البريد الإلكتروني أولًا. ثم أضفه هنا.', 'toast.memberAdded': 'تمت إضافة {e} إلى الفريق.', 'toast.memberRemoved': 'تمت إزالة عضو الفريق.',
-  'team.confirmRemove': 'إزالة {n} من فريق الإدارة؟', 'log.memberAdded': 'أضاف {e} إلى الفريق بدور {r}', 'log.memberRemoved': 'أزال عضوًا من الفريق'
+  'team.confirmRemove': 'إزالة {n} من فريق الإدارة؟', 'log.memberAdded': 'أضاف {e} إلى الفريق بدور {r}', 'log.memberRemoved': 'أزال عضوًا من الفريق', 'log.userSuspended': 'علّق حساب مستخدم', 'log.userRestored': 'أعاد تفعيل حساب مستخدم', 'log.userDeleted': 'حذف حساب مستخدم', 'log.userExported': 'صدّر بيانات مستخدم'
 });
 Object.assign(ADMIN_I18N.en, {
   'role.viewOnly': 'Your role ({r}) can view this page but not change it.', 'err.noAccessTitle': 'No access', 'err.noAccessPage': 'Your role ({r}) does not have access to this page.'
