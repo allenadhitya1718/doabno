@@ -24,7 +24,7 @@ jobs:
       ALERT_FROM: ${{ secrets.ALERT_FROM }}            # for example: DOABNO <alerts@yourdomain.com>
       SITE_URL: ${{ secrets.SITE_URL }}                # the website's address, for the links in the emails
       # Store feed logins: add one line per key, then use ${NAME} in the feed's address in the database, for example:
-      # NOON_FEED_KEY: ${{ secrets.NOON_FEED_KEY }}
+      # FEED_NOON_KEY: ${{ secrets.FEED_NOON_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -32,9 +32,12 @@ jobs:
           node-version: 22
       - name: Run importer
         if: env.SUPABASE_URL != '' && env.SUPABASE_SERVICE_KEY != ''
+        env:
+          FEED_ID: ${{ inputs.feed_id }}
         run: |
-          if [ -n "${{ inputs.feed_id }}" ]; then
-            node backend/importer/cli.js run --feed-id "${{ inputs.feed_id }}"
+          if [ -n "$FEED_ID" ]; then
+            [[ "$FEED_ID" =~ ^[0-9]+$ ]] || { echo "feed_id must be a number"; exit 1; }
+            node backend/importer/cli.js run --feed-id "$FEED_ID"
           else
             node backend/importer/cli.js run --schedule daily
           fi

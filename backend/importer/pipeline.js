@@ -7,13 +7,16 @@ const median = nums => { const s = nums.slice().sort((a, b) => a - b); const m =
 
 // Downloads a feed. Maps failures to the codes the admin shows: timeout, auth, other.
 async function fetchFeedText(url, { headers = {}, timeoutMs = 60000, fetchImpl = fetch } = {}) {
+  if (!/^https:\/\//i.test(String(url))) throw new FeedError('other', 'Feed address must start with https://');
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), timeoutMs);
   try {
     const res = await fetchImpl(url, { headers, signal: ctl.signal });
     if (res.status === 401 || res.status === 403) throw new FeedError('auth', 'Feed refused access (HTTP ' + res.status + ')');
     if (!res.ok) throw new FeedError('other', 'Feed returned HTTP ' + res.status);
-    return await res.text();
+    const text = await res.text();
+    if (text.length > 50e6) throw new FeedError('other', 'Feed is larger than 50 MB');
+    return text;
   } catch (e) {
     if (e instanceof FeedError) throw e;
     if (e.name === 'AbortError') throw new FeedError('timeout', 'Feed took longer than ' + Math.round(timeoutMs / 1000) + ' seconds');

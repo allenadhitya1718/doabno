@@ -5,7 +5,7 @@
 //   node backend/importer/cli.js alerts [--dry true]           email people whose price alert was reached (needs RESEND_API_KEY, ALERT_FROM, SITE_URL)
 //   node backend/importer/cli.js dry-run --file feed.csv --format csv --store noon-sa
 //                                                              try a feed file against the demo catalog, saving nothing
-// In a feed's address, ${NAME} is replaced with the environment variable NAME, so keys stay out of the database.
+// In a feed's address, ${NAME} is replaced with the environment variable NAME (names must start with FEED_), so keys stay out of the database.
 const fs = require('fs');
 const path = require('path');
 const { runFeed, fetchFeedText } = require('./pipeline');
@@ -14,7 +14,8 @@ const args = process.argv.slice(2);
 const cmd = args.shift();
 const opt = {};
 for (let i = 0; i < args.length; i += 2) opt[args[i].replace(/^--/, '')] = args[i + 1];
-const expand = s => (s || '').replace(/\$\{(\w+)\}/g, (m, n) => { if (process.env[n] === undefined) throw new Error('Environment variable ' + n + ' is not set'); return process.env[n]; });
+// Only FEED_* variables may be used, so a feed address can never send SUPABASE_*, RESEND_* or other secrets to a feed host.
+const expand = s => (s || '').replace(/\$\{(\w+)\}/g, (m, n) => { if (!/^FEED_[A-Z0-9_]+$/.test(n)) throw new Error('Only FEED_* environment variables can be used in a feed address (' + n + ')'); if (process.env[n] === undefined) throw new Error('Environment variable ' + n + ' is not set'); return process.env[n]; });
 
 async function sendAlerts(db, dry) {
   const { checkAlerts } = require('./alerts');

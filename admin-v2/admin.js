@@ -1275,8 +1275,8 @@
       (list.length ? '<div class="table-wrap"><table class="table req-table"><thead><tr><th>' + t('req.id') + '</th><th>' + t('col.email') + '</th><th>' + t('req.type') + '</th><th>' + t('field.market') + '</th><th>' + t('req.received') + '</th><th>' + t('req.due') + '</th><th>' + t('col.status') + '</th><th><span class="sr-only">' + t('col.actions') + '</span></th></tr></thead><tbody>' +
         list.map(r => '<tr' + (r.status === 'done' ? ' class="row-muted"' : '') + '><td><b>' + r.id + '</b></td><td class="muted">' + esc(r.email) + '</td><td>' + t('req.t.' + r.type) + '</td><td>' + t('market.' + r.market) + '</td>' +
           '<td class="muted">' + fmtDate(r.received, YMD) + '</td><td>' + due(r) + '</td><td>' + status(r) + '</td>' +
-          '<td class="actions">' + (r.status === 'done' ? '' : (r.status === 'open' ? '<button type="button" class="btn btn-ghost btn-sm" data-req="' + r.id + '/progress">' + t('req.start') + '</button>' : '') +
-            '<button type="button" class="btn btn-primary btn-sm" data-req="' + r.id + '/done">' + t('req.complete') + '</button>') + '</td></tr>').join('') +
+          '<td class="actions">' + (r.status === 'done' ? '' : (r.status === 'open' ? '<button type="button" class="btn btn-ghost btn-sm" data-req="' + esc(r.id) + '/progress">' + t('req.start') + '</button>' : '') +
+            '<button type="button" class="btn btn-primary btn-sm" data-req="' + esc(r.id) + '/done">' + t('req.complete') + '</button>') + '</td></tr>').join('') +
         '</tbody></table></div>' : empty(t('empty.filters'))) + '</section>' +
       '<p class="hint page-note">' + t('req.note') + '</p>';
   }

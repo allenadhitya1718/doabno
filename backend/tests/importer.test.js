@@ -125,9 +125,10 @@ test('run: failures are recorded as error rows with the admin codes', async () =
 
 test('download: HTTP errors and timeouts map to codes', async () => {
   const mk = status => async () => ({ ok: status < 400, status, text: async () => 'ok' });
-  await assert.rejects(fetchFeedText('u', { fetchImpl: mk(403) }), e => e.code === 'auth');
-  await assert.rejects(fetchFeedText('u', { fetchImpl: mk(500) }), e => e.code === 'other');
-  assert.equal(await fetchFeedText('u', { fetchImpl: mk(200) }), 'ok');
+  await assert.rejects(fetchFeedText('https://feed.test/f', { fetchImpl: mk(403) }), e => e.code === 'auth');
+  await assert.rejects(fetchFeedText('https://feed.test/f', { fetchImpl: mk(500) }), e => e.code === 'other');
+  assert.equal(await fetchFeedText('https://feed.test/f', { fetchImpl: mk(200) }), 'ok');
   const slow = (url, { signal }) => new Promise((_, rej) => signal.addEventListener('abort', () => rej(Object.assign(new Error('x'), { name: 'AbortError' }))));
-  await assert.rejects(fetchFeedText('u', { fetchImpl: slow, timeoutMs: 20 }), e => e.code === 'timeout');
+  await assert.rejects(fetchFeedText('https://feed.test/f', { fetchImpl: slow, timeoutMs: 20 }), e => e.code === 'timeout');
+  await assert.rejects(fetchFeedText('http://feed.test/f', { fetchImpl: mk(200) }), e => e.code === 'other');   // https only
 });
