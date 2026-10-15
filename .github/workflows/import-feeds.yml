@@ -14,7 +14,7 @@ on:
         required: false
 jobs:
   import:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -26,8 +26,8 @@ jobs:
       # Store feed logins: add one line per key, then use ${NAME} in the feed's address in the database, for example:
       # FEED_NOON_KEY: ${{ secrets.FEED_NOON_KEY }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
       - name: Run importer
