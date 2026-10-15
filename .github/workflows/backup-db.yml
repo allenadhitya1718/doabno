@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
 jobs:
   backup:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
       SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
@@ -46,7 +46,7 @@ jobs:
           ls -l doabno-*.enc
       - name: Keep the encrypted file
         if: steps.check.outputs.ready == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: database-backup
           path: doabno-*.dump.enc
