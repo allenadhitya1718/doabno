@@ -4,8 +4,13 @@
 #   SUPABASE_DB_URL    Supabase > Project Settings > Database > Connection string > "Session pooler" (not "Direct connection": GitHub's servers cannot use it)
 #   BACKUP_PASSPHRASE  a long random passphrase; keep a copy somewhere safe, without it the backup cannot be opened
 # Without the secrets it skips safely. The backup contains personal data (emails), which is why it is encrypted.
+# SECURITY: this repository is public, and artifacts of a public repository can be downloaded by any signed-in GitHub user. The file is
+# protected only by BACKUP_PASSPHRASE (use a long random one, used nowhere else). Prefer a private repository or a private bucket.
 # To restore, see "Restoring a backup" in HANDOVER.md.
 name: Back up database
+# The token this job gets can only read the repo.
+permissions:
+  contents: read
 on:
   schedule:
     - cron: "0 2 * * 0"          # Sundays 02:00 UTC
@@ -36,7 +41,7 @@ jobs:
           STAMP=$(date -u +%Y-%m-%d)
           /usr/lib/postgresql/17/bin/pg_dump "$SUPABASE_DB_URL" --schema=public --schema=auth --no-owner --no-privileges --format=custom --file="doabno-$STAMP.dump"
           test -s "doabno-$STAMP.dump"
-          openssl enc -aes-256-cbc -pbkdf2 -salt -pass env:BACKUP_PASSPHRASE -in "doabno-$STAMP.dump" -out "doabno-$STAMP.dump.enc"
+          openssl enc -aes-256-cbc -pbkdf2 -iter 600000 -salt -pass env:BACKUP_PASSPHRASE -in "doabno-$STAMP.dump" -out "doabno-$STAMP.dump.enc"
           rm "doabno-$STAMP.dump"
           ls -l doabno-*.enc
       - name: Keep the encrypted file
