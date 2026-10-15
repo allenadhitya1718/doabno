@@ -125,9 +125,9 @@ Already created (project `hmanlftkhvruqgvkencn`, Frankfurt, free). To finish:
 
 ## 3. First-time database steps (checklist form)
 - [x] Project created, 0001 to 0004 and seed data loaded, catalog connected to all three pages.
-- [ ] Run `0005_alerts.sql` (price-drop alerts).
-- [ ] Run `0006_click_stats.sql` (real traffic in the admin).
-- [ ] Run `0007_admin_people.sql` (admin: suspend, delete and export shopper accounts; privacy requests record the market). Run it before the admin's Users and Privacy pages are used live.
+- [x] Run `0005_alerts.sql` (price-drop alerts).
+- [x] Run `0006_click_stats.sql` (real traffic in the admin).
+- [x] Run `0007_admin_people.sql` (admin: suspend, delete and export shopper accounts; privacy requests record the market). Run it before the admin's Users and Privacy pages are used live.
 - [ ] Remove demo data when real feeds are in (decide with the client; the demo catalog is only there so the screens are not empty).
 
 ---
