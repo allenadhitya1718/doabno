@@ -107,62 +107,89 @@ const cleanDetail = body => {
   return t.replace(/AIza[0-9A-Za-z_-]{10,}/g, '[key]').replace(/\s+/g, ' ').slice(0, 220);
 };
 
-export async function askGemini({ apiKey, models, image, mime, fetchImpl = fetch, timeoutMs = 12000 }) {
+export async function askGemini({ apiKey, models, image, mime, fetchImpl = fetch, timeoutMs = 12000, hedgeMs = 5000 }) {
   const attempts = [];
   const done = r => Object.assign(r, { attempts });
-  const first = await tryModels({ apiKey, models, image, mime, fetchImpl, timeoutMs, attempts });
+  const first = await raceModels({ apiKey, models, image, mime, fetchImpl, timeoutMs, attempts, hedgeMs });
   if (first.guess || first.error !== 'model') return done(first);
   const more = (await discoverModels({ apiKey, fetchImpl })).filter(m => !models.includes(m));
   if (!more.length) return done(first);
-  const second = await tryModels({ apiKey, models: more, image, mime, fetchImpl, timeoutMs, attempts });
+  const second = await raceModels({ apiKey, models: more, image, mime, fetchImpl, timeoutMs, attempts, hedgeMs });
   return done(second.guess || second.error !== 'model' ? second : first);
 }
 
-async function tryModels({ apiKey, models, image, mime, fetchImpl, timeoutMs, attempts = [] }) {
-  let last = { status: 502, error: 'upstream' };
-  for (const model of models) {
-    const ctl = new AbortController(); const timer = setTimeout(() => ctl.abort(), timeoutMs);
-    let res, bodyText = '';
-    const t0 = Date.now();
-    try {
-      // Settings are tried from the most helpful to the plainest: JSON schema plus "no extra thinking" (much faster), then without the
-      // thinking setting, then without the schema. A model that rejects a setting gets the same question again with the next variant.
-      const think = /2\.5/.test(model) ? { thinkingBudget: 0 } : { thinkingLevel: 'minimal' };
-      const variants = [{ schema: true, think: true }, { schema: true, think: false }, { schema: false, think: false }];
-      const attempt = v => fetchImpl(ENDPOINT + encodeURIComponent(model) + ':generateContent', {
-        method: 'POST', signal: ctl.signal,
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },   // key in a header, so it never appears in an address or log
-        body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: PROMPT }, { inline_data: { mime_type: mime, data: image } }] }],
-          generationConfig: Object.assign({ temperature: 0, maxOutputTokens: 1024, responseMimeType: 'application/json' },
-            v.schema ? { responseSchema: RESPONSE_SCHEMA } : {}, v.think ? { thinkingConfig: think } : {}),
-        }),
-      });
-      for (let i = 0; i < variants.length; i++) {
-        res = await attempt(variants[i]); bodyText = await res.text();
-        if (res.status !== 400 || /api key/i.test(bodyText) || i === variants.length - 1) break;
-        if (/think/i.test(bodyText)) continue;                       // the thinking setting was refused: next variant
-        if (/schema|enum|response_?mime|generation_?config/i.test(bodyText)) { i = variants.length - 2; continue; }   // the schema was refused: plainest variant
-        break;
-      }
-    } catch (e) { clearTimeout(timer); attempts.push({ model, status: e && e.name === 'AbortError' ? 'timeout' : 'error', ms: Date.now() - t0 }); const timeout = e && e.name === 'AbortError'; last = { status: timeout ? 504 : 502, error: timeout ? 'timeout' : 'upstream', detail: cleanDetail(e && e.message) }; continue; }
-    clearTimeout(timer);
-    attempts.push({ model, status: res.status, ms: Date.now() - t0 });
-    if (res.ok) {
-      let data; try { data = JSON.parse(bodyText); } catch (e) { last = { status: 502, error: 'upstream', detail: 'Google sent an answer that is not JSON' }; continue; }
-      const text = data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts
-        && data.candidates[0].content.parts.map(p => p.text || '').join('');
-      const guess = text ? parseGuess(text) : null;
-      if (guess) return { guess, model };
-      last = { status: 502, error: 'unreadable' };       // blocked or empty answer: counts as "could not identify"
-      continue;
+// One model, one question. Returns { guess, model } or a failure { status, error, detail?, stop? }; stop means "do not try other models" (bad key, busy).
+async function askOne({ apiKey, model, image, mime, fetchImpl, timeoutMs, attempts, ctls }) {
+  const ctl = new AbortController(); ctls.push(ctl);
+  const timer = setTimeout(() => ctl.abort(), timeoutMs);
+  const t0 = Date.now();
+  let res, bodyText = '';
+  try {
+    // Settings are tried from the most helpful to the plainest: JSON schema plus "no extra thinking" (much faster), then without the
+    // thinking setting, then without the schema. A model that rejects a setting gets the same question again with the next variant.
+    const think = /2\.5/.test(model) ? { thinkingBudget: 0 } : { thinkingLevel: 'minimal' };
+    const variants = [{ schema: true, think: true }, { schema: true, think: false }, { schema: false, think: false }];
+    const attempt = v => fetchImpl(ENDPOINT + encodeURIComponent(model) + ':generateContent', {
+      method: 'POST', signal: ctl.signal,
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },   // key in a header, so it never appears in an address or log
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: PROMPT }, { inline_data: { mime_type: mime, data: image } }] }],
+        generationConfig: Object.assign({ temperature: 0, maxOutputTokens: 1024, responseMimeType: 'application/json' },
+          v.schema ? { responseSchema: RESPONSE_SCHEMA } : {}, v.think ? { thinkingConfig: think } : {}),
+      }),
+    });
+    for (let i = 0; i < variants.length; i++) {
+      res = await attempt(variants[i]); bodyText = await res.text();
+      if (res.status !== 400 || /api key/i.test(bodyText) || i === variants.length - 1) break;
+      if (/think/i.test(bodyText)) continue;                       // the thinking setting was refused: next variant
+      if (/schema|enum|response_?mime|generation_?config/i.test(bodyText)) { i = variants.length - 2; continue; }   // the schema was refused: plainest variant
+      break;
     }
-    if (res.status === 429) { last = { status: 429, error: 'busy' }; if (/limit:\s*0/.test(bodyText)) continue; return last; }   // "limit: 0" = this model has no free quota: try the next model
-    if (res.status === 401 || res.status === 403 || (res.status === 400 && /api key/i.test(bodyText))) return { status: 502, error: 'key', detail: cleanDetail(bodyText) };   // a bad or restricted key: do not retry with other models
-    if (res.status === 404 || (res.status === 400 && /model/i.test(bodyText))) { last = { status: 502, error: 'model', detail: cleanDetail(bodyText) }; continue; }
-    last = { status: 502, error: 'upstream', detail: 'HTTP ' + res.status + ': ' + cleanDetail(bodyText) };
+  } catch (e) {
+    clearTimeout(timer);
+    if (ctl.cancelled) { attempts.push({ model, status: 'cancelled', ms: Date.now() - t0 }); return { status: 0, error: 'cancelled' }; }   // another model answered first
+    const timeout = e && e.name === 'AbortError';
+    attempts.push({ model, status: timeout ? 'timeout' : 'error', ms: Date.now() - t0 });
+    return { status: timeout ? 504 : 502, error: timeout ? 'timeout' : 'upstream', detail: cleanDetail(e && e.message) };
   }
-  return last;
+  clearTimeout(timer);
+  attempts.push({ model, status: res.status, ms: Date.now() - t0 });
+  if (res.ok) {
+    let data; try { data = JSON.parse(bodyText); } catch (e) { return { status: 502, error: 'upstream', detail: 'Google sent an answer that is not JSON' }; }
+    const text = data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts
+      && data.candidates[0].content.parts.map(p => p.text || '').join('');
+    const guess = text ? parseGuess(text) : null;
+    return guess ? { guess, model } : { status: 502, error: 'unreadable' };       // blocked or empty answer: counts as "could not identify"
+  }
+  if (res.status === 429) return /limit:\s*0/.test(bodyText) ? { status: 429, error: 'busy' } : { status: 429, error: 'busy', stop: true };   // "limit: 0" = this model has no free quota: try another
+  if (res.status === 401 || res.status === 403 || (res.status === 400 && /api key/i.test(bodyText))) return { status: 502, error: 'key', detail: cleanDetail(bodyText), stop: true };   // a bad or restricted key: do not retry with other models
+  if (res.status === 404 || (res.status === 400 && /model/i.test(bodyText))) return { status: 502, error: 'model', detail: cleanDetail(bodyText) };
+  return { status: 502, error: 'upstream', detail: 'HTTP ' + res.status + ': ' + cleanDetail(bodyText) };
+}
+
+// Prefer an error that says more than "model missing".
+const betterError = (prev, r) => (!prev || (prev.error === 'model' && r.error !== 'model') ? r : (r.error === 'model' && prev.error !== 'model' ? prev : r));
+
+// Tries the models in order, but does not wait for a slow one: the next model starts as soon as the previous one fails, or after hedgeMs
+// if it is still thinking. The first good answer wins and the others are cancelled. (A free-tier model that stalls for 12 seconds no longer
+// holds up the answer.)
+function raceModels({ models, hedgeMs = 5000, ...ctx }) {
+  return new Promise(resolve => {
+    const ctls = []; let next = 0, pending = 0, settled = false, last = null, timer = null;
+    const finish = r => { if (settled) return; settled = true; clearTimeout(timer); ctls.forEach(c => { c.cancelled = true; c.abort(); }); resolve(r); };
+    const launch = () => {
+      if (settled || next >= models.length) return;
+      const model = models[next++]; pending++;
+      clearTimeout(timer); if (next < models.length) timer = setTimeout(launch, hedgeMs);
+      askOne({ ...ctx, model, ctls }).then(r => {
+        pending--; if (settled) return;
+        if (r.guess || r.stop) return finish(r);
+        if (r.error !== 'cancelled') last = betterError(last, r);
+        if (next < models.length) launch(); else if (pending === 0) finish(last || r);
+      }, () => { pending--; if (!settled && next < models.length) launch(); else if (!settled && pending === 0) finish(last || { status: 502, error: 'upstream' }); });
+    };
+    launch();
+  });
 }
 
 // handle(req, { env, fetchImpl, limiter, hash }) -> Response. env(name) reads a setting.
@@ -205,7 +232,7 @@ export async function handle(req, deps) {
   let models = (env('GEMINI_MODEL') ? [env('GEMINI_MODEL')] : []).concat(DEFAULT_MODELS).filter((m, i, a) => m && a.indexOf(m) === i).slice(0, 3);
   // For the owner's speed tests: a request may name one model, but only one the key can actually use (checked against Google's own list).
   if (typeof body.model === 'string' && /^[a-z0-9.-]{3,60}$/.test(body.model) && (await discoverModels({ apiKey, fetchImpl: deps.fetchImpl || fetch, all: true })).includes(body.model)) models = [body.model];
-  const r = await askGemini({ apiKey, models, image, mime, fetchImpl: deps.fetchImpl || fetch });
+  const r = await askGemini({ apiKey, models, image, mime, fetchImpl: deps.fetchImpl || fetch, hedgeMs: Number(env('IDENTIFY_HEDGE_MS')) || 5000 });
   if (r.guess) return json(200, { ok: true, guess: r.guess, model: r.model, attempts: r.attempts }, cors);
   if (r.error === 'unreadable') return json(200, { ok: true, guess: { found: false, brand: '', name: '', model: '', category: 'other', confidence: 0 } }, cors);
   return json(r.status || 502, Object.assign({ ok: false, error: r.error || 'upstream' }, r.detail ? { detail: r.detail } : {}, r.attempts ? { attempts: r.attempts } : {}), cors);

@@ -230,3 +230,26 @@ test('the reply lists every model tried with its status and time; a request may 
   j = await (await s.call({ image: IMG, mime: 'image/jpeg', model: 'not-a-real-model' })).json();   // a name that is not in the list is ignored
   assert.ok(j.attempts.every(x => x.model !== 'not-a-real-model'));
 });
+
+test('a slow model does not hold things up: the next model starts after the hedge time and the first good answer wins', async () => {
+  const m = await load(); const started = [];
+  const f = (url, init) => {
+    const model = url.match(/models\/([^:]+):/)[1]; started.push(model);
+    if (model === 'slow') return new Promise((res, rej) => { init.signal.addEventListener('abort', () => rej(Object.assign(new Error('aborted'), { name: 'AbortError' }))); });   // never answers
+    return Promise.resolve(reply(good));
+  };
+  const t0 = Date.now();
+  const r = await m.askGemini({ apiKey: 'k', models: ['slow', 'fast'], image: IMG, mime: 'image/jpeg', fetchImpl: f, hedgeMs: 40, timeoutMs: 5000 });
+  assert.equal(r.guess.brand, 'Sony'); assert.equal(r.model, 'fast'); assert.ok(Date.now() - t0 < 1500);
+  assert.deepEqual(started, ['slow', 'fast']);
+  assert.ok(r.attempts.some(x => x.model === 'slow' && x.status === 'cancelled'));     // the slow one was cancelled when the answer came
+});
+
+test('hedging does not start a backup when the first model answers in time, and a quick failure starts the next at once', async () => {
+  const m = await load(); const started = [];
+  let r = await m.askGemini({ apiKey: 'k', models: ['a', 'b'], image: IMG, mime: 'image/jpeg', hedgeMs: 200, fetchImpl: async url => { started.push(url.match(/models\/([^:]+):/)[1]); return reply(good); } });
+  assert.equal(r.model, 'a'); assert.deepEqual(started, ['a']);
+  started.length = 0; const t0 = Date.now();
+  r = await m.askGemini({ apiKey: 'k', models: ['a', 'b'], image: IMG, mime: 'image/jpeg', hedgeMs: 5000, fetchImpl: async url => { const n = url.match(/models\/([^:]+):/)[1]; started.push(n); return n === 'a' ? fail(503, JSON.stringify({ error: { message: 'high demand' } })) : reply(good); } });
+  assert.equal(r.model, 'b'); assert.ok(Date.now() - t0 < 1000);       // did not wait the 5 s hedge time after a fast failure
+});

@@ -33,6 +33,9 @@ Expected: `{"ok":true,"guess":{...}}`. Other answers: `401` (key header missing 
 ## Speed and choosing a model
 The function asks for no extra "thinking" (much faster: about 2 to 4 seconds instead of 10 to 18) and the app sends a 768 px picture. The success reply names the model that answered (`model`). To see which Flash models your key can use, open `GET /functions/v1/identify?diag=models` with the `apikey` header: it lists them (names only), lite models first. To force a model, set the secret `GEMINI_MODEL` (for example a "flash-lite" name from that list); no redeploy is needed.
 
+## Slow or overloaded models
+Free-tier models sometimes stall or answer 503 "high demand". The function does not wait for a slow model: if the first model has not answered after 5 seconds (`IDENTIFY_HEDGE_MS`), the next model starts in parallel, and the first good answer wins (the others are cancelled). A model that fails quickly hands over to the next at once. Each reply lists what was tried in `attempts` (model, status, milliseconds).
+
 ## Limits and cost
 Free tier: Google allows only a few requests a minute (about 15, check AI Studio for your key) and a daily quota. The function also limits itself: 6 photos per minute and 40 per day per visitor, 12 per minute and 1,000 per day overall (in memory per running instance, so a brake rather than a guarantee). When Gemini says it is busy the app shows "busy, try again in a minute".
 
