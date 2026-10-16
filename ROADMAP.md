@@ -1,3 +1,4 @@
+| allenadhitya1718 (+ Claude session) | Fixes from emulator testing (see Requests) | `web-v2/v2.js`, `web-v2/v2.css`, `web-v2/assets/account.js`, `app-v2/mobile.js` (small fixes only, at the owner's request) | 2026-10-16 | Started |
 # DOABNO roadmap and work claims
 
 **Read this before editing anything.** It says who is working on what, so two people (or two Claude Code sessions) never edit the same files at once.
