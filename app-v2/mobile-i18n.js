@@ -34,7 +34,7 @@ window.APP_I18N = {
 
     'welcome.t1': 'Compare', 'welcome.t2': 'Buy', 'welcome.t3': 'Save',
     'show.label': 'Best prices right now', 'show.sorting': 'Sorting {n} stores by total price…', 'show.sorted': 'Cheapest first, delivery included', 'show.save': 'Save {x}',
-    'scan.title': 'Search by photo or barcode', 'scan.photo': 'Search by photo', 'scan.photo.d': 'Take or choose a picture of the barcode on the box.',
+    'scan.title': 'Search by photo or barcode', 'scan.photo': 'Choose a photo', 'scan.photo.d': 'From your gallery or files.', 'scan.cam': 'Take a photo', 'scan.cam.d': 'Photograph the barcode or the product.',
     'scan.barcode': 'Scan a barcode', 'scan.barcode.d': 'Point your camera at the barcode on the box.',
     'scan.entry': 'Or type the barcode number', 'scan.entry.ph': 'e.g. 6291234567895', 'scan.entry.go': 'Find',
     'scan.analysing': 'Reading the barcode…', 'scan.ai.working': 'No barcode found. Identifying the product from the photo…', 'scan.ai.note': 'Identified as {n}. Please check it is the right product.', 'scan.ai.nomatch': 'This looks like {n}, but we don’t have it yet.', 'scan.ai.search': 'Search for it', 'scan.ai.busy': 'Photo search is busy right now. Try again in a minute, or type the barcode number.', 'scan.ai.failed': 'We couldn’t identify this photo right now. Try a photo of the barcode, or type the number below.', 'scan.ai.privacy': 'If no barcode is found, the photo is sent to an AI service to identify the product. It is not saved.', 'scan.nobarcode': 'We couldn’t find a barcode in this photo. Take a closer, sharper photo of the barcode, or type the number below.', 'scan.nocode': 'Barcode {c} was read, but we don’t have this product yet.', 'scan.found': 'Possible matches', 'scan.none': 'No product found. Try a clearer picture or type the name.',
@@ -81,7 +81,7 @@ window.APP_I18N = {
 
     'welcome.t1': 'قارن', 'welcome.t2': 'اشترِ', 'welcome.t3': 'وفّر',
     'show.label': 'أفضل الأسعار الآن', 'show.sorting': 'جارٍ ترتيب {n} متاجر حسب السعر الإجمالي…', 'show.sorted': 'الأرخص أولًا، شاملًا التوصيل', 'show.save': 'وفّر {x}',
-    'scan.title': 'ابحث بالصورة أو الباركود', 'scan.photo': 'البحث بالصورة', 'scan.photo.d': 'التقط صورة للباركود على العلبة أو اخترها.',
+    'scan.title': 'ابحث بالصورة أو الباركود', 'scan.photo': 'اختيار صورة', 'scan.photo.d': 'من المعرض أو الملفات.', 'scan.cam': 'التقاط صورة', 'scan.cam.d': 'صوّر الباركود أو المنتج.',
     'scan.barcode': 'مسح الباركود', 'scan.barcode.d': 'وجّه الكاميرا نحو الباركود على العلبة.',
     'scan.entry': 'أو اكتب رقم الباركود', 'scan.entry.ph': 'مثال: 6291234567895', 'scan.entry.go': 'بحث',
     'scan.analysing': 'جارٍ قراءة الباركود…', 'scan.ai.working': 'لم نجد باركود. جارٍ التعرف على المنتج من الصورة…', 'scan.ai.note': 'تم التعرف عليه: {n}. يرجى التأكد أنه المنتج الصحيح.', 'scan.ai.nomatch': 'يبدو أنه {n}، لكنه غير متوفر لدينا بعد.', 'scan.ai.search': 'ابحث عنه', 'scan.ai.busy': 'البحث بالصورة مشغول الآن. جرّب بعد دقيقة أو اكتب رقم الباركود.', 'scan.ai.failed': 'تعذّر التعرف على هذه الصورة الآن. جرّب صورة للباركود أو اكتب الرقم أدناه.', 'scan.ai.privacy': 'إذا لم نجد باركودًا، تُرسل الصورة إلى خدمة ذكاء اصطناعي للتعرف على المنتج، ولا يتم حفظها.', 'scan.nobarcode': 'لم نجد باركود في هذه الصورة. التقط صورة أقرب وأوضح للباركود، أو اكتب الرقم أدناه.', 'scan.nocode': 'تمت قراءة الباركود {c}، لكن هذا المنتج غير متوفر لدينا بعد.', 'scan.found': 'نتائج محتملة', 'scan.none': 'لم نجد منتجًا. جرّب صورة أوضح أو اكتب الاسم.',

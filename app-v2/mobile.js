@@ -957,8 +957,10 @@
     } else if (kind === 'scan') {
       title = t('scan.title');
       body = '<div class="scan-opts"><label class="scan-opt"><span class="ic">' + icon('M4 8h3l2-3h6l2 3h3v11H4zM12 17a4 4 0 100-8 4 4 0 000 8z', 26) + '</span><strong>' + t('scan.photo') + '</strong><small>' + t('scan.photo.d') + '</small>' +
-          '<input type="file" id="scanFile" accept="image/*" capture="environment" hidden></label>' +
-        '<button type="button" class="scan-opt" data-scan-live><span class="ic">' + icon('M4 6v12M7 6v12M10 6v12M14 6v12M17 6v12M20 6v12', 26) + '</span><strong>' + t('scan.barcode') + '</strong><small>' + t('scan.barcode.d') + '</small></button></div>' +
+          '<input type="file" id="scanFile" accept="image/*" hidden></label>' +
+        '<label class="scan-opt"><span class="ic">' + icon('M4 8h3l2-3h6l2 3h3v11H4zM12 17a4 4 0 100-8 4 4 0 000 8z', 26) + '</span><strong>' + t('scan.cam') + '</strong><small>' + t('scan.cam.d') + '</small>' +
+          '<input type="file" id="scanCam" accept="image/*" capture="environment" hidden></label>' +
+        '<button type="button" class="scan-opt scan-opt-wide" data-scan-live><span class="ic">' + icon('M4 6v12M7 6v12M10 6v12M14 6v12M17 6v12M20 6v12', 26) + '</span><strong>' + t('scan.barcode') + '</strong><small>' + t('scan.barcode.d') + '</small></button></div>' +
         '<div class="scan-live" id="scanLive" hidden><video id="scanVideo" playsinline muted></video><span class="scan-frame"></span><p>' + t('scan.live') + '</p><button type="button" class="btn btn-outline-light" data-scan-stop>' + t('scan.cancel') + '</button></div>' +
         '<label class="field"><span>' + t('scan.entry') + '</span><div class="scan-entry"><input type="text" name="code" inputmode="numeric" pattern="[0-9 ]*" placeholder="' + t('scan.entry.ph') + '" autocomplete="off"><button type="submit" class="btn btn-secondary">' + t('scan.entry.go') + '</button></div></label>' +
         '<p class="scan-sample-h">' + t('scan.sample') + '</p><div class="scan-samples">' + listed().sort(byPopularity).slice(0, 3).map(p => '<button type="button" class="scan-sample" data-scan-code="' + (p.gtin || eanOf(p)) + '">' +
@@ -1176,7 +1178,7 @@
   document.addEventListener('change', e => {
     const el = e.target;
     const form = el.closest('#sheetForm');
-    if (el.id === 'scanFile') scanByPhoto(el.files[0]);
+    if (el.id === 'scanFile' || el.id === 'scanCam') { const f = el.files[0]; el.value = ''; scanByPhoto(f); }
     else if (el.name === 'email' && form && form.dataset.kind === 'alert') { $('#emailConsent').hidden = !el.checked; if (el.checked) form.mail.focus(); }
     else if (el.dataset.notify) {
       state.notify[el.dataset.notify] = el.checked; save('app.notify', state.notify);
