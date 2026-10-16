@@ -33,6 +33,10 @@ Supabase dashboard > SQL Editor > paste `backend/supabase/migrations/0010_push_t
 The daily workflow "Import store feeds" already passes the secrets to the alert job. A platform without its secrets is simply skipped.
 
 ## Testing it
+### Quick check without an account: the Push test workflow
+GitHub > Actions > **Push test** > Run workflow, with a phone's push token and its platform. It sends one notification and fails if Google or Apple refuse it, so it proves the secrets work. (The token is what the app gets from the plugin when notification permission is granted; for a real person it is also in the `push_tokens` table.) Verified on 2026-10-16: a token from the Android emulator received the notification, and tapping it delivered `url: #/p/<product id>` to the app.
+
+### Full check with an account
 1. Install the app on a phone, sign in, open any product, **Alert**, set a target **above** today's price, leave Push on, Save, and allow notifications.
 2. Check the phone registered: Supabase > Table Editor > `push_tokens` has a row for the account (the table is hidden from the API; use the dashboard).
 3. GitHub > Actions > **Import store feeds** > Run workflow. In the log, look for `push: android, ios` and `alerts: {... "pushed": 1 ...}`. The notification arrives within seconds.
