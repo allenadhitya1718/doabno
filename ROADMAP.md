@@ -28,6 +28,8 @@ Plan and reasoning: [BACKEND-PLAN.md](BACKEND-PLAN.md). Back-end setup: [backend
 
 9. **Account setup with a browser:** the next person's Claude Code follows [SETUP-WITH-BROWSER.md](SETUP-WITH-BROWSER.md) (open sign-in tabs, the person logs in, Claude does the settings; secrets and payments stay with the person). Claim a row here before starting.
 
+10. **Testing:** [TESTING-MANUAL.md](TESTING-MANUAL.md) is the full test manual (normal and edge cases for website, app, admin, database, alerts, tracking, importer, hosting). Run it before launch.
+
 ## Done
 - Website, app and admin redesigns (`web-v2/`, `app-v2/`, `admin-v2/`), including the new admin on `main`.
 - Figma screenshot folders (English + Arabic-only sets).
