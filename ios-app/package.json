@@ -1,0 +1,10 @@
+{
+  "name": "doabno-ios",
+  "private": true,
+  "description": "iOS wrapper (Capacitor) around app-v2. Built and uploaded to TestFlight by .github/workflows/ios-testflight.yml",
+  "dependencies": {
+    "@capacitor/cli": "^7.4.0",
+    "@capacitor/core": "^7.4.0",
+    "@capacitor/ios": "^7.4.0"
+  }
+}
