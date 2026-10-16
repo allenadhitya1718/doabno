@@ -47,6 +47,7 @@ Still needed: `APNS_KEY_P8`, `APNS_KEY_ID` (iPhone push); the four `ANDROID_*` s
 10. **Work through `moretests.md`** (human-style test scenarios; mind its safety rules, the site uses the live database).
 
 ### Known issues and notes
+- **Offer ages look old ("Checked 4 days ago")** (noted 2026-10-17): the daily import runs but has 0 feeds, so no prices are refreshed and the ages are those of the starting data. Left as is on purpose until real store feeds are connected; do not fake the timestamps. One scheduled run failed on 2026-10-16 with a one-off "fetch failed"; the next run passed.
 - The daily **Import store feeds** run failed once on 2026-10-16 with "fetch failed" (single run; check the next scheduled one).
 - Notification icon on Android is still the default placeholder.
 - The admin's settings tabs are browser-only (known gap); Google and Apple sign-in are off.
