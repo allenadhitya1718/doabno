@@ -9,6 +9,49 @@ Plan and reasoning: [BACKEND-PLAN.md](BACKEND-PLAN.md). Back-end setup: [backend
 - Claims are by folder or file path. Anything not listed is free to take.
 - Pull before you start (`git pull origin redesign-v2`) and push small commits often.
 
+## Where things stand (updated 2026-10-16, late evening)
+Written for the whole team. Everything below is on `main`. Detail for each item is in the files named in brackets.
+
+### Live and working
+| Piece | State |
+|---|---|
+| Website, mobile web app, admin | Live at https://doabno.pages.dev (Cloudflare Pages, **direct upload**, not connected to Git: every change needs a new zip). The live build is `main` as of commit `ba5b1b4`; later commits only touch the native apps, the database and the CI. To redeploy: `node scripts/build-site.js`, zip the contents of `dist/`, Cloudflare dashboard > the project > Deployments > Create new deployment. |
+| Supabase (`hmanlftkhvruqgvkencn`, free plan) | Catalog, accounts, admin, alerts tables; edge functions `go` (store links) and `identify` (photo search) deployed; migrations 0001 to 0010 run (0010 = push tokens, run 2026-10-16). Plan: move the project to the friend's Pro organization with Supabase's built-in project transfer **after** the client submission (keep the project active, take a backup first, do not pause it). |
+| Photo and barcode search (mobile app) | Barcodes are read on the phone (bundled ZXing, or the phone's own reader) and matched to the catalogue GTIN: tested, 14 of 14 cases. Photos without a barcode go to the `identify` function (Gemini): works with real photos (3 to 10 s). **Free tier limit: 20 requests per model per day per Google project**; two keys are set (`GEMINI_API_KEY`, `GEMINI_API_KEY_2`) and `GEMINI_MODEL=gemini-3.6-flash`; the function falls back across models and keys and skips exhausted ones. A paid key is needed before real users. [`backend/supabase/functions/identify/README.md`] |
+| Automated tests | `cd backend && npm test`: 98 tests and 250 catalogue checks pass. Emulator testing results: `TEST-RESULTS-EMULATOR.md`; what an emulator cannot test: `TEST-NOT-POSSIBLE-ON-EMULATOR.md`. |
+
+### Phone apps (Capacitor wrappers around `app-v2`)
+| App | State |
+|---|---|
+| **iPhone** (`ios-app/`, workflow **iOS to TestFlight**) | Two builds of 1.0.0 are uploaded to App Store Connect (the second is signed with the Push capability and was accepted by Apple). Fixed on the way: Apple needs Xcode 26 / iOS 26 SDK (runner `macos-26`), and the bundle id must not be forced onto every target. In App Store Connect still to do: wait for processing, add testers (internal testers need no review; external need Beta App Review and a privacy-policy URL), answer the App Privacy questions. Not tested on a real iPhone. Warning from Apple: raise the iOS deployment target from 14 to 15 before April 2027. [`ios-app/README.md`] |
+| **Android** (`android-app/`, workflow **Android build**) | Builds a debug APK on every run (download it from the run page, Artifacts; installs on any phone or emulator). Tested on the emulator: live catalogue, barcodes, photo picker, camera, notification permission. Google Play is not set up: needs a Play Console account and four secrets (`ANDROID_KEYSTORE_B64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`) for a signed AAB. [`android-app/README.md`] |
+| **Push notifications** | **Android verified end to end** (Firebase project `doabno-84332`, secrets `GOOGLE_SERVICES_JSON_B64` and `FCM_SERVICE_ACCOUNT_JSON`): the app gets a token, the manual **Push test** workflow delivered a notification to the emulator, and tapping it opens the product. **iPhone**: code and signing done, but needs an Apple push key (`APNS_KEY_P8`, `APNS_KEY_ID`). **Not yet tested with a real signed-in account**: saving the token (needs a person to sign up in the app), and the daily alert job sending the push. The daily job already has the push code; no email key (Resend) is set, so only push goes out. [`docs/push-notifications.md`] |
+
+### GitHub secrets and variables (names only)
+Set: `APPLE_TEAM_ID`, `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_P8`, `BACKUP_PASSPHRASE`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_DB_URL`, `FCM_SERVICE_ACCOUNT_JSON`, `GOOGLE_SERVICES_JSON_B64`; variable `BUNDLE_ID=com.doabno.app`.
+Still needed: `APNS_KEY_P8`, `APNS_KEY_ID` (iPhone push); the four `ANDROID_*` secrets (Google Play); `RESEND_API_KEY`, `ALERT_FROM`, `SITE_URL` (alert emails). Supabase function secrets (set in the Supabase dashboard): `GEMINI_API_KEY`, `GEMINI_API_KEY_2`, `GEMINI_MODEL`, `CLICK_SALT`, `SITE_URL`.
+
+### Workflows (Actions tab)
+`iOS to TestFlight` (input: version, push), `Android build` (input: version), `Push test` (input: phone token and platform: sends one test notification), `Import store feeds` (daily 03:00 UTC, also runs the price-alert job and push), `Back up database` (weekly).
+
+### Open items, with who has to do them
+1. **App Store Connect** (Apple account owner): testers, App Privacy answers, then TestFlight invite for the client.
+2. **Apple push key** (Apple developer account owner): Keys > + > Apple Push Notifications service; add `APNS_KEY_P8` and `APNS_KEY_ID`; re-run iOS to TestFlight.
+3. **Test push with a real account** (anyone, a test email): sign up in the Android app, set an alert above the price with Push on, allow notifications; then run **Import store feeds** and look for `pushed` in the log.
+4. **Paid Gemini key** (before real users): create a billing-enabled key in Google AI Studio and replace the `GEMINI_API_KEY` secret in Supabase. No code change.
+5. **Supabase transfer** to the friend's Pro organization (after the client submission).
+6. **Legal** (client and legal adviser): the legal notice page still has placeholders; the privacy policy needs a sentence about photos going to an AI service and notifications through Google and Apple; approval of all legal pages.
+7. **Domain, Resend email, Cloudflare connected to Git** (so pushes redeploy the site without zips).
+8. **Store feeds and affiliate links**: no offer has a store link yet, so "Visit store" opens nothing.
+9. **Google Play** (Android): Play Console account and the signing secrets.
+10. **Work through `moretests.md`** (human-style test scenarios; mind its safety rules, the site uses the live database).
+
+### Known issues and notes
+- The daily **Import store feeds** run failed once on 2026-10-16 with "fetch failed" (single run; check the next scheduled one).
+- Notification icon on Android is still the default placeholder.
+- The admin's settings tabs are browser-only (known gap); Google and Apple sign-in are off.
+- Bugs found in testing and fixed: damaged saved session crash, Apple/Google buttons shown in the app while off, "Visit store" with no link, unknown category error, long-search overflow, favourites count (see `TEST-RESULTS-EMULATOR.md`).
+
 ## In progress (claimed: do not edit)
 | Owner | Area | Files / folders claimed | Started | Status |
 |---|---|---|---|---|
@@ -18,6 +61,8 @@ Plan and reasoning: [BACKEND-PLAN.md](BACKEND-PLAN.md). Back-end setup: [backend
 | allenadhitya1718 (+ Claude session) | Account setup with a browser (no domain yet) | Supabase settings and `go` function, GitHub secrets and workflow runs, `clickOutUrl` line in `*/assets/config.js`, ticks in `remainingthings.md` and `ROADMAP.md`. Not touching hosting, domain or Resend until a domain exists | 2026-10-14 | `go` function deployed (JWT off, Confirm email on, advisors read: 0 errors), `clickOutUrl` set in the three configs, `CLICK_SALT` and the four GitHub secrets saved, import workflow green, **Back up database workflow green (run #5, 2026-10-15, 1 artifact)**, second admin (owner) added 2026-10-15, **site live at https://doabno.pages.dev (Cloudflare Pages, direct upload of `node scripts/build-site.js` output; not yet connected to Git, so redeploy by uploading a new `dist` zip)**, `SITE_URL` set in Supabase, Supabase Site URL and redirect URLs point at it. Waiting on a domain: hosting, Resend email, `SITE_URL`, Supabase redirect URLs |
 
 ## Queued (waiting on something)
+_Older list, kept for detail; the status section above is more recent where they differ._
+
 1. ~~Supabase project~~ **Done 2026-10-13:** project created, schema and seed loaded, counts verified, and the three apps now read the live catalog (`*/assets/config.js`). The live catalog matches the demo data (250 parity checks).
 2. Deploy and test the click function (`backend/supabase/functions/go`), set `CLICK_SALT`; run the importer against a real feed (`backend/importer/cli.js`); add `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` as GitHub secrets (the daily workflow only runs once merged to `main`).
 3. **Run `backend/supabase/migrations/0003_account_functions.sql` in the Supabase SQL Editor** (account deletion and consent saved at sign-up need it). Then: Google and Apple sign-in (buttons show "coming soon" for now); decide whether Supabase "Confirm email" stays on (default on; free plan sends only a few emails per hour).
