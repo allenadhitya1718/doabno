@@ -10,8 +10,10 @@
 export const MAX_IMAGE_BYTES = 1_800_000;            // decoded size; the app shrinks photos to about 1,000 px first (about 150 KB)
 export const MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 export const CATEGORIES = ['electronics', 'beauty', 'fashion', 'kids', 'home', 'other'];
-// Fastest stable "lite" model first (the "-latest" aliases pointed at newer, much slower models: 10 to 30 seconds); the next is tried only when a model is missing or has no free quota.
-export const DEFAULT_MODELS = ['gemini-2.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-flash-lite-latest'];
+// Measured on the free tier (October 2026): gemini-3.6-flash answered in 3 to 5 seconds every time; the 2.5 models are closed to new keys (404);
+// 3.5 flash-lite took 9 seconds or timed out; 3.7, 3.8 and omni were often overloaded (503) or out of quota (429). Re-test with the diag and
+// "model" options in the README when this changes. The next is tried only when a model is missing, overloaded or out of quota.
+export const DEFAULT_MODELS = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
 const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/';
 
 export const PROMPT = [
