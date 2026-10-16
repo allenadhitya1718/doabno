@@ -107,7 +107,7 @@ export async function discoverModels({ apiKey, fetchImpl = fetch, now = Date.now
 const cleanDetail = body => {
   let t = String(body || '');
   try { const j = JSON.parse(t); t = (j.error && j.error.message) || t; } catch (e) { /* plain text */ }
-  return t.replace(/AIza[0-9A-Za-z_-]{10,}/g, '[key]').replace(/\s+/g, ' ').slice(0, 220);
+  return t.replace(/AIza[0-9A-Za-z_-]{10,}/g, '[key]').replace(/\s+/g, ' ').slice(0, 600);
 };
 
 // keys: one or more Gemini keys (a backup key from another Google project has its own free quota). For each model the keys are tried in order.
