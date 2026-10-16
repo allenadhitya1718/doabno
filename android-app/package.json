@@ -1,0 +1,10 @@
+{
+  "name": "doabno-android",
+  "private": true,
+  "description": "Android wrapper (Capacitor) around app-v2. Built by .github/workflows/android-build.yml",
+  "dependencies": {
+    "@capacitor/cli": "^7.4.0",
+    "@capacitor/core": "^7.4.0",
+    "@capacitor/android": "^7.4.0"
+  }
+}
