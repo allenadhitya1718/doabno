@@ -48,3 +48,10 @@ These would change or try to change data in the real project `hmanlftkhvruqgvken
 | ACC-6 at true 200% zoom | The emulator could not narrow the page below about 340 px |
 
 (Done in the second pass and moved to the results file: W-HOME-4, W-PROD-2, W-COUP-2, W-LOC-5/6, E-SRCH-9/10, APP-6, APP-7, APP-10, APP-11, APP-12.)
+
+## 5. App barcode search (added 2026-10-16)
+| Tests | Why not on the emulator |
+|---|---|
+| Live camera scanning (`Scan a barcode`) in Chrome on Android, Safari on iPhone | The emulator gave the page no camera. Needs a real phone over HTTPS (the camera only works on a secure address) |
+| Real photos of real boxes: glare, curved packs, small print, low light, motion blur | Tested only with generated barcode pictures. Take 15 to 20 photos of real products and note how many read |
+| Real GTINs | The catalogue's barcodes are placeholder numbers; real stores' feed barcodes will be matched by the same code once feeds are loaded |

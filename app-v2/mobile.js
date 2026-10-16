@@ -761,36 +761,96 @@
       ? '<h3 class="opt-head">' + t('scan.found') + '</h3>' + (note || '') + '<div class="plist">' + list.map(p => productRow(p).replace('<a ', '<a data-scan-hit ')).join('') + '</div>'
       : '<p class="sheet-text">' + t('scan.none') + '</p>';
   }
-  function scanByCode(code) {
+  // A barcode is matched to a product by its GTIN (the barcode number the catalogue stores). A 12-digit UPC-A and its 13-digit EAN-13 form count as the same code.
+  const gtinKey = c => String(c).replace(/\D/g, '').padStart(14, '0');
+  const codesOf = p => [p.gtin, eanOf(p)].filter(Boolean).map(gtinKey);   // eanOf: stable demo code for products with no catalogue GTIN
+  function scanByCode(code, note) {
     const c = String(code).replace(/\D/g, '');
     if (c.length < 8 || c.length > 14) { const out = $('#scanOut'); if (out) out.innerHTML = '<p class="form-err">' + t('scan.badcode') + '</p>'; return; }
     stopCamera();
-    scanResults(listed().filter(p => eanOf(p) === c || eanOf(p).endsWith(c) || c.endsWith(eanOf(p))));
+    const k = gtinKey(c), list = listed().filter(p => codesOf(p).includes(k));
+    if (!list.length) { const out = $('#scanOut'); if (out) out.innerHTML = (note || '') + '<p class="sheet-text">' + t('scan.nocode', { c }) + '</p>'; return; }
+    scanResults(list, note);
+  }
+
+  // ---- reading a barcode from a picture or the camera ----
+  // The phone's own reader (BarcodeDetector, Chrome on Android) is used when it exists; otherwise the bundled ZXing library
+  // (assets/vendor/zxing.min.js, loaded only when needed) reads the picture. Everything happens on the phone; no picture is uploaded.
+  let zxLoading = null;
+  const loadZXing = () => window.ZXing ? Promise.resolve(window.ZXing) : (zxLoading = zxLoading || new Promise((resolve, reject) => {
+    const s = document.createElement('script'); s.src = 'assets/vendor/zxing.min.js';
+    s.onload = () => resolve(window.ZXing); s.onerror = () => { zxLoading = null; reject(new Error('barcode reader not available')); };
+    document.head.appendChild(s);
+  }));
+  const BARCODE_FORMATS = ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128'];
+  let nativeDetector;
+  const detector = () => (nativeDetector === undefined ? (nativeDetector = 'BarcodeDetector' in window ? new BarcodeDetector({ formats: BARCODE_FORMATS }) : null) : nativeDetector);
+  // Reads one canvas; returns the digits or null. Tries the phone's reader first, then ZXing (which also tries the picture turned sideways).
+  async function decodeCanvas(canvas) {
+    const det = detector();
+    if (det) { try { const r = await det.detect(canvas); if (r.length) return r[0].rawValue; } catch (e) { /* fall through to ZXing */ } }
+    let Z; try { Z = await loadZXing(); } catch (e) { return null; }
+    const hints = new Map();
+    hints.set(Z.DecodeHintType.POSSIBLE_FORMATS, [Z.BarcodeFormat.EAN_13, Z.BarcodeFormat.EAN_8, Z.BarcodeFormat.UPC_A, Z.BarcodeFormat.UPC_E, Z.BarcodeFormat.CODE_128]);
+    hints.set(Z.DecodeHintType.TRY_HARDER, true);
+    const reader = new Z.MultiFormatReader(); reader.setHints(hints);
+    // ZXing reads bars that run sideways-to-up and upside-down, but not a picture turned a quarter turn, so turn the picture ourselves and try again.
+    for (const c of [canvas, turnedQuarter(canvas)]) {
+      const source = new Z.HTMLCanvasElementLuminanceSource(c);
+      for (const Binarizer of [Z.HybridBinarizer, Z.GlobalHistogramBinarizer]) {
+        try { return reader.decode(new Z.BinaryBitmap(new Binarizer(source))).getText(); } catch (e) { /* not found with this method */ }
+      }
+    }
+    return null;
+  }
+  function turnedQuarter(canvas) {
+    const r = document.createElement('canvas'); r.width = canvas.height; r.height = canvas.width;
+    const x = r.getContext('2d', { willReadFrequently: true }); x.translate(r.width / 2, r.height / 2); x.rotate(Math.PI / 2); x.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+    return r;
+  }
+  function drawScaled(source, w, h, maxSide) {
+    const k = Math.min(1, maxSide / Math.max(w, h)), c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(w * k)); c.height = Math.max(1, Math.round(h * k));
+    c.getContext('2d', { willReadFrequently: true }).drawImage(source, 0, 0, c.width, c.height);
+    return c;
+  }
+  async function barcodeFromFile(file) {
+    let bmp;
+    try { bmp = await createImageBitmap(file); }
+    catch (e) { bmp = await new Promise((ok, no) => { const im = new Image(), u = URL.createObjectURL(file); im.onload = () => { URL.revokeObjectURL(u); ok(im); }; im.onerror = () => no(new Error('picture')); im.src = u; }); }
+    const w = bmp.width || bmp.naturalWidth, h = bmp.height || bmp.naturalHeight;
+    for (const maxSide of [1600, 1000, 2400]) {            // different sizes: a big photo can be too sharp or too small to read at one size
+      const code = await decodeCanvas(drawScaled(bmp, w, h, maxSide));
+      if (code) return code;
+    }
+    return null;
   }
   function scanByPhoto(file) {
     const out = $('#scanOut'); if (!out || !file) return;
     stopCamera();
     const url = URL.createObjectURL(file);
     out.innerHTML = '<div class="scan-prev"><img src="' + url + '" alt=""><span class="scan-line"></span></div><p class="sheet-text">' + t('scan.analysing') + '</p>';
-    setTimeout(() => {
-      // Demo recognition: match words in the file name, otherwise suggest popular products.
-      const words = file.name.toLowerCase().replace(/\.[a-z0-9]+$/, '').split(/[^a-z0-9]+/).filter(w => w.length > 2);
-      let hits = listed().filter(p => words.some(w => matches(p, w)));
-      if (!hits.length) hits = listed().sort(byPopularity).slice(0, 3);
-      scanResults(hits.slice(0, 4), '<div class="scan-prev sm"><img src="' + url + '" alt=""></div>');
-    }, 1300);
+    barcodeFromFile(file).then(code => {
+      if (!$('#scanOut')) return;                          // the sheet was closed meanwhile
+      const prev = '<div class="scan-prev sm"><img src="' + url + '" alt=""></div>';
+      if (code) scanByCode(code, prev);
+      else $('#scanOut').innerHTML = prev + '<p class="sheet-text">' + t('scan.nobarcode') + '</p>';
+    }).catch(() => { if ($('#scanOut')) $('#scanOut').innerHTML = '<p class="sheet-text">' + t('scan.nobarcode') + '</p>'; });
   }
   async function scanLive() {
     const live = $('#scanLive'), out = $('#scanOut');
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !('BarcodeDetector' in window)) { toast(t('scan.camera')); return; }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { toast(t('scan.camera')); return; }
     try {
       scan.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
       const v = $('#scanVideo'); v.srcObject = scan.stream; await v.play();
       live.hidden = false; if (out) out.innerHTML = '';
-      const det = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128'] });
+      if (!detector()) await loadZXing();
+      let busy = false;
       scan.timer = setInterval(async () => {
-        try { const r = await det.detect(v); if (r.length) scanByCode(r[0].rawValue); } catch (err) { /* keep trying */ }
-      }, 350);
+        if (busy || !v.videoWidth) return; busy = true;
+        try { const code = await decodeCanvas(drawScaled(v, v.videoWidth, v.videoHeight, 960)); if (code) scanByCode(code); } catch (err) { /* keep trying */ }
+        busy = false;
+      }, 450);
     } catch (err) { stopCamera(); toast(t('scan.camera')); }
   }
 
@@ -845,8 +905,8 @@
         '<button type="button" class="scan-opt" data-scan-live><span class="ic">' + icon('M4 6v12M7 6v12M10 6v12M14 6v12M17 6v12M20 6v12', 26) + '</span><strong>' + t('scan.barcode') + '</strong><small>' + t('scan.barcode.d') + '</small></button></div>' +
         '<div class="scan-live" id="scanLive" hidden><video id="scanVideo" playsinline muted></video><span class="scan-frame"></span><p>' + t('scan.live') + '</p><button type="button" class="btn btn-outline-light" data-scan-stop>' + t('scan.cancel') + '</button></div>' +
         '<label class="field"><span>' + t('scan.entry') + '</span><div class="scan-entry"><input type="text" name="code" inputmode="numeric" pattern="[0-9 ]*" placeholder="' + t('scan.entry.ph') + '" autocomplete="off"><button type="submit" class="btn btn-secondary">' + t('scan.entry.go') + '</button></div></label>' +
-        '<p class="scan-sample-h">' + t('scan.sample') + '</p><div class="scan-samples">' + listed().sort(byPopularity).slice(0, 3).map(p => '<button type="button" class="scan-sample" data-scan-code="' + eanOf(p) + '">' +
-          icon('M4 6v12M7 6v12M10 6v12M14 6v12M17 6v12M20 6v12', 18) + '<span><strong>' + esc(L(p)) + '</strong><small>' + eanOf(p) + '</small></span></button>').join('') + '</div>' +
+        '<p class="scan-sample-h">' + t('scan.sample') + '</p><div class="scan-samples">' + listed().sort(byPopularity).slice(0, 3).map(p => '<button type="button" class="scan-sample" data-scan-code="' + (p.gtin || eanOf(p)) + '">' +
+          icon('M4 6v12M7 6v12M10 6v12M14 6v12M17 6v12M20 6v12', 18) + '<span><strong>' + esc(L(p)) + '</strong><small>' + (p.gtin || eanOf(p)) + '</small></span></button>').join('') + '</div>' +
         '<div id="scanOut"></div>';
     } else if (kind === 'country') {
       title = t('profile.country');

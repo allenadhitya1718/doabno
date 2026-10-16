@@ -15,7 +15,6 @@ Plan and reasoning: [BACKEND-PLAN.md](BACKEND-PLAN.md). Back-end setup: [backend
 | devesh1905 (+ Claude session) | Back end, day 1-3 build | `backend/**` (whole folder), `.github/**`, `scripts/**`, `HANDOVER.md`, `remainingthings.md`, `ROADMAP.md`, `BACKEND-PLAN.md`, `CLAUDE.md` | 2026-10-11 | Written and tested offline: schema, seed, catalog loader, feed importer, click function. Live catalog, accounts and admin connected. Alert emails, hosting build, weekly backup workflow and handover document done (2026-10-13); waiting on accounts and secrets, see Queued |
 | devesh1905 (+ Claude session) | Data loader in the three apps | `*/assets/data.js`, `*/assets/boot.js`, `*/assets/config.js` (for `web-v2`, `app-v2`, `admin-v2`) and the script tags at the bottom of each `index.html` | 2026-10-11 | Done and tested; hands off |
 | devesh1905 (+ Claude session) | Accounts in website, app and admin | `web-v2/v2.js`, `web-v2/v2.css`, `web-v2/assets/account.js`, `app-v2/mobile.js`, `admin-v2/admin.js`, `app-frame/app/assets/data.js` | 2026-10-13 | Website and app done and tested live. Admin code written and tested against the mock (2026-10-13); **needs `0004_admin.sql` run, then a first owner added** (see `backend/README.md`), then a live test. Still demo in the admin: traffic and revenue numbers, feeds page and its "Run now" |
-| allenadhitya1718 (+ Claude session) | App photo/barcode search | `app-v2/mobile.js`, `app-v2/mobile.css`, `app-v2/assets/i18n.js`, new `app-v2/assets/vendor/` (barcode reader) | 2026-10-16 | Started |
 
 ## Queued (waiting on something)
 1. ~~Supabase project~~ **Done 2026-10-13:** project created, schema and seed loaded, counts verified, and the three apps now read the live catalog (`*/assets/config.js`). The live catalog matches the demo data (250 parity checks).
@@ -52,6 +51,8 @@ Plan and reasoning: [BACKEND-PLAN.md](BACKEND-PLAN.md). Back-end setup: [backend
 - `ClientRequirements.pdf`: one-page list of what the client must provide (stores and feeds, affiliate accounts, legal approval, domain and accounts, content).
 
 - Test-bug fixes from the emulator testing (2026-10-16): see Requests below and `TEST-RESULTS-EMULATOR.md`; 60 tests and 250 checks pass.
+
+- App photo and barcode search (2026-10-16): reads the barcode in a photo or from the camera on the phone (no upload) and matches the catalogue GTIN. Bundled reader in `app-v2/assets/vendor/`. Tested on the emulator (28 cases); real phone camera still to test. A vision model (identify a product from a plain photo, no barcode) is optional and not built.
 
 ## Not planned for the first 3 days
 Next.js rebuild for Google, native app, extra Gulf markets, hourly refresh. See `BACKEND-PLAN.md`.

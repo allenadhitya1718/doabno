@@ -150,3 +150,11 @@ Anything that would **write to the live Supabase project** (creating accounts, p
 - Python server `serve-v2.py` may still be running on port 5174 (started in the background) and an `adb reverse` for 5174 is active.
 - Chrome on the emulator has the test pages open.
 - Nothing was committed or pushed. New files only: this file and `TEST-NOT-POSSIBLE-ON-EMULATOR.md`.
+
+## App photo and barcode search (added 2026-10-16)
+The "Search by photo or barcode" sheet used to be a placeholder: a photo was never analysed (it matched words in the file name, or showed the three most popular products). It now reads the **barcode** in the picture, on the phone, and matches it to the product's GTIN (the barcode number in the catalogue). Reader: the phone's own BarcodeDetector when it exists, otherwise the bundled ZXing library (`app-v2/assets/vendor/zxing.min.js`, @zxing/library 0.21.3, Apache-2.0, loaded only when needed). The sample buttons now show and search the catalogue barcode.
+
+Tested on the emulator by feeding generated EAN-13 pictures to the photo input, with the phone's reader (native) and with ZXing only (as on iPhone and desktop), on the dev server and on the production build (security policy allows the library: no violations). 14 of 14 cases pass in each mode:
+clean barcode for four different products; very large (3,200 px) and very small (190 px) pictures; noisy; turned 90°, 270°, 180°; tilted 12°; a valid barcode that is not in the catalogue (message "Barcode … was read, but we don't have this product yet"); a photo with no barcode (message asking for a closer, sharper photo); a barcode with a wrong check digit (not read); the sample button. Read time was about 0.3 to 0.8 seconds each.
+
+Not tested here: the live camera (the emulator has no camera available to the page; the app shows its "camera isn't available" message), and real photos of real product boxes (lighting, curved packaging, glare). These need a real phone; see `TEST-NOT-POSSIBLE-ON-EMULATOR.md`.
