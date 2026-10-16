@@ -825,6 +825,62 @@
     }
     return null;
   }
+  // ---- identifying a product from a photo with no readable barcode ----
+  // The photo is sent to the "identify" function (Supabase), which asks Gemini what the product is; the answer (brand, name, model) is matched
+  // to the catalogue here. Only used when no barcode was found; the barcode path above never leaves the phone.
+  const identifyUrl = () => {
+    const c = window.DOABNO_CONFIG || {};
+    return c.identifyUrl || (c.supabaseUrl && c.anonKey ? c.supabaseUrl.replace(/\/$/, '') + '/functions/v1/identify' : '');
+  };
+  async function photoToBase64(file) {                      // a small JPEG (about 1,000 px) is enough to recognise a product and keeps the upload light
+    let bmp;
+    try { bmp = await createImageBitmap(file); }
+    catch (e) { bmp = await new Promise((ok, no) => { const im = new Image(), u = URL.createObjectURL(file); im.onload = () => { URL.revokeObjectURL(u); ok(im); }; im.onerror = () => no(new Error('picture')); im.src = u; }); }
+    const c = drawScaled(bmp, bmp.width || bmp.naturalWidth, bmp.height || bmp.naturalHeight, 1024);
+    return c.toDataURL('image/jpeg', 0.82).split(',')[1];
+  }
+  async function identifyPhoto(file) {                      // { guess } or { error: 'busy' | 'failed' }
+    const url = identifyUrl(); if (!url) return { error: 'off' };
+    try {
+      const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: (window.DOABNO_CONFIG || {}).anonKey || '' },
+        body: JSON.stringify({ image: await photoToBase64(file), mime: 'image/jpeg' }) });
+      if (res.status === 429) return { error: 'busy' };
+      const j = await res.json().catch(() => null);
+      return j && j.ok && j.guess ? { guess: j.guess } : { error: 'failed' };
+    } catch (e) { return { error: 'failed' }; }
+  }
+  // Ranks catalogue products against what the model said. A product must share the brand or the model number to count.
+  const wordsOf = s => String(s || '').toLowerCase().split(/[^a-z0-9\u0600-\u06ff]+/).filter(w => w.length > 1);
+  function matchGuess(g) {
+    if (!g || !g.found) return [];
+    const brand = wordsOf(g.brand).join(' '), model = wordsOf(g.model).filter(w => /\d/.test(w)), name = wordsOf(g.name).filter(w => w.length > 2 && !model.includes(w));
+    const scored = listed().map(p => {
+      const hay = [p.en, p.ar, p.brand, p.id].join(' ').toLowerCase(), pb = wordsOf(p.brand).join(' ');
+      const brandHit = !!brand && !!pb && (pb === brand || pb.includes(brand) || brand.includes(pb));
+      const modelHit = model.filter(w => hay.includes(w)).length;
+      const nameHit = name.filter(w => hay.includes(w)).length;
+      return { p, model: modelHit, score: (brandHit ? 3 : 0) + modelHit * 4 + nameHit, ok: brandHit || modelHit > 0 };
+    }).filter(x => x.ok && x.score >= 3 && (x.score >= 5 || g.confidence >= 0.5));
+    const exact = scored.filter(x => x.model > 0);            // a product with the same model number beats products that only share the brand
+    return (exact.length ? exact : scored).sort((x, y) => y.score - x.score).slice(0, 4).map(x => x.p);
+  }
+  async function scanIdentify(file, prev) {
+    const out = () => $('#scanOut'); if (!out()) return;
+    out().innerHTML = prev + '<p class="sheet-text">' + t('scan.ai.working') + '</p>';
+    const r = await identifyPhoto(file);
+    if (!out()) return;                                      // the sheet was closed meanwhile
+    if (r.error === 'off') { out().innerHTML = prev + '<p class="sheet-text">' + t('scan.nobarcode') + '</p>'; return; }
+    if (r.error === 'busy') { out().innerHTML = prev + '<p class="sheet-text">' + t('scan.ai.busy') + '</p>'; return; }
+    if (r.error) { out().innerHTML = prev + '<p class="sheet-text">' + t('scan.ai.failed') + '</p>'; return; }
+    const g = r.guess, label = esc([g.brand, g.name].filter(Boolean).join(' ')), list = matchGuess(g);
+    if (list.length) { scanResults(list, prev + '<p class="sheet-text">' + t('scan.ai.note', { n: label }) + '</p>'); return; }
+    if (g.found && label) {
+      out().innerHTML = prev + '<p class="sheet-text">' + t('scan.ai.nomatch', { n: label }) + '</p>' +
+        '<a class="btn btn-outline" data-scan-hit href="#/search?q=' + encodeURIComponent([g.brand, g.model || g.name].filter(Boolean).join(' ')) + '">' + t('scan.ai.search') + '</a>';
+      return;
+    }
+    out().innerHTML = prev + '<p class="sheet-text">' + t('scan.nobarcode') + '</p>';
+  }
   function scanByPhoto(file) {
     const out = $('#scanOut'); if (!out || !file) return;
     stopCamera();
@@ -834,7 +890,7 @@
       if (!$('#scanOut')) return;                          // the sheet was closed meanwhile
       const prev = '<div class="scan-prev sm"><img src="' + url + '" alt=""></div>';
       if (code) scanByCode(code, prev);
-      else $('#scanOut').innerHTML = prev + '<p class="sheet-text">' + t('scan.nobarcode') + '</p>';
+      else scanIdentify(file, prev);
     }).catch(() => { if ($('#scanOut')) $('#scanOut').innerHTML = '<p class="sheet-text">' + t('scan.nobarcode') + '</p>'; });
   }
   async function scanLive() {
@@ -907,6 +963,7 @@
         '<label class="field"><span>' + t('scan.entry') + '</span><div class="scan-entry"><input type="text" name="code" inputmode="numeric" pattern="[0-9 ]*" placeholder="' + t('scan.entry.ph') + '" autocomplete="off"><button type="submit" class="btn btn-secondary">' + t('scan.entry.go') + '</button></div></label>' +
         '<p class="scan-sample-h">' + t('scan.sample') + '</p><div class="scan-samples">' + listed().sort(byPopularity).slice(0, 3).map(p => '<button type="button" class="scan-sample" data-scan-code="' + (p.gtin || eanOf(p)) + '">' +
           icon('M4 6v12M7 6v12M10 6v12M14 6v12M17 6v12M20 6v12', 18) + '<span><strong>' + esc(L(p)) + '</strong><small>' + (p.gtin || eanOf(p)) + '</small></span></button>').join('') + '</div>' +
+        '<p class="fineprint scan-privacy">' + t('scan.ai.privacy') + '</p>' +
         '<div id="scanOut"></div>';
     } else if (kind === 'country') {
       title = t('profile.country');

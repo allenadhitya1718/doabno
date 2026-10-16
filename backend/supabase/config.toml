@@ -4,3 +4,8 @@ project_id = "doabno"
 # "go" is the public "Visit store" link: shoppers are not signed in, so it must not demand a login token.
 [functions.go]
 verify_jwt = false
+
+# "identify" turns a photo into a product guess with Gemini. The app calls it with the public key; the function checks that key itself (so the browser's
+# preflight request, which carries no token, works), and keeps GEMINI_API_KEY as a project secret.
+[functions.identify]
+verify_jwt = false

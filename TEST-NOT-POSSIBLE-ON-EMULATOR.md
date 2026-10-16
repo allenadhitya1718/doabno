@@ -55,3 +55,5 @@ These would change or try to change data in the real project `hmanlftkhvruqgvken
 | Live camera scanning (`Scan a barcode`) in Chrome on Android, Safari on iPhone | The emulator gave the page no camera. Needs a real phone over HTTPS (the camera only works on a secure address) |
 | Real photos of real boxes: glare, curved packs, small print, low light, motion blur | Tested only with generated barcode pictures. Take 15 to 20 photos of real products and note how many read |
 | Real GTINs | The catalogue's barcodes are placeholder numbers; real stores' feed barcodes will be matched by the same code once feeds are loaded |
+| Real Gemini answers: accuracy on real product photos, model names, free-tier limits | The key is in Supabase; the function must be deployed and called with real photos (steps in `backend/supabase/functions/identify/README.md`) |
+| Function deployed on Supabase: preflight from the real site address, the 401/503/429 answers on the live address | Needs the deploy |
