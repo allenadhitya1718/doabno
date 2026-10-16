@@ -2,6 +2,7 @@
 // Feed importer command line.
 //   node backend/importer/cli.js run --schedule daily          run every active feed on that schedule (needs SUPABASE_URL, SUPABASE_SERVICE_KEY)
 //   node backend/importer/cli.js run --feed-id 7               run one feed
+//   node backend/importer/cli.js push-test --token <device token> --platform android|ios      send one test notification to one phone
 //   node backend/importer/cli.js alerts [--dry true]           email and push-notify people whose price alert was reached (needs RESEND_API_KEY, ALERT_FROM, SITE_URL for email; FCM_SERVICE_ACCOUNT_JSON and/or APNS_KEY_P8, APNS_KEY_ID, APNS_TEAM_ID, BUNDLE_ID for phones)
 //   node backend/importer/cli.js dry-run --file feed.csv --format csv --store noon-sa
 //                                                              try a feed file against the demo catalog, saving nothing
@@ -56,6 +57,15 @@ async function main() {
     }
     console.log(feeds.length + ' feeds, ' + failed + ' failed');
     if ((process.env.RESEND_API_KEY && process.env.ALERT_FROM) || process.env.FCM_SERVICE_ACCOUNT_JSON || process.env.APNS_KEY_P8) await sendAlerts(db, false);   // after new prices are in, tell people whose target was reached
+    return;
+  }
+  if (cmd === 'push-test') {      // one test notification to one phone: push-test --token <device token> --platform android|ios [--url '#/p/<product id>']
+    const pusher = require('./push').pusherFromEnv();
+    if (!pusher.enabled) throw new Error('No push secrets set (FCM_SERVICE_ACCOUNT_JSON for Android; APNS_KEY_P8, APNS_KEY_ID, APNS_TEAM_ID and BUNDLE_ID for iPhone)');
+    if (!['android', 'ios'].includes(opt.platform) || !opt.token) throw new Error('--token and --platform android|ios are required');
+    const r = await pusher.send([{ token: opt.token, platform: opt.platform }], { title: 'DOABNO test', body: 'Push notifications work on this phone.', url: opt.url || '#/p/sony-wh1000xm6' });
+    console.log(JSON.stringify(r));
+    process.exitCode = r.sent ? 0 : 1;
     return;
   }
   if (cmd === 'alerts') {

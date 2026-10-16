@@ -1,0 +1,41 @@
+name: Push test
+
+# Sends ONE test notification to ONE phone, to check that the push secrets work (Android: FCM_SERVICE_ACCOUNT_JSON; iPhone: APNS_KEY_P8, APNS_KEY_ID).
+# Get the phone's token from the app (it is saved in the push_tokens table after the person allows notifications). Nothing is stored or changed.
+on:
+  workflow_dispatch:
+    inputs:
+      token:
+        description: "The phone's push token"
+        required: true
+      platform:
+        description: "android or ios"
+        required: true
+        default: android
+        type: choice
+        options: [android, ios]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      FCM_SERVICE_ACCOUNT_JSON: ${{ secrets.FCM_SERVICE_ACCOUNT_JSON }}
+      APNS_KEY_P8: ${{ secrets.APNS_KEY_P8 }}
+      APNS_KEY_ID: ${{ secrets.APNS_KEY_ID }}
+      APNS_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      BUNDLE_ID: ${{ vars.BUNDLE_ID }}
+      TOKEN: ${{ inputs.token }}
+      PLATFORM: ${{ inputs.platform }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Send the test notification
+        run: |
+          [[ "$TOKEN" =~ ^[A-Za-z0-9:_.-]{20,4096}$ ]] || { echo "That does not look like a push token."; exit 1; }
+          node backend/importer/cli.js push-test --token "$TOKEN" --platform "$PLATFORM"
