@@ -186,3 +186,34 @@ test('other Google failures come back with Google\'s reason (no key in it)', asy
   s = await setup(() => fail(400, JSON.stringify({ error: { message: 'Request contains an invalid argument.' } })));
   j = await (await s.call(ok)).json(); assert.equal(j.error, 'upstream'); assert.match(j.detail, /invalid argument/);
 });
+
+test('thinking is switched off for speed; a model that refuses that setting is asked again without it', async () => {
+  const bodies = [];
+  const s = await setup((u, init, n) => { bodies.push(JSON.parse(init.body)); return n === 1 ? fail(400, JSON.stringify({ error: { message: "Unknown name 'thinkingLevel' at 'generation_config.thinking_config'" } })) : reply(good); });
+  const r = await s.call(ok); const j = await r.json(); assert.equal(r.status, 200); assert.equal(j.guess.brand, 'Sony'); assert.ok(j.model);
+  assert.ok(bodies[0].generationConfig.thinkingConfig); assert.equal(bodies[1].generationConfig.thinkingConfig, undefined);
+  assert.ok(bodies[1].generationConfig.responseSchema);                      // the schema is kept when only thinking was refused
+});
+
+test('Gemini 2.5 models get a thinking budget of 0, newer ones the lowest thinking level', async () => {
+  let s = await setup(() => reply(good), { GEMINI_MODEL: 'gemini-2.5-flash-lite' });
+  await s.call(ok); assert.deepEqual(JSON.parse(s.calls[0].init.body).generationConfig.thinkingConfig, { thinkingBudget: 0 });
+  s = await setup(() => reply(good), { GEMINI_MODEL: 'gemini-3-flash' });
+  await s.call(ok); assert.deepEqual(JSON.parse(s.calls[0].init.body).generationConfig.thinkingConfig, { thinkingLevel: 'minimal' });
+});
+
+test('diagnostic: the owner can list the models the key may use (needs the public key, shows no secret)', async () => {
+  const m = await load(); m.resetDiscovery();
+  const list = { models: [
+    { name: 'models/gemini-2.5-flash', supportedGenerationMethods: ['generateContent'] },
+    { name: 'models/gemini-2.5-flash-lite', supportedGenerationMethods: ['generateContent'] },
+    { name: 'models/gemini-3-flash', supportedGenerationMethods: ['generateContent'] },
+    { name: 'models/gemini-3-flash-lite', supportedGenerationMethods: ['generateContent'] },
+  ] };
+  const s = await setup((u) => ({ ok: true, status: 200, text: async () => JSON.stringify(list) }), { GEMINI_MODEL: 'gemini-x' });
+  const get = (headers) => m.handle(new Request('https://x.test/f?diag=models', { method: 'GET', headers }), s.deps);
+  assert.equal((await get({ apikey: 'wrong' })).status, 401);
+  const r = await get({ apikey: ANON }); const j = await r.json();
+  assert.equal(r.status, 200); assert.deepEqual(j.available, ['gemini-3-flash-lite', 'gemini-2.5-flash-lite', 'gemini-3-flash', 'gemini-2.5-flash']);
+  assert.equal(j.configured, 'gemini-x'); assert.ok(!JSON.stringify(j).includes('AIza'));
+});

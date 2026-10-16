@@ -30,6 +30,9 @@ curl -s -X POST https://hmanlftkhvruqgvkencn.supabase.co/functions/v1/identify \
 ```
 Expected: `{"ok":true,"guess":{...}}`. Other answers: `401` (key header missing or wrong), `503 not_configured` (secret `GEMINI_API_KEY` not found), `502 key` (Google rejected the key), `429 busy` (limit reached, wait a minute), `502 upstream` (Google error). For `502 model` and `502 key` the reply also has a `detail` field with Google's own message (cut short, no key in it), for example "models/x is not found".
 
+## Speed and choosing a model
+The function asks for no extra "thinking" (much faster: about 2 to 4 seconds instead of 10 to 18) and the app sends a 768 px picture. The success reply names the model that answered (`model`). To see which Flash models your key can use, open `GET /functions/v1/identify?diag=models` with the `apikey` header: it lists them (names only), lite models first. To force a model, set the secret `GEMINI_MODEL` (for example a "flash-lite" name from that list); no redeploy is needed.
+
 ## Limits and cost
 Free tier: Google allows only a few requests a minute (about 15, check AI Studio for your key) and a daily quota. The function also limits itself: 6 photos per minute and 40 per day per visitor, 12 per minute and 1,000 per day overall (in memory per running instance, so a brake rather than a guarantee). When Gemini says it is busy the app shows "busy, try again in a minute".
 

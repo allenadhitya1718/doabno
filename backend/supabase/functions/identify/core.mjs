@@ -82,8 +82,8 @@ export const resetDiscovery = () => { discovered = null; discoveredAt = 0; };   
 
 // Asks Google which models this key may use and picks up to three Flash models that can read pictures (cheapest "lite" ones first,
 // newest version first). Used only when none of the configured model names works, so a retired name never breaks the feature.
-export async function discoverModels({ apiKey, fetchImpl = fetch, now = Date.now } = {}) {
-  if (discovered && now() - discoveredAt < 3_600_000) return discovered;
+export async function discoverModels({ apiKey, fetchImpl = fetch, now = Date.now, all = false } = {}) {
+  if (discovered && now() - discoveredAt < 3_600_000) return all ? discovered : discovered.slice(0, 3);
   try {
     const res = await fetchImpl(ENDPOINT_LIST, { headers: { 'x-goog-api-key': apiKey } });
     if (!res.ok) return [];
@@ -93,8 +93,8 @@ export async function discoverModels({ apiKey, fetchImpl = fetch, now = Date.now
       .filter(n => /flash/i.test(n) && !/(image|tts|live|audio|embedding|thinking|robotics|computer|native|exp|preview|latest)/i.test(n));
     const version = n => parseFloat((n.match(/(\d+(?:\.\d+)?)/) || [0, 0])[1]);
     list.sort((x, y) => (/lite/i.test(y) - /lite/i.test(x)) || (version(y) - version(x)));
-    discovered = list.slice(0, 3); discoveredAt = now();
-    return discovered;
+    discovered = list; discoveredAt = now();
+    return all ? list : list.slice(0, 3);
   } catch (e) { return []; }
 }
 
@@ -120,18 +120,26 @@ async function tryModels({ apiKey, models, image, mime, fetchImpl, timeoutMs }) 
     const ctl = new AbortController(); const timer = setTimeout(() => ctl.abort(), timeoutMs);
     let res, bodyText = '';
     try {
-      const attempt = withSchema => fetchImpl(ENDPOINT + encodeURIComponent(model) + ':generateContent', {
+      // Settings are tried from the most helpful to the plainest: JSON schema plus "no extra thinking" (much faster), then without the
+      // thinking setting, then without the schema. A model that rejects a setting gets the same question again with the next variant.
+      const think = /2\.5/.test(model) ? { thinkingBudget: 0 } : { thinkingLevel: 'minimal' };
+      const variants = [{ schema: true, think: true }, { schema: true, think: false }, { schema: false, think: false }];
+      const attempt = v => fetchImpl(ENDPOINT + encodeURIComponent(model) + ':generateContent', {
         method: 'POST', signal: ctl.signal,
         headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },   // key in a header, so it never appears in an address or log
         body: JSON.stringify({
           contents: [{ role: 'user', parts: [{ text: PROMPT }, { inline_data: { mime_type: mime, data: image } }] }],
-          // room to think plus a short JSON answer; the prompt itself also asks for JSON, so the schema is a help, not a requirement
-          generationConfig: Object.assign({ temperature: 0, maxOutputTokens: 1024, responseMimeType: 'application/json' }, withSchema ? { responseSchema: RESPONSE_SCHEMA } : {}),
+          generationConfig: Object.assign({ temperature: 0, maxOutputTokens: 1024, responseMimeType: 'application/json' },
+            v.schema ? { responseSchema: RESPONSE_SCHEMA } : {}, v.think ? { thinkingConfig: think } : {}),
         }),
       });
-      res = await attempt(true); bodyText = await res.text();
-      // A model that dislikes the format settings gets the same question again without the schema.
-      if (res.status === 400 && /schema|enum|response_?mime|generation_?config/i.test(bodyText) && !/api key/i.test(bodyText)) { res = await attempt(false); bodyText = await res.text(); }
+      for (let i = 0; i < variants.length; i++) {
+        res = await attempt(variants[i]); bodyText = await res.text();
+        if (res.status !== 400 || /api key/i.test(bodyText) || i === variants.length - 1) break;
+        if (/think/i.test(bodyText)) continue;                       // the thinking setting was refused: next variant
+        if (/schema|enum|response_?mime|generation_?config/i.test(bodyText)) { i = variants.length - 2; continue; }   // the schema was refused: plainest variant
+        break;
+      }
     } catch (e) { clearTimeout(timer); const timeout = e && e.name === 'AbortError'; last = { status: timeout ? 504 : 502, error: timeout ? 'timeout' : 'upstream', detail: cleanDetail(e && e.message) }; continue; }
     clearTimeout(timer);
     if (res.ok) {
@@ -159,6 +167,14 @@ export async function handle(req, deps) {
     'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Max-Age': '86400',
   };
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
+  if (req.method === 'GET' && new URL(req.url).searchParams.get('diag') === 'models') {
+    // For the project owner: which Flash models this key can use, and what the function would try. Names only, no secrets.
+    const anonKey = env('SUPABASE_ANON_KEY'), key = env('GEMINI_API_KEY');
+    if (anonKey && req.headers.get('apikey') !== anonKey) return json(401, { ok: false, error: 'unauthorized' }, cors);
+    if (!key) return json(503, { ok: false, error: 'not_configured' }, cors);
+    const found = await discoverModels({ apiKey: key, fetchImpl: deps.fetchImpl || fetch, all: true });
+    return json(200, { ok: true, configured: env('GEMINI_MODEL') || null, defaults: DEFAULT_MODELS, available: found }, cors);
+  }
   if (req.method !== 'POST') return json(405, { ok: false, error: 'method' }, cors);
 
   // The public (anon) key must be sent, as the app always does; it keeps random callers out. It is not a secret.
@@ -182,7 +198,7 @@ export async function handle(req, deps) {
 
   const models = (env('GEMINI_MODEL') ? [env('GEMINI_MODEL')] : []).concat(DEFAULT_MODELS).filter((m, i, a) => m && a.indexOf(m) === i).slice(0, 3);
   const r = await askGemini({ apiKey, models, image, mime, fetchImpl: deps.fetchImpl || fetch });
-  if (r.guess) return json(200, { ok: true, guess: r.guess }, cors);
+  if (r.guess) return json(200, { ok: true, guess: r.guess, model: r.model }, cors);
   if (r.error === 'unreadable') return json(200, { ok: true, guess: { found: false, brand: '', name: '', model: '', category: 'other', confidence: 0 } }, cors);
   return json(r.status || 502, Object.assign({ ok: false, error: r.error || 'upstream' }, r.detail ? { detail: r.detail } : {}), cors);
 }

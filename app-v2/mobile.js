@@ -820,7 +820,7 @@
     try { bmp = await createImageBitmap(file); }
     catch (e) { bmp = await new Promise((ok, no) => { const im = new Image(), u = URL.createObjectURL(file); im.onload = () => { URL.revokeObjectURL(u); ok(im); }; im.onerror = () => no(new Error('picture')); im.src = u; }); }
     const w = bmp.width || bmp.naturalWidth, h = bmp.height || bmp.naturalHeight;
-    for (const maxSide of [1600, 1000, 2400]) {            // different sizes: a big photo can be too sharp or too small to read at one size
+    for (const maxSide of [1600, 1000]) {            // different sizes: a big photo can be too sharp or too small to read at one size
       const code = await decodeCanvas(drawScaled(bmp, w, h, maxSide));
       if (code) return code;
     }
@@ -837,8 +837,8 @@
     let bmp;
     try { bmp = await createImageBitmap(file); }
     catch (e) { bmp = await new Promise((ok, no) => { const im = new Image(), u = URL.createObjectURL(file); im.onload = () => { URL.revokeObjectURL(u); ok(im); }; im.onerror = () => no(new Error('picture')); im.src = u; }); }
-    const c = drawScaled(bmp, bmp.width || bmp.naturalWidth, bmp.height || bmp.naturalHeight, 1024);
-    return c.toDataURL('image/jpeg', 0.82).split(',')[1];
+    const c = drawScaled(bmp, bmp.width || bmp.naturalWidth, bmp.height || bmp.naturalHeight, 768);
+    return c.toDataURL('image/jpeg', 0.78).split(',')[1];
   }
   async function identifyPhoto(file) {                      // { guess } or { error: 'busy' | 'failed' }
     const url = identifyUrl(); if (!url) return { error: 'off' };
