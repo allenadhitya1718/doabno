@@ -161,7 +161,7 @@ async function askOne({ apiKey, model, image, mime, fetchImpl, timeoutMs, attemp
     const guess = text ? parseGuess(text) : null;
     return guess ? { guess, model } : { status: 502, error: 'unreadable' };       // blocked or empty answer: counts as "could not identify"
   }
-  if (res.status === 429) return /limit:\s*0/.test(bodyText) ? { status: 429, error: 'busy' } : { status: 429, error: 'busy', stop: true };   // "limit: 0" = this model has no free quota: try another
+  if (res.status === 429) return { status: 429, error: 'busy', detail: cleanDetail(bodyText) };   // out of quota or too many requests for this model: other models have their own quota, so try them
   if (res.status === 401 || res.status === 403 || (res.status === 400 && /api key/i.test(bodyText))) return { status: 502, error: 'key', detail: cleanDetail(bodyText), stop: true };   // a bad or restricted key: do not retry with other models
   if (res.status === 404 || (res.status === 400 && /model/i.test(bodyText))) return { status: 502, error: 'model', detail: cleanDetail(bodyText) };
   return { status: 502, error: 'upstream', detail: 'HTTP ' + res.status + ': ' + cleanDetail(bodyText) };

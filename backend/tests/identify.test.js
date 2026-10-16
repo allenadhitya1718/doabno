@@ -106,7 +106,7 @@ test('rate limits: per visitor per minute, per visitor per day, and for everyone
 
 test('Gemini errors: busy, bad key, missing model, no quota on the first model, timeout', async () => {
   let s = await setup(() => fail(429, 'quota exceeded'));
-  let r = await s.call(ok); assert.equal(r.status, 429); assert.equal((await r.json()).error, 'busy'); assert.equal(s.calls.length, 1);
+  let r = await s.call(ok); assert.equal(r.status, 429); const jb = await r.json(); assert.equal(jb.error, 'busy'); assert.match(jb.detail, /quota exceeded/); assert.equal(s.calls.length, 3);   // every model is out of quota: all three were tried
 
   s = await setup(() => fail(403, 'API key not valid'));
   r = await s.call(ok); assert.equal(r.status, 502); assert.equal((await r.json()).error, 'key'); assert.equal(s.calls.length, 1);   // not retried
@@ -252,4 +252,11 @@ test('hedging does not start a backup when the first model answers in time, and 
   started.length = 0; const t0 = Date.now();
   r = await m.askGemini({ apiKey: 'k', models: ['a', 'b'], image: IMG, mime: 'image/jpeg', hedgeMs: 5000, fetchImpl: async url => { const n = url.match(/models\/([^:]+):/)[1]; started.push(n); return n === 'a' ? fail(503, JSON.stringify({ error: { message: 'high demand' } })) : reply(good); } });
   assert.equal(r.model, 'b'); assert.ok(Date.now() - t0 < 1000);       // did not wait the 5 s hedge time after a fast failure
+});
+
+test('a model that is out of quota hands over to the next model, which has its own quota', async () => {
+  const s = await setup((u, init, n) => (n === 1 ? fail(429, JSON.stringify({ error: { message: 'Quota exceeded for metric generate_content_free_tier_requests, limit: 20' } })) : reply(good)));
+  const r = await s.call(ok); const j = await r.json();
+  assert.equal(r.status, 200); assert.equal(j.guess.brand, 'Sony'); assert.equal(s.calls.length, 2);
+  assert.equal(j.attempts[0].status, 429);
 });
