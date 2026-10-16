@@ -69,3 +69,6 @@ Legend: PASS, FAIL (should be fixed), NOTE (works, but worth a look).
 4. Freshness wording in hours/days; investigate why offers are 3.6 days old.
 5. Arabic brand names in search (سوني).
 6. Website inputs 16 px; Back button closes dialogs; `<noscript>` message.
+
+## Fixes applied (2026-10-17, website `web-v2/`)
+Freshness now reads minutes/hours/days ("Checked 4 days ago"); the underlying offers really are about 4 days old, so check the daily import job. Product page now says the total includes delivery and carries the commission note next to "Visit store". Header controls are 40 px high. Loading placeholder, fixed minimum page height and a no-JavaScript message added. Website inputs are 16 px. Arabic brand names (e.g. سوني) now find products. Browser Back closes an open dialog. Not changed: "Visit store" stays a button; dark mode in the app.

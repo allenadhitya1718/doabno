@@ -924,3 +924,16 @@ html[lang="ar"] .app-promo2 h2 { letter-spacing: 0; line-height: 1.35; }
 
 /* Dialogs stay inside the visible area and scroll when the on-screen keyboard takes part of it. */
 .modal { max-height: calc(100dvh - 24px); overflow-y: auto; }
+
+/* moretests fixes: tap targets, 16 px inputs (no iPhone zoom), disclosure note, loading placeholder */
+.util-in { min-height: 44px; }
+.util-prefs select { min-height: 40px; padding: 6px 8px; font-size: 14px; }
+.util-btn { min-height: 40px; padding: 0 6px; }
+.modal input, .modal select { font-size: 16px; }
+.best-card .fine { margin: 10px 0 0; font-size: 12px; line-height: 1.5; color: var(--muted); }
+#main { min-height: 70vh; }
+.boot { padding: 40px 0; }
+.boot i { display: block; height: 18px; border-radius: 9px; background: linear-gradient(90deg, #EEF2F6, #F7F9FB, #EEF2F6); background-size: 200% 100%; animation: bootpulse 1.3s linear infinite; margin: 0 0 14px; }
+.boot i:nth-child(1) { width: 55%; height: 30px; } .boot i:nth-child(2) { width: 80%; } .boot i:nth-child(3) { width: 65%; } .boot i:nth-child(4) { height: 120px; border-radius: 14px; }
+@keyframes bootpulse { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .boot i { animation: none; } }

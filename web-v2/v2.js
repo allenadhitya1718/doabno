@@ -55,7 +55,7 @@
       'how.3': 'Buy', 'how.3d': 'Visit the store with the best price, or set an alert and wait for a drop.',
       market: 'Market', marketHd: 'Prices for', currencyLbl: 'Currency', 'nav.cats': 'Categories', favsNav: 'Favorites', 'nav.all': 'All categories', soon: 'Soon', lang: 'العربية',
       recent: 'Recent searches', popular: 'Popular', sProducts: 'Products', sBrands: 'Brands', sStores: 'Stores', searchFor: 'Search for “{q}”', from: 'from',
-      verified: 'Verified {n} min ago', checked: 'Checked {n} min ago', 'conf.stale': 'Price may have changed',
+      verified: 'Verified {n} ago', checked: 'Checked {n} ago', 'ago.min': '{n} min', 'ago.h': '{n} h', 'ago.d': '{n} days', 'ago.d1': '1 day', 'p.disc': 'We may earn a commission if you buy through our links. It never changes the price you pay.', 'p.incl': 'Total includes delivery.', 'conf.stale': 'Price may have changed',
       results: 'Results for “{q}”', resultsN: '{n} products compared', searchAll: 'All products', dealsT: 'Biggest price drops', dealsD: 'Products priced well below their 30-day average.',
       sort: 'Sort', 's.rel': 'Relevance', 's.pop': 'Most popular', 's.price': 'Lowest price', 's.drop': 'Biggest drop', 's.rating': 'Top rated',
       filters: 'Filters', fStore: 'Store', fBrand: 'Brand', fPrice: 'Total price', fOpts: 'Availability & delivery', min: 'Min', max: 'Max', fFree: 'Free delivery', fStock: 'In stock', clear: 'Clear all',
@@ -106,7 +106,7 @@
       'how.3': 'اشترِ', 'how.3d': 'زر المتجر صاحب أفضل سعر، أو فعّل تنبيهًا وانتظر الانخفاض.',
       market: 'السوق', marketHd: 'الأسعار في', currencyLbl: 'العملة', 'nav.cats': 'الأقسام', favsNav: 'المفضلة', 'nav.all': 'كل الأقسام', soon: 'قريبًا', lang: 'English',
       recent: 'عمليات البحث الأخيرة', popular: 'شائع', sProducts: 'المنتجات', sBrands: 'الماركات', sStores: 'المتاجر', searchFor: 'ابحث عن «{q}»', from: 'من',
-      verified: 'تم التحقق قبل {n} دقيقة', checked: 'آخر فحص قبل {n} دقيقة', 'conf.stale': 'قد يكون السعر تغيّر',
+      verified: 'تم التحقق قبل {n}', checked: 'آخر فحص قبل {n}', 'ago.min': '{n} دقيقة', 'ago.h': '{n} ساعة', 'ago.d': '{n} أيام', 'ago.d1': 'يوم واحد', 'p.disc': 'قد نحصل على عمولة إذا اشتريت عبر روابطنا. ولا تؤثر على السعر الذي تدفعه.', 'p.incl': 'الإجمالي يشمل التوصيل.', 'conf.stale': 'قد يكون السعر تغيّر',
       results: 'نتائج «{q}»', resultsN: 'تمت مقارنة {n} منتج', searchAll: 'كل المنتجات', dealsT: 'أكبر انخفاضات الأسعار', dealsD: 'منتجات بأسعار أقل بكثير من متوسط 30 يومًا.',
       sort: 'الترتيب', 's.rel': 'الأكثر صلة', 's.pop': 'الأكثر شعبية', 's.price': 'الأقل سعرًا', 's.drop': 'أكبر انخفاض', 's.rating': 'الأعلى تقييمًا',
       filters: 'التصفية', fStore: 'المتجر', fBrand: 'الماركة', fPrice: 'السعر الإجمالي', fOpts: 'التوفر والتوصيل', min: 'الأدنى', max: 'الأعلى', fFree: 'توصيل مجاني', fStock: 'متوفر', clear: 'مسح الكل',
@@ -200,17 +200,19 @@
   }
   const dot = (s, big) => logoBox(s.name, s.color || '#0D2942', DOMAINS[s.id], big);
   const brandLogo = b => logoBox(b, '#0D2942', BRAND_DOMAINS[b], true);
+  function ago(m) { m = Math.max(0, Math.round(m)); if (m < 60) return t('ago.min', { n: m }); if (m < 1440) return t('ago.h', { n: Math.round(m / 60) }); const d = Math.round(m / 1440); return d <= 1 ? t('ago.d1') : t('ago.d', { n: d }); }
   function fresh(o) {
     const old = o.updatedMin > 50;
-    return '<span class="fresh' + (old ? ' old' : '') + '">' + (old ? '⚠ ' + t('checked', { n: o.updatedMin }) : '✓ ' + t('verified', { n: o.updatedMin })) + '</span>';
+    return '<span class="fresh' + (old ? ' old' : '') + '">' + (old ? '⚠ ' + t('checked', { n: ago(o.updatedMin) }) : '✓ ' + t('verified', { n: ago(o.updatedMin) })) + '</span>';
   }
   const storesLabel = n => n === 1 ? t('store1') : t('stores', { n });
+  const BRAND_AR = { Apple: 'آبل أبل ابل', Samsung: 'سامسونج سامسونغ', Sony: 'سوني', Dyson: 'دايسون', LEGO: 'ليغو ليجو', Nike: 'نايكي', adidas: 'اديداس أديداس', Philips: 'فيليبس', 'Ray-Ban': 'ريبان راي بان', Nespresso: 'نسبريسو', Dior: 'ديور', Olaplex: 'اولابلكس', 'Maxi-Cosi': 'ماكسي كوزي', 'La Roche-Posay': 'لاروش بوزيه', 'Charlotte Tilbury': 'شارلوت تيلبري' };
   const norm = s => String(s).toLowerCase();
 
   function searchHay(it) {
     if (it._hay) return it._hay;
     const p = it.p, c = catOf(p.cat), sub = c && c.subs.find(s => s.id === p.sub);
-    return (it._hay = norm([p.en, p.ar, p.brand, c && c.en, c && c.ar, sub && sub.en, sub && sub.ar].join(' ')));
+    return (it._hay = norm([p.en, p.ar, p.brand, BRAND_AR[p.brand], c && c.en, c && c.ar, sub && sub.en, sub && sub.ar].join(' ')));
   }
   function matchItems(q) {
     const toks = norm(q).split(/\s+/).filter(Boolean);
@@ -664,7 +666,7 @@
       return '<div class="phone main"><div class="phone-screen mp">' +
         '<div class="pd-top"><img class="phone-logo" src="assets/brand/doabno-logo-primary.svg" alt="" width="84" height="16"><span class="pd-heart on">' + icon.heart(true) + '</span></div>' +
         '<div class="mp-hero">' + thumb(feat.p, 320, 320) + (feat.p.drop >= 3 ? '<span class="mp-drop">↓ ' + Math.round(feat.p.drop) + '%</span>' : '') + '</div>' +
-        '<b class="mp-name" dir="auto">' + esc(nm(feat.p)) + '</b><small class="mp-meta">' + storesLabel(feat.n) + ' · ' + t('verified', { n: best.updatedMin }) + '</small>' +
+        '<b class="mp-name" dir="auto">' + esc(nm(feat.p)) + '</b><small class="mp-meta">' + storesLabel(feat.n) + ' · ' + t('verified', { n: ago(best.updatedMin) }) + '</small>' +
         '<div class="mp-best"><small>' + t('viz.low') + '</small><div class="mp-bp"><b class="money">' + moneyText(best.total) + '</b>' + dot(best.store) + '</div><span>' + esc(best.store.name) + ' · ' + t('bestTag') + '</span></div>' +
         '<ul class="mp-rows">' + rows.slice(1).map(o => '<li>' + dot(o.store) + '<span>' + esc(o.store.name) + '</span><b class="money">' + moneyText(o.total) + '</b></li>').join('') + '</ul>' +
         '<div class="mp-chart"><svg viewBox="0 0 200 44" preserveAspectRatio="none"><path d="' + path + ' L200 44 L0 44 Z" fill="rgba(31,169,113,.12)"/><path d="' + path + '" fill="none" stroke="#1FA971" stroke-width="2" vector-effect="non-scaling-stroke"/></svg></div>' +
@@ -924,6 +926,7 @@
       '<div style="margin-top:6px">' + fresh(b) + '</div>' +
       '<div class="bd"><div><span>' + t('p.product') + '</span>' + money(b.price, true) + '</div><div><span>' + t('p.delivery') + '</span>' + (b.shipping ? money(b.shipping, true) : '<span>' + t('free') + '</span>') + '</div><div class="tot"><span>' + t('p.total') + '</span>' + money(b.total, true) + '</div></div>' +
       '<div class="bc-actions"><button class="btn primary block" type="button" data-visit="' + esc(b.store.name) + '" data-track="' + esc(b.trackingId) + '"' + (b.url ? ' data-url="1"' : '') + '>' + t('p.visit', { s: esc(b.store.name) }) + '</button>' +
+      '<p class="fine">' + t('p.incl') + ' ' + t('p.disc') + '</p>' +
       '<button class="btn ghost block" type="button" id="alertBtn" aria-pressed="' + !!al + '">' + icon.bell + ' ' + (al ? t('p.alertOn', { x: moneyText(al.target) }) : t('p.alert')) + '</button>' +
       '<button class="btn ghost block" type="button" id="favBtn" aria-pressed="' + isFav + '">' + icon.heart(isFav) + ' ' + (isFav ? t('p.saved') : t('p.save')) + '</button></div></div></aside></div></div></div>';
   }
@@ -1354,6 +1357,13 @@
       F.shown = 20; paintListing();
     });
     $('#cookie').hidden = !!store.get('cookie', null);
+    // Back closes an open dialog instead of leaving the page behind it.
+    (function () {
+      const m = $('#modal'); let opened = null;
+      new MutationObserver(() => { if (m.open && !opened) { opened = location.hash; history.pushState({ modal: 1 }, ''); } }).observe(m, { attributes: true, attributeFilter: ['open'] });
+      m.addEventListener('close', () => { if (opened === null) return; const h = opened; opened = null; setTimeout(() => { if (history.state && history.state.modal) { if (location.hash === h) history.back(); else history.replaceState(null, ''); } }, 60); });
+      window.addEventListener('popstate', () => { if (m.open && !(history.state && history.state.modal)) { opened = null; m.close(); } });
+    })();
     window.addEventListener('hashchange', route);
     route();
     // Back from the link in a confirmation email: account.js has already signed the person in.
