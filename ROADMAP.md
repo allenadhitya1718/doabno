@@ -1,4 +1,3 @@
-| allenadhitya1718 (+ Claude session) | Fixes from emulator testing (see Requests) | `web-v2/v2.js`, `web-v2/v2.css`, `web-v2/assets/account.js`, `app-v2/mobile.js` (small fixes only, at the owner's request) | 2026-10-16 | Started |
 # DOABNO roadmap and work claims
 
 **Read this before editing anything.** It says who is working on what, so two people (or two Claude Code sessions) never edit the same files at once.
@@ -51,16 +50,12 @@ Plan and reasoning: [BACKEND-PLAN.md](BACKEND-PLAN.md). Back-end setup: [backend
 - App accounts: email sign-up and sign-in sheet, account card with sign out and delete, favorites and alerts synced, notification choices saved to the profile (`app-v2/mobile.js`, same `account.js`; tested in a browser against the mock server).
 - `ClientRequirements.pdf`: one-page list of what the client must provide (stores and feeds, affiliate accounts, legal approval, domain and accounts, content).
 
+- Test-bug fixes from the emulator testing (2026-10-16): see Requests below and `TEST-RESULTS-EMULATOR.md`; 60 tests and 250 checks pass.
+
 ## Not planned for the first 3 days
 Next.js rebuild for Google, native app, extra Gulf markets, hourly refresh. See `BACKEND-PLAN.md`.
 
 ## Requests for the owner of a claimed area
 _(add a line: who, what you need, which file)_
 
-- **2026-10-16, from the testing session (user allenadhitya1718's Claude Code), for the owner of the files below.** Emulator testing found bugs in claimed files. Full steps, evidence and the "Fix later" list are in `TEST-RESULTS-EMULATOR.md`. Not edited by us:
-  1. **P1** `web-v2/v2.js` `refreshAccountBtn` (~line 463): `user.name.split(...)` throws when the stored session `doabno.auth` is valid JSON of the wrong shape (`"x"` or `{"access_token":123}`) and the whole page goes blank. Validate the shape in `web-v2/assets/account.js` (and drop the bad stored value); check the same in `app-v2` and `admin-v2`.
-  2. **P1** `web-v2/assets/account.js` (~line 75, email-link landing): a link with a bad or truncated token (`#access_token=abc.def.ghi&…&type=signup`) shows "Product not found", leaves the token in the address bar and shows no message. Show "link invalid or expired", clear the address bar, stay signed out (same for `/app/` and `/admin/`).
-  3. **P1 for launch** `web-v2/v2.js` (~lines 352-355, Legal notice, both languages): placeholders `[… to be completed]`. Needs the company details and the legal adviser's approval (not a code fix).
-  4. **P2** `app-v2/mobile.js`: Profile shows "Continue with Apple/Google" while `socialLogin` is `[]`. Show them only when listed.
-  5. **P2** "Visit store" in website and app when the offer has no link (all 355 live offers have `url: null`): the toast says "(demo)" and nothing opens. Disable the button or say "link coming soon"; drop "(demo)" when live.
-  6. **P3** `web-v2/v2.js` `paintListing` (~line 891): `#/c/nope` throws (`$('#results')` is null); long search text (3,000+ characters) makes the page scroll sideways on website and app (wrap the results heading); Categories header button has zero size at phone width; header favorites count includes stale and duplicate ids.
+- **2026-10-16 (resolved)** Bugs from the emulator testing in `web-v2/v2.js`, `web-v2/assets/account.js` (and the app and admin copies), `app-v2/mobile.js` were fixed in one pass at the repo owner's request: damaged saved session crash, Apple/Google buttons in the app when off, "Visit store" with no link, `#/c/nope` error, long-search overflow, favorites count. Still open: the legal notice placeholders (needs company details and the adviser's approval). Details and re-test results: `TEST-RESULTS-EMULATOR.md`.

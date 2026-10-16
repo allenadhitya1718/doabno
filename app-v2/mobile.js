@@ -703,8 +703,9 @@
         '<button type="button" class="btn btn-outline-light" data-account="signout">' + t('acct.signout') + '</button></div></div>';
     }
     return '<div class="signin-card"><span class="avatar">' + icon(ICONS.user, 26) + '</span><h2>' + t('signin.title') + '</h2><p>' + t('signin.desc') + '</p><div class="btns">' +
-      '<button type="button" class="btn btn-light" data-auth="' + (ACC.providers().includes('apple') ? 'oauth:apple' : 'soon') + '">' + APPLE_LOGO + t('signin.apple') + '</button>' +
-      '<button type="button" class="btn btn-light" data-auth="' + (ACC.providers().includes('google') ? 'oauth:google' : 'soon') + '">' + GOOGLE_LOGO + t('signin.google') + '</button>' +
+      // Apple and Google buttons appear only for providers switched on in config.js (socialLogin); otherwise only email sign-in shows.
+      (ACC.providers().includes('apple') ? '<button type="button" class="btn btn-light" data-auth="oauth:apple">' + APPLE_LOGO + t('signin.apple') + '</button>' : '') +
+      (ACC.providers().includes('google') ? '<button type="button" class="btn btn-light" data-auth="oauth:google">' + GOOGLE_LOGO + t('signin.google') + '</button>' : '') +
       '<button type="button" class="btn btn-outline-light" data-auth="signin">' + icon('M4 6h16v12H4zM4 7l8 6 8-6', 20) + t('profile.email') + '</button></div></div>';
   }
 
@@ -1007,6 +1008,8 @@
     }
     else if (el.dataset.visit) {
       // Production: the app opens /out/{trackingId}, which logs the click and redirects to the store. The prototype logs it for the admin click report.
+      // With the live catalog an offer without a store link opens nothing, so say so instead of showing the demo message.
+      if ((window.DOABNO_CONFIG || {}).supabaseUrl) { toast(t('noLink', { s: el.dataset.store })); return; }
       save('clicks', [{ id: el.dataset.visit, m: state.market, ts: Date.now() }].concat(load('clicks', [])).slice(0, 200));
       toast(t('redirect', { s: el.dataset.store }));
     }

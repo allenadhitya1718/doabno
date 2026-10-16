@@ -13,7 +13,21 @@ What could **not** be done on the emulator is in [TEST-NOT-POSSIBLE-ON-EMULATOR.
 | Failures found | 9 (3 P1 including the imprint placeholder); the "Fix later" list below has them all |
 | Passed on the emulator | see tables |
 
-## Failures (record with section 17 template if filing)
+## Status after the fix pass (2026-10-16)
+Fixed and re-tested on the emulator: failures **1, 3, 4, 5, 7, 8**. Failure **2 was withdrawn**: it came from my test changing only the `#` part of the address, which does not reload the page; on a real page load the code clears the address bar, stays signed out and shows "This link has expired or was already used". Failure **9 is by design**: the top menu is hidden below 820 px and the bottom tab bar replaces it. Not changed: failure 6 (legal notice needs the company's details and the adviser's approval). Fix details are in the table below.
+
+| Failure | Fix | Re-test |
+|---|---|---|
+| 1 | `account.js` (website, app, admin copies) drops a stored session that is not the expected shape; `refreshAccountBtn` checks the name | `"x"`, `{"access_token":123}` now load signed out and the bad value is removed; `{`, `null` still fine; admin also fine |
+| 3 | App Profile shows Apple/Google only for providers in `socialLogin` | Only "Continue with email" shows |
+| 4 | `paintListing` returns when the page has no results area | `#/c/nope` no exception, both from another page and on direct load |
+| 5, 8 | Wrapping rules in `web-v2/v2.css` and `app-v2/mobile.css` | 5,000 / 3,000 character search: no sideways scroll |
+| 7 | With the live catalog, a "Visit store" with no link says "The store link for {store} is not available yet." (English and Arabic, website and app); the "(demo)" message stays in demo mode | Website English and Arabic and app Arabic toasts checked |
+| header count | Counts each existing product once | 200 saved ids (100 duplicates, 100 unknown) now show 1 |
+
+Re-run after the fixes: `npm test` 60 pass, 250 checks pass; website hostile-string search (0 alerts, none injected); all 20 products in the app and 6 other app routes, no problems.
+
+## Failures found in the first pass (record with section 17 template if filing)
 
 | # | Test ID | Sev | What happens | Steps |
 |---|---|---|---|---|

@@ -19,7 +19,14 @@
   // What the database is known to hold for this user, so changes are sent as small add/remove steps.
   let remoteFavs = null, remoteAlerts = null;
 
-  const read = () => { try { return JSON.parse(storage.getItem(KEY)) || null; } catch (e) { return null; } };
+  // A stored session is used only when it has the expected shape; anything else (damaged or hand-edited) is dropped so the page starts signed out.
+  const validSession = s => !!s && typeof s === 'object' && typeof s.access_token === 'string' && typeof s.refresh_token === 'string' && typeof s.expires_at === 'number' && !!s.user && typeof s.user === 'object';
+  const read = () => {
+    let s = null;
+    try { s = JSON.parse(storage.getItem(KEY)); } catch (e) { return null; }
+    if (s !== null && !validSession(s)) { try { storage.removeItem(KEY); } catch (e) { /* private mode */ } return null; }
+    return s;
+  };
   let session = read();
   const write = s => { session = s; try { if (s) storage.setItem(KEY, JSON.stringify(s)); else storage.removeItem(KEY); } catch (e) { /* private mode: stay signed in for this page only */ } };
 
