@@ -30,7 +30,7 @@ export const RESPONSE_SCHEMA = {
   type: 'OBJECT',
   properties: {
     found: { type: 'BOOLEAN' }, brand: { type: 'STRING' }, name: { type: 'STRING' }, model: { type: 'STRING' },
-    category: { type: 'STRING', enum: CATEGORIES }, confidence: { type: 'NUMBER' },
+    category: { type: 'STRING', description: 'one of ' + CATEGORIES.join(', ') }, confidence: { type: 'NUMBER' },
   },
   required: ['found', 'brand', 'name', 'model', 'category', 'confidence'],
 };
@@ -120,19 +120,22 @@ async function tryModels({ apiKey, models, image, mime, fetchImpl, timeoutMs }) 
     const ctl = new AbortController(); const timer = setTimeout(() => ctl.abort(), timeoutMs);
     let res, bodyText = '';
     try {
-      res = await fetchImpl(ENDPOINT + encodeURIComponent(model) + ':generateContent', {
+      const attempt = withSchema => fetchImpl(ENDPOINT + encodeURIComponent(model) + ':generateContent', {
         method: 'POST', signal: ctl.signal,
         headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },   // key in a header, so it never appears in an address or log
         body: JSON.stringify({
           contents: [{ role: 'user', parts: [{ text: PROMPT }, { inline_data: { mime_type: mime, data: image } }] }],
-          generationConfig: { temperature: 0, maxOutputTokens: 300, responseMimeType: 'application/json', responseSchema: RESPONSE_SCHEMA },
+          // room to think plus a short JSON answer; the prompt itself also asks for JSON, so the schema is a help, not a requirement
+          generationConfig: Object.assign({ temperature: 0, maxOutputTokens: 1024, responseMimeType: 'application/json' }, withSchema ? { responseSchema: RESPONSE_SCHEMA } : {}),
         }),
       });
-      bodyText = await res.text();
-    } catch (e) { clearTimeout(timer); last = { status: e && e.name === 'AbortError' ? 504 : 502, error: e && e.name === 'AbortError' ? 'timeout' : 'upstream' }; continue; }
+      res = await attempt(true); bodyText = await res.text();
+      // A model that dislikes the format settings gets the same question again without the schema.
+      if (res.status === 400 && /schema|enum|response_?mime|generation_?config/i.test(bodyText) && !/api key/i.test(bodyText)) { res = await attempt(false); bodyText = await res.text(); }
+    } catch (e) { clearTimeout(timer); const timeout = e && e.name === 'AbortError'; last = { status: timeout ? 504 : 502, error: timeout ? 'timeout' : 'upstream', detail: cleanDetail(e && e.message) }; continue; }
     clearTimeout(timer);
     if (res.ok) {
-      let data; try { data = JSON.parse(bodyText); } catch (e) { last = { status: 502, error: 'upstream' }; continue; }
+      let data; try { data = JSON.parse(bodyText); } catch (e) { last = { status: 502, error: 'upstream', detail: 'Google sent an answer that is not JSON' }; continue; }
       const text = data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts
         && data.candidates[0].content.parts.map(p => p.text || '').join('');
       const guess = text ? parseGuess(text) : null;
@@ -143,7 +146,7 @@ async function tryModels({ apiKey, models, image, mime, fetchImpl, timeoutMs }) 
     if (res.status === 429) { last = { status: 429, error: 'busy' }; if (/limit:\s*0/.test(bodyText)) continue; return last; }   // "limit: 0" = this model has no free quota: try the next model
     if (res.status === 401 || res.status === 403 || (res.status === 400 && /api key/i.test(bodyText))) return { status: 502, error: 'key', detail: cleanDetail(bodyText) };   // a bad or restricted key: do not retry with other models
     if (res.status === 404 || (res.status === 400 && /model/i.test(bodyText))) { last = { status: 502, error: 'model', detail: cleanDetail(bodyText) }; continue; }
-    last = { status: 502, error: 'upstream' };
+    last = { status: 502, error: 'upstream', detail: 'HTTP ' + res.status + ': ' + cleanDetail(bodyText) };
   }
   return last;
 }

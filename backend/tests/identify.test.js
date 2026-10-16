@@ -169,3 +169,20 @@ test('when Google offers no usable model the answer says why, without any key in
   assert.equal(r.status, 502); assert.equal(j.error, 'model');
   assert.match(j.detail, /not found/); assert.ok(!JSON.stringify(j).includes('AIzaSy'));
 });
+
+test('a model that dislikes the response schema is asked again without it', async () => {
+  const bodies = [];
+  const s = await setup((u, init, n) => { bodies.push(JSON.parse(init.body)); return n === 1 ? fail(400, JSON.stringify({ error: { message: "Invalid JSON payload received. Unknown name 'enum' at 'generation_config.response_schema'" } })) : reply(good); });
+  const r = await s.call(ok); assert.equal(r.status, 200); assert.equal((await r.json()).guess.brand, 'Sony');
+  assert.ok(bodies[0].generationConfig.responseSchema); assert.equal(bodies[1].generationConfig.responseSchema, undefined);
+  assert.equal(bodies[1].generationConfig.responseMimeType, 'application/json');
+});
+
+test('other Google failures come back with Google\'s reason (no key in it)', async () => {
+  let s = await setup(() => fail(500, JSON.stringify({ error: { message: 'Internal error. key AIzaSyABCDEFGHIJKLMNOP' } })));
+  let j = await (await s.call(ok)).json(); assert.equal(j.error, 'upstream'); assert.match(j.detail, /HTTP 500: Internal error/); assert.ok(!JSON.stringify(j).includes('AIzaSy'));
+  s = await setup(() => { throw new Error('connect ECONNRESET'); });
+  j = await (await s.call(ok)).json(); assert.equal(j.error, 'upstream'); assert.match(j.detail, /ECONNRESET/);
+  s = await setup(() => fail(400, JSON.stringify({ error: { message: 'Request contains an invalid argument.' } })));
+  j = await (await s.call(ok)).json(); assert.equal(j.error, 'upstream'); assert.match(j.detail, /invalid argument/);
+});
