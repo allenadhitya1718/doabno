@@ -755,6 +755,7 @@
     if (scan.stream) { scan.stream.getTracks().forEach(tr => tr.stop()); scan.stream = null; }
     const live = $('#scanLive'); if (live) live.hidden = true;
   }
+  const showScanOut = () => { const o = $('#scanOut'); if (o && o.scrollIntoView) o.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); };
   function scanResults(list, note) {
     const out = $('#scanOut'); if (!out) return;
     out.innerHTML = list.length
@@ -886,6 +887,7 @@
     stopCamera();
     const url = URL.createObjectURL(file);
     out.innerHTML = '<div class="scan-prev"><img src="' + url + '" alt=""><span class="scan-line"></span></div><p class="sheet-text">' + t('scan.analysing') + '</p>';
+    showScanOut();
     barcodeFromFile(file).then(code => {
       if (!$('#scanOut')) return;                          // the sheet was closed meanwhile
       const prev = '<div class="scan-prev sm"><img src="' + url + '" alt=""></div>';
@@ -956,17 +958,17 @@
       foot = '<button type="submit" class="btn btn-primary btn-block">' + (up ? t('auth.signup') : t('auth.signin')) + '</button>';
     } else if (kind === 'scan') {
       title = t('scan.title');
-      body = '<div class="scan-opts"><label class="scan-opt"><span class="ic">' + icon('M4 8h3l2-3h6l2 3h3v11H4zM12 17a4 4 0 100-8 4 4 0 000 8z', 26) + '</span><strong>' + t('scan.photo') + '</strong><small>' + t('scan.photo.d') + '</small>' +
+      body = '<div class="scan-opts"><label class="scan-opt"><span class="ic">' + icon('M4 5h16v14H4zM8.5 10a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM4 17l5-5 4 4 3-3 4 4', 26) + '</span><strong>' + t('scan.photo') + '</strong><small>' + t('scan.photo.d') + '</small>' +
           '<input type="file" id="scanFile" accept="image/*" hidden></label>' +
         '<label class="scan-opt"><span class="ic">' + icon('M4 8h3l2-3h6l2 3h3v11H4zM12 17a4 4 0 100-8 4 4 0 000 8z', 26) + '</span><strong>' + t('scan.cam') + '</strong><small>' + t('scan.cam.d') + '</small>' +
           '<input type="file" id="scanCam" accept="image/*" capture="environment" hidden></label>' +
         '<button type="button" class="scan-opt scan-opt-wide" data-scan-live><span class="ic">' + icon('M4 6v12M7 6v12M10 6v12M14 6v12M17 6v12M20 6v12', 26) + '</span><strong>' + t('scan.barcode') + '</strong><small>' + t('scan.barcode.d') + '</small></button></div>' +
         '<div class="scan-live" id="scanLive" hidden><video id="scanVideo" playsinline muted></video><span class="scan-frame"></span><p>' + t('scan.live') + '</p><button type="button" class="btn btn-outline-light" data-scan-stop>' + t('scan.cancel') + '</button></div>' +
+        '<div id="scanOut" aria-live="polite"></div>' +
         '<label class="field"><span>' + t('scan.entry') + '</span><div class="scan-entry"><input type="text" name="code" inputmode="numeric" pattern="[0-9 ]*" placeholder="' + t('scan.entry.ph') + '" autocomplete="off"><button type="submit" class="btn btn-secondary">' + t('scan.entry.go') + '</button></div></label>' +
         '<p class="scan-sample-h">' + t('scan.sample') + '</p><div class="scan-samples">' + listed().sort(byPopularity).slice(0, 3).map(p => '<button type="button" class="scan-sample" data-scan-code="' + (p.gtin || eanOf(p)) + '">' +
           icon('M4 6v12M7 6v12M10 6v12M14 6v12M17 6v12M20 6v12', 18) + '<span><strong>' + esc(L(p)) + '</strong><small>' + (p.gtin || eanOf(p)) + '</small></span></button>').join('') + '</div>' +
-        '<p class="fineprint scan-privacy">' + t('scan.ai.privacy') + '</p>' +
-        '<div id="scanOut"></div>';
+        '<p class="fineprint scan-privacy">' + t('scan.ai.privacy') + '</p>';
     } else if (kind === 'country') {
       title = t('profile.country');
       body = Object.keys(D.MARKETS).map(m => opt('market', m, t('market.' + m), state.market === m, '<span class="cnt">' + D.MARKETS[m].currency + '</span>')).join('');

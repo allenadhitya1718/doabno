@@ -168,3 +168,8 @@ New function `backend/supabase/functions/identify` (see its README for deploy st
 
 ## Photo search picker (added 2026-10-16)
 The photo input used to force the camera (`capture`), so a photo could not be chosen from the gallery. The sheet now has **Choose a photo** (the phone's own picker: gallery and files), **Take a photo** (camera) and **Scan a barcode** (live scanner). Checked on the emulator by tapping: the Android photo picker opens showing the gallery pictures, and the camera app opens from the second button; both inputs read a barcode picture and can be used twice in a row with the same picture. Barcode (14) and identify (11) emulator cases still pass. Not tested: a real phone's picker and camera.
+
+## Photo search: live function check and fixes (added 2026-10-16)
+- The deployed function answers: preflight 204, a missing key gets 401. With a real photo and the live key it returned **`502 model`**: Google rejected all three default model names, so photo identification could not work yet. Fixed in code (the function now asks Google for the models the key may use and tries them; replies carry Google's reason); **needs a redeploy**. 13 function tests now (73 in all, 250 checks).
+- On the emulator, "Choose a photo" worked, but Android's picker needs **Done** to be pressed after picking, and the result appeared at the bottom of the sheet, out of sight, so it looked broken. The result area now sits directly under the tiles and scrolls into view. "Choose a photo" has a gallery icon (the camera icon stays on "Take a photo").
+- Not tested: real Gemini answers (waiting for the redeploy).

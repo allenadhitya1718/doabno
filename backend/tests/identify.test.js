@@ -137,3 +137,35 @@ test('instructions printed in the photo cannot change the reply format', async (
   const j = await (await call(ok)).json();
   assert.equal(j.guess.found, false); assert.ok(!JSON.stringify(j).includes('AIza'));
 });
+
+test('when no configured model works, the function asks Google which models the key may use and tries those', async () => {
+  const m = await load(); m.resetDiscovery();
+  const list = { models: [
+    { name: 'models/gemini-9-pro', supportedGenerationMethods: ['generateContent'] },
+    { name: 'models/gemini-9-flash', supportedGenerationMethods: ['generateContent'] },
+    { name: 'models/gemini-9-flash-lite', supportedGenerationMethods: ['generateContent'] },
+    { name: 'models/gemini-9-flash-image', supportedGenerationMethods: ['generateContent'] },
+    { name: 'models/gemini-9-flash-preview', supportedGenerationMethods: ['generateContent'] },
+    { name: 'models/text-embedding-9', supportedGenerationMethods: ['embedContent'] },
+  ] };
+  const seen = [];
+  const f = async url => {
+    seen.push(url);
+    if (url.includes('/models?')) return { ok: true, status: 200, text: async () => JSON.stringify(list) };
+    if (url.includes('gemini-9-flash-lite:')) return reply(good);
+    return fail(404, JSON.stringify({ error: { message: 'models/x is not found for API version v1beta' } }));
+  };
+  const r = await m.askGemini({ apiKey: 'k', models: ['old-1', 'old-2', 'old-3'], image: IMG, mime: 'image/jpeg', fetchImpl: f });
+  assert.equal(r.guess.brand, 'Sony'); assert.equal(r.model, 'gemini-9-flash-lite');                  // the cheap lite model comes first
+  assert.ok(!seen.some(u => /image|preview|embedding|pro:/.test(u)));                                // never an image, preview, embedding or pro model
+  assert.equal(seen.filter(u => u.includes('/models?')).length, 1);
+});
+
+test('when Google offers no usable model the answer says why, without any key in it', async () => {
+  (await load()).resetDiscovery();
+  const s = await setup((u) => (u.includes('/models?') ? { ok: true, status: 200, text: async () => JSON.stringify({ models: [] }) }
+    : fail(404, JSON.stringify({ error: { message: 'models/x is not found. key AIzaSyABCDEFGHIJKLMNOP' } }))));
+  const r = await s.call(ok); const j = await r.json();
+  assert.equal(r.status, 502); assert.equal(j.error, 'model');
+  assert.match(j.detail, /not found/); assert.ok(!JSON.stringify(j).includes('AIzaSy'));
+});

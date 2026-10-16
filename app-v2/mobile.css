@@ -645,3 +645,4 @@ html[lang="ar"] .trend-label { letter-spacing: 0; font-size: 13px; }
 @media (max-width: 370px) { .rk-now { font-size: 19px; } .rk-save { padding: 6px 10px; font-size: 11.5px; } }
 /* A very long unbroken word (for example in a search) wraps instead of making the screen scroll sideways. */
 .empty h3, .empty p, .list-head, .page-title { overflow-wrap: anywhere; }
+#scanOut:not(:empty) { margin-bottom: var(--s4); }

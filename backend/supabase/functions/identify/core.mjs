@@ -76,7 +76,45 @@ export function createLimiter({ perIpMinute = 6, perIpDay = 40, globalMinute = 1
   };
 }
 
+const ENDPOINT_LIST = 'https://generativelanguage.googleapis.com/v1beta/models?pageSize=200';
+let discovered = null, discoveredAt = 0;
+export const resetDiscovery = () => { discovered = null; discoveredAt = 0; };   // for tests
+
+// Asks Google which models this key may use and picks up to three Flash models that can read pictures (cheapest "lite" ones first,
+// newest version first). Used only when none of the configured model names works, so a retired name never breaks the feature.
+export async function discoverModels({ apiKey, fetchImpl = fetch, now = Date.now } = {}) {
+  if (discovered && now() - discoveredAt < 3_600_000) return discovered;
+  try {
+    const res = await fetchImpl(ENDPOINT_LIST, { headers: { 'x-goog-api-key': apiKey } });
+    if (!res.ok) return [];
+    const list = (JSON.parse(await res.text()).models || [])
+      .filter(m => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent'))
+      .map(m => String(m.name || '').replace(/^models\//, ''))
+      .filter(n => /flash/i.test(n) && !/(image|tts|live|audio|embedding|thinking|robotics|computer|native|exp|preview|latest)/i.test(n));
+    const version = n => parseFloat((n.match(/(\d+(?:\.\d+)?)/) || [0, 0])[1]);
+    list.sort((x, y) => (/lite/i.test(y) - /lite/i.test(x)) || (version(y) - version(x)));
+    discovered = list.slice(0, 3); discoveredAt = now();
+    return discovered;
+  } catch (e) { return []; }
+}
+
+// What Google said about a failed call, cut short and with anything that looks like a key removed (safe to show to the project owner).
+const cleanDetail = body => {
+  let t = String(body || '');
+  try { const j = JSON.parse(t); t = (j.error && j.error.message) || t; } catch (e) { /* plain text */ }
+  return t.replace(/AIza[0-9A-Za-z_-]{10,}/g, '[key]').replace(/\s+/g, ' ').slice(0, 220);
+};
+
 export async function askGemini({ apiKey, models, image, mime, fetchImpl = fetch, timeoutMs = 20000 }) {
+  const first = await tryModels({ apiKey, models, image, mime, fetchImpl, timeoutMs });
+  if (first.guess || first.error !== 'model') return first;
+  const more = (await discoverModels({ apiKey, fetchImpl })).filter(m => !models.includes(m));
+  if (!more.length) return first;
+  const second = await tryModels({ apiKey, models: more, image, mime, fetchImpl, timeoutMs });
+  return second.guess || second.error !== 'model' ? second : first;
+}
+
+async function tryModels({ apiKey, models, image, mime, fetchImpl, timeoutMs }) {
   let last = { status: 502, error: 'upstream' };
   for (const model of models) {
     const ctl = new AbortController(); const timer = setTimeout(() => ctl.abort(), timeoutMs);
@@ -103,8 +141,8 @@ export async function askGemini({ apiKey, models, image, mime, fetchImpl = fetch
       continue;
     }
     if (res.status === 429) { last = { status: 429, error: 'busy' }; if (/limit:\s*0/.test(bodyText)) continue; return last; }   // "limit: 0" = this model has no free quota: try the next model
-    if (res.status === 401 || res.status === 403 || (res.status === 400 && /api key/i.test(bodyText))) return { status: 502, error: 'key' };   // a bad or restricted key: do not retry with other models
-    if (res.status === 404 || (res.status === 400 && /model/i.test(bodyText))) { last = { status: 502, error: 'model' }; continue; }
+    if (res.status === 401 || res.status === 403 || (res.status === 400 && /api key/i.test(bodyText))) return { status: 502, error: 'key', detail: cleanDetail(bodyText) };   // a bad or restricted key: do not retry with other models
+    if (res.status === 404 || (res.status === 400 && /model/i.test(bodyText))) { last = { status: 502, error: 'model', detail: cleanDetail(bodyText) }; continue; }
     last = { status: 502, error: 'upstream' };
   }
   return last;
@@ -143,5 +181,5 @@ export async function handle(req, deps) {
   const r = await askGemini({ apiKey, models, image, mime, fetchImpl: deps.fetchImpl || fetch });
   if (r.guess) return json(200, { ok: true, guess: r.guess }, cors);
   if (r.error === 'unreadable') return json(200, { ok: true, guess: { found: false, brand: '', name: '', model: '', category: 'other', confidence: 0 } }, cors);
-  return json(r.status || 502, { ok: false, error: r.error || 'upstream' }, cors);
+  return json(r.status || 502, Object.assign({ ok: false, error: r.error || 'upstream' }, r.detail ? { detail: r.detail } : {}), cors);
 }
