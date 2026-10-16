@@ -75,13 +75,14 @@
   // The phone's push token is saved on the account so the daily price-alert job can send a notification when a target price is reached.
   const NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
   const push = { plugin: null, listening: false, token: load('app.pushToken', null) };
-  const pushPlugin = () => push.plugin || (push.plugin = window.Capacitor.registerPlugin('PushNotifications'));
+  // The installed app's bridge exposes native plugins under Capacitor.Plugins (a page without a bundler has no registerPlugin).
+  const pushPlugin = () => push.plugin || (push.plugin = (window.Capacitor.Plugins || {}).PushNotifications || (typeof window.Capacitor.registerPlugin === 'function' ? window.Capacitor.registerPlugin('PushNotifications') : null));
   // Registers this phone. ask = true may show the system permission question; false only refreshes when permission was already given.
   // Returns 'granted', 'denied', 'prompt' (not asked), 'unavailable' (website, or not signed in) or 'error'.
   async function enablePush(ask) {
     if (!NATIVE || !ACC.enabled || !ACC.signedIn()) return 'unavailable';
     try {
-      const PN = pushPlugin();
+      const PN = pushPlugin(); if (!PN) return 'unavailable';
       let perm = (await PN.checkPermissions()).receive;
       if (perm === 'prompt' || perm === 'prompt-with-rationale') { if (!ask) return 'prompt'; perm = (await PN.requestPermissions()).receive; }
       if (perm !== 'granted') return 'denied';
