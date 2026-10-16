@@ -8,6 +8,7 @@ Files: `core.mjs` (all the logic, tested by `backend/tests/identify.test.js` wit
 | Name | Needed | Meaning |
 |---|---|---|
 | `GEMINI_API_KEY` | yes | Google AI Studio key. Set under Project Settings, Edge Functions, Secrets (the exact name matters) |
+| `GEMINI_API_KEY_2`, `GEMINI_API_KEY_3` | no | Backup keys. Free-tier quota is counted per Google project, so a key made in a different project (or Google account) has its own quota. For each model the keys are tried in order: when the first is out of quota (429) or refused (401/403), the next key is used before any other model. Blank and duplicate keys are ignored |
 | `GEMINI_MODEL` | no | Model to try first. Default: `gemini-3.6-flash`, then `gemini-3.5-flash`, then `gemini-3.5-flash-lite` (measured fastest and steadiest on the free tier; the 2.5 models are no longer open to new keys).1-flash-lite`, then `gemini-flash-lite-latest` (the `-latest` aliases pointed at newer, slower models). If none of those exist for the key, the function asks Google which models the key may use and tries up to three Flash models from that list (lite first). Set this secret if you want a specific model |
 | `IDENTIFY_DAILY_CAP` | no | Photos per day for everyone, default 1000 |
 | `IDENTIFY_SALT` | no | Any random text; mixed into the visitor hash used for the per-visitor limit |
@@ -37,7 +38,7 @@ The function asks for no extra "thinking" (much faster: about 2 to 4 seconds ins
 Free-tier models sometimes stall or answer 503 "high demand". The function does not wait for a slow model: if the first model has not answered after 5 seconds (`IDENTIFY_HEDGE_MS`), the next model starts in parallel, and the first good answer wins (the others are cancelled). A model that fails quickly hands over to the next at once. Each reply lists what was tried in `attempts` (model, status, milliseconds).
 
 ## Limits and cost
-Free tier: Google allows only a few requests a minute (about 15, check AI Studio for your key) and a daily quota. The function also limits itself: 6 photos per minute and 40 per day per visitor, 12 per minute and 1,000 per day overall (in memory per running instance, so a brake rather than a guarantee). When Gemini says it is busy the app shows "busy, try again in a minute".
+A backup key (above) doubles the free quota; a paid key removes the free limits. Free tier: Google allows only a few requests a minute (about 15, check AI Studio for your key) and a daily quota. The function also limits itself: 6 photos per minute and 40 per day per visitor, 12 per minute and 1,000 per day overall (in memory per running instance, so a brake rather than a guarantee). When Gemini says it is busy the app shows "busy, try again in a minute".
 
 ## Privacy (tell the legal adviser)
 The photo is sent to Google's Gemini API and is not stored or logged by DOABNO. On the free tier Google may use submitted content to improve its products; the paid tier does not. The app shows a one-line notice in the photo search sheet. Add a sentence to the privacy policy before launch, and consider switching the key to a paid project (about $0.001 or less per photo) so photos are not used for training.

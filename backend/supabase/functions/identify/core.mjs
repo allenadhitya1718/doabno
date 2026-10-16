@@ -37,6 +37,9 @@ export const RESPONSE_SCHEMA = {
   required: ['found', 'brand', 'name', 'model', 'category', 'confidence'],
 };
 
+// The main key and up to two backup keys (GEMINI_API_KEY, GEMINI_API_KEY_2, GEMINI_API_KEY_3), duplicates and blanks removed.
+export const keysFrom = env => ['GEMINI_API_KEY', 'GEMINI_API_KEY_2', 'GEMINI_API_KEY_3'].map(n => String(env(n) || '').trim()).filter((k, i, all) => k && all.indexOf(k) === i);
+
 export const json = (status, body, extra = {}) => new Response(JSON.stringify(body), {
   status, headers: Object.assign({ 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' }, extra),
 });
@@ -107,19 +110,23 @@ const cleanDetail = body => {
   return t.replace(/AIza[0-9A-Za-z_-]{10,}/g, '[key]').replace(/\s+/g, ' ').slice(0, 220);
 };
 
-export async function askGemini({ apiKey, models, image, mime, fetchImpl = fetch, timeoutMs = 12000, hedgeMs = 5000 }) {
+// keys: one or more Gemini keys (a backup key from another Google project has its own free quota). For each model the keys are tried in order.
+const planFor = (models, keys) => models.flatMap(model => keys.map((apiKey, i) => ({ model, apiKey, label: 'key' + (i + 1) })));
+
+export async function askGemini({ apiKey, apiKeys, models, image, mime, fetchImpl = fetch, timeoutMs = 12000, hedgeMs = 5000 }) {
+  const keys = (apiKeys && apiKeys.length ? apiKeys : [apiKey]).filter(Boolean);
   const attempts = [];
   const done = r => Object.assign(r, { attempts });
-  const first = await raceModels({ apiKey, models, image, mime, fetchImpl, timeoutMs, attempts, hedgeMs });
+  const first = await raceModels({ plan: planFor(models, keys), image, mime, fetchImpl, timeoutMs, attempts, hedgeMs });
   if (first.guess || first.error !== 'model') return done(first);
-  const more = (await discoverModels({ apiKey, fetchImpl })).filter(m => !models.includes(m));
+  const more = (await discoverModels({ apiKey: keys[0], fetchImpl })).filter(m => !models.includes(m));
   if (!more.length) return done(first);
-  const second = await raceModels({ apiKey, models: more, image, mime, fetchImpl, timeoutMs, attempts, hedgeMs });
+  const second = await raceModels({ plan: planFor(more, keys), image, mime, fetchImpl, timeoutMs, attempts, hedgeMs });
   return done(second.guess || second.error !== 'model' ? second : first);
 }
 
 // One model, one question. Returns { guess, model } or a failure { status, error, detail?, stop? }; stop means "do not try other models" (bad key, busy).
-async function askOne({ apiKey, model, image, mime, fetchImpl, timeoutMs, attempts, ctls }) {
+async function askOne({ apiKey, model, label, image, mime, fetchImpl, timeoutMs, attempts, ctls }) {
   const ctl = new AbortController(); ctls.push(ctl);
   const timer = setTimeout(() => ctl.abort(), timeoutMs);
   const t0 = Date.now();
@@ -147,13 +154,13 @@ async function askOne({ apiKey, model, image, mime, fetchImpl, timeoutMs, attemp
     }
   } catch (e) {
     clearTimeout(timer);
-    if (ctl.cancelled) { attempts.push({ model, status: 'cancelled', ms: Date.now() - t0 }); return { status: 0, error: 'cancelled' }; }   // another model answered first
+    if (ctl.cancelled) { attempts.push({ model, key: label, status: 'cancelled', ms: Date.now() - t0 }); return { status: 0, error: 'cancelled' }; }   // another model answered first
     const timeout = e && e.name === 'AbortError';
-    attempts.push({ model, status: timeout ? 'timeout' : 'error', ms: Date.now() - t0 });
+    attempts.push({ model, key: label, status: timeout ? 'timeout' : 'error', ms: Date.now() - t0 });
     return { status: timeout ? 504 : 502, error: timeout ? 'timeout' : 'upstream', detail: cleanDetail(e && e.message) };
   }
   clearTimeout(timer);
-  attempts.push({ model, status: res.status, ms: Date.now() - t0 });
+  attempts.push({ model, key: label, status: res.status, ms: Date.now() - t0 });
   if (res.ok) {
     let data; try { data = JSON.parse(bodyText); } catch (e) { return { status: 502, error: 'upstream', detail: 'Google sent an answer that is not JSON' }; }
     const text = data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts
@@ -162,33 +169,38 @@ async function askOne({ apiKey, model, image, mime, fetchImpl, timeoutMs, attemp
     return guess ? { guess, model } : { status: 502, error: 'unreadable' };       // blocked or empty answer: counts as "could not identify"
   }
   if (res.status === 429) return { status: 429, error: 'busy', detail: cleanDetail(bodyText) };   // out of quota or too many requests for this model: other models have their own quota, so try them
-  if (res.status === 401 || res.status === 403 || (res.status === 400 && /api key/i.test(bodyText))) return { status: 502, error: 'key', detail: cleanDetail(bodyText), stop: true };   // a bad or restricted key: do not retry with other models
+  if (res.status === 401 || res.status === 403 || (res.status === 400 && /api key/i.test(bodyText))) return { status: 502, error: 'key', detail: cleanDetail(bodyText) };   // a bad or restricted key: that key is skipped from now on, other keys are still tried
   if (res.status === 404 || (res.status === 400 && /model/i.test(bodyText))) return { status: 502, error: 'model', detail: cleanDetail(bodyText) };
   return { status: 502, error: 'upstream', detail: 'HTTP ' + res.status + ': ' + cleanDetail(bodyText) };
 }
 
-// Prefer an error that says more than "model missing".
-const betterError = (prev, r) => (!prev || (prev.error === 'model' && r.error !== 'model') ? r : (r.error === 'model' && prev.error !== 'model' ? prev : r));
+// Prefer the error that says most: a real failure over "model missing" over "bad key".
+const errRank = e => (e === 'key' ? 0 : e === 'model' ? 1 : 2);
+const betterError = (prev, r) => (!prev || errRank(r.error) >= errRank(prev.error) ? r : prev);
 
 // Tries the models in order, but does not wait for a slow one: the next model starts as soon as the previous one fails, or after hedgeMs
 // if it is still thinking. The first good answer wins and the others are cancelled. (A free-tier model that stalls for 12 seconds no longer
 // holds up the answer.)
-function raceModels({ models, hedgeMs = 5000, ...ctx }) {
+function raceModels({ plan, hedgeMs = 5000, ...ctx }) {
   return new Promise(resolve => {
-    const ctls = []; let next = 0, pending = 0, settled = false, last = null, timer = null;
+    const ctls = []; const badKeys = new Set();
+    let next = 0, pending = 0, settled = false, last = null, timer = null;
     const finish = r => { if (settled) return; settled = true; clearTimeout(timer); ctls.forEach(c => { c.cancelled = true; c.abort(); }); resolve(r); };
-    const launch = () => {
-      if (settled || next >= models.length) return;
-      const model = models[next++]; pending++;
-      clearTimeout(timer); if (next < models.length) timer = setTimeout(launch, hedgeMs);
-      askOne({ ...ctx, model, ctls }).then(r => {
+    const advance = () => {
+      if (settled) return;
+      while (next < plan.length && badKeys.has(plan[next].label)) next++;      // skip a key Google has refused
+      if (next >= plan.length) { if (pending === 0) finish(last || { status: 502, error: 'upstream' }); return; }
+      const p = plan[next++]; pending++;
+      clearTimeout(timer); if (next < plan.length) timer = setTimeout(advance, hedgeMs);
+      askOne({ ...ctx, model: p.model, apiKey: p.apiKey, label: p.label, ctls }).then(r => {
         pending--; if (settled) return;
-        if (r.guess || r.stop) return finish(r);
+        if (r.guess) return finish(r);
+        if (r.error === 'key') badKeys.add(p.label);
         if (r.error !== 'cancelled') last = betterError(last, r);
-        if (next < models.length) launch(); else if (pending === 0) finish(last || r);
-      }, () => { pending--; if (!settled && next < models.length) launch(); else if (!settled && pending === 0) finish(last || { status: 502, error: 'upstream' }); });
+        advance();
+      }, () => { pending--; advance(); });
     };
-    launch();
+    advance();
   });
 }
 
@@ -202,11 +214,11 @@ export async function handle(req, deps) {
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
   if (req.method === 'GET' && new URL(req.url).searchParams.get('diag') === 'models') {
     // For the project owner: which Flash models this key can use, and what the function would try. Names only, no secrets.
-    const anonKey = env('SUPABASE_ANON_KEY'), key = env('GEMINI_API_KEY');
+    const anonKey = env('SUPABASE_ANON_KEY'), key = keysFrom(env)[0];
     if (anonKey && req.headers.get('apikey') !== anonKey) return json(401, { ok: false, error: 'unauthorized' }, cors);
     if (!key) return json(503, { ok: false, error: 'not_configured' }, cors);
     const found = await discoverModels({ apiKey: key, fetchImpl: deps.fetchImpl || fetch, all: true });
-    return json(200, { ok: true, configured: env('GEMINI_MODEL') || null, defaults: DEFAULT_MODELS, available: found }, cors);
+    return json(200, { ok: true, configured: env('GEMINI_MODEL') || null, keys: keysFrom(env).length, defaults: DEFAULT_MODELS, available: found }, cors);
   }
   if (req.method !== 'POST') return json(405, { ok: false, error: 'method' }, cors);
 
@@ -214,7 +226,8 @@ export async function handle(req, deps) {
   const anon = env('SUPABASE_ANON_KEY');
   if (anon && req.headers.get('apikey') !== anon) return json(401, { ok: false, error: 'unauthorized' }, cors);
 
-  const apiKey = env('GEMINI_API_KEY');
+  const apiKeys = keysFrom(env);
+  const apiKey = apiKeys[0];
   if (!apiKey) return json(503, { ok: false, error: 'not_configured' }, cors);
 
   const len = Number(req.headers.get('content-length') || 0);
@@ -232,7 +245,7 @@ export async function handle(req, deps) {
   let models = (env('GEMINI_MODEL') ? [env('GEMINI_MODEL')] : []).concat(DEFAULT_MODELS).filter((m, i, a) => m && a.indexOf(m) === i).slice(0, 3);
   // For the owner's speed tests: a request may name one model, but only one the key can actually use (checked against Google's own list).
   if (typeof body.model === 'string' && /^[a-z0-9.-]{3,60}$/.test(body.model) && (await discoverModels({ apiKey, fetchImpl: deps.fetchImpl || fetch, all: true })).includes(body.model)) models = [body.model];
-  const r = await askGemini({ apiKey, models, image, mime, fetchImpl: deps.fetchImpl || fetch, hedgeMs: Number(env('IDENTIFY_HEDGE_MS')) || 5000 });
+  const r = await askGemini({ apiKeys, models, image, mime, fetchImpl: deps.fetchImpl || fetch, hedgeMs: Number(env('IDENTIFY_HEDGE_MS')) || 5000 });
   if (r.guess) return json(200, { ok: true, guess: r.guess, model: r.model, attempts: r.attempts }, cors);
   if (r.error === 'unreadable') return json(200, { ok: true, guess: { found: false, brand: '', name: '', model: '', category: 'other', confidence: 0 } }, cors);
   return json(r.status || 502, Object.assign({ ok: false, error: r.error || 'upstream' }, r.detail ? { detail: r.detail } : {}, r.attempts ? { attempts: r.attempts } : {}), cors);

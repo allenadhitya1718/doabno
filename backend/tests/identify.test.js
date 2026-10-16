@@ -260,3 +260,26 @@ test('a model that is out of quota hands over to the next model, which has its o
   assert.equal(r.status, 200); assert.equal(j.guess.brand, 'Sony'); assert.equal(s.calls.length, 2);
   assert.equal(j.attempts[0].status, 429);
 });
+
+test('a backup key takes over when the first key is out of quota, or refused; keys never appear in replies', async () => {
+  const seen = [];
+  const keyOf = init => init.headers['x-goog-api-key'];
+  // first key out of quota: the same model is tried with the backup key before any other model
+  let s = await setup((u, init) => { seen.push(keyOf(init)); return keyOf(init) === 'AIza-test-secret-key' ? fail(429, 'quota exceeded') : reply(good); }, { GEMINI_API_KEY_2: 'backup-key-two' });
+  let r = await s.call(ok); let j = await r.json();
+  assert.equal(r.status, 200); assert.equal(j.guess.brand, 'Sony'); assert.deepEqual(seen, ['AIza-test-secret-key', 'backup-key-two']);
+  assert.deepEqual(j.attempts.map(x => x.key), ['key1', 'key2']); assert.equal(j.attempts[0].model, j.attempts[1].model);
+  assert.ok(!JSON.stringify(j).includes('backup-key-two') && !JSON.stringify(j).includes('AIza-test-secret-key'));
+  // first key refused (revoked): it is skipped for the rest of the call
+  seen.length = 0;
+  s = await setup((u, init) => { seen.push(keyOf(init)); return keyOf(init) === 'AIza-test-secret-key' ? fail(403, 'API key not valid') : reply(good); }, { GEMINI_API_KEY_2: 'backup-key-two' });
+  j = await (await s.call(ok)).json(); assert.equal(j.ok, true); assert.deepEqual(seen, ['AIza-test-secret-key', 'backup-key-two']);
+  // both keys refused: the answer says so
+  s = await setup(() => fail(403, 'API key not valid'), { GEMINI_API_KEY_2: 'backup-key-two' });
+  r = await s.call(ok); j = await r.json(); assert.equal(j.error, 'key'); assert.equal(s.calls.length, 2);
+  // a duplicate or blank backup key is ignored
+  s = await setup(() => fail(429, 'quota exceeded'), { GEMINI_API_KEY_2: 'AIza-test-secret-key', GEMINI_API_KEY_3: '  ' });
+  await s.call(ok); assert.equal(s.calls.length, 3);                // one key, three models
+  // only the backup key is set
+  const m = await load(); assert.deepEqual(m.keysFrom(n => ({ GEMINI_API_KEY_2: ' b ' }[n])), ['b']);
+});
