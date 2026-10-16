@@ -78,7 +78,7 @@
   }
 
   const state = {
-    lang: load('lang', 'ar'),
+    lang: load('lang', /^ar/i.test((navigator.language || '')) ? 'ar' : 'en'),   // first start: the phone's language (Arabic phones get Arabic, others English); the choice is remembered
     market: load('market', 'sa'),
     currency: load('currency', 'SAR'),
     favs: load('favs', []),
