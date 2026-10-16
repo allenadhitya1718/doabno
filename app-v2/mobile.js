@@ -50,6 +50,7 @@
       syncing = false;
       await ACC.saveFavs(state.favs); await ACC.saveAlerts(alertRows());
       rerender();
+      if (state.notify.drops || state.notify.alerts) enablePush(false);
     } catch (e) { syncing = false; if (e.code === 'signed_out') rerender(); else toast(t('auth.syncErr')); }
   }
   const authErr = e => ({ invalid_credentials: 'auth.errAuth', email_not_confirmed: 'auth.errConfirm', exists: 'auth.errExists', weak_password: 'auth.errWeak', rate_limited: 'auth.errRate', network: 'auth.errNet', invalid_email: 'auth.errInput' }[e.code] || 'auth.errGeneric');
@@ -70,7 +71,45 @@
       closeSheet(); toast(t(up ? 'auth.welcome' : 'auth.signedIn')); rerender(); syncFromAccount();
     } catch (ex) { btn.disabled = false; fail(authErr(ex)); }
   }
-  async function accountSignOut() { await ACC.signOut(); clearLocalAccountData(); toast(t('auth.signedOut')); rerender(); }
+  // ---- push notifications (only inside the installed Android and iPhone apps; the website and the browser never do any of this) ----
+  // The phone's push token is saved on the account so the daily price-alert job can send a notification when a target price is reached.
+  const NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
+  const push = { plugin: null, listening: false, token: load('app.pushToken', null) };
+  const pushPlugin = () => push.plugin || (push.plugin = window.Capacitor.registerPlugin('PushNotifications'));
+  // Registers this phone. ask = true may show the system permission question; false only refreshes when permission was already given.
+  // Returns 'granted', 'denied', 'prompt' (not asked), 'unavailable' (website, or not signed in) or 'error'.
+  async function enablePush(ask) {
+    if (!NATIVE || !ACC.enabled || !ACC.signedIn()) return 'unavailable';
+    try {
+      const PN = pushPlugin();
+      let perm = (await PN.checkPermissions()).receive;
+      if (perm === 'prompt' || perm === 'prompt-with-rationale') { if (!ask) return 'prompt'; perm = (await PN.requestPermissions()).receive; }
+      if (perm !== 'granted') return 'denied';
+      if (!push.listening) {
+        push.listening = true;
+        PN.addListener('registration', tk => savePushToken(tk && tk.value));
+        PN.addListener('registrationError', () => { /* no Firebase or Apple push set up for this build: push stays off */ });
+        PN.addListener('pushNotificationReceived', n => { if (n && n.title) toast(n.title + (n.body ? ': ' + n.body : '')); });
+        PN.addListener('pushNotificationActionPerformed', ev => {      // a tap on the notification opens that product
+          const u = ev && ev.notification && ev.notification.data && ev.notification.data.url;
+          if (typeof u === 'string' && /^#\/p\/[a-z0-9-]+$/i.test(u)) location.hash = u;
+        });
+      }
+      await PN.register();
+      return 'granted';
+    } catch (e) { return 'error'; }
+  }
+  async function savePushToken(value) {
+    if (!value || !ACC.enabled || !ACC.signedIn()) return;
+    try { await ACC.rpc('register_push_token', { p_token: value, p_platform: window.Capacitor.getPlatform() === 'ios' ? 'ios' : 'android' }); push.token = value; save('app.pushToken', value); }
+    catch (e) { /* tried again the next time the app starts */ }
+  }
+  async function disablePush() {            // this phone stops receiving notifications for this account
+    const tk = push.token; push.token = null; save('app.pushToken', null);
+    if (tk && ACC.enabled && ACC.signedIn()) { try { await ACC.rpc('unregister_push_token', { p_token: tk }); } catch (e) { /* a dead token is removed by the sender later */ } }
+  }
+  const askPush = () => enablePush(true).then(r => { if (r === 'denied') toast(t('push.denied')); });
+  async function accountSignOut() { await disablePush(); await ACC.signOut(); clearLocalAccountData(); toast(t('auth.signedOut')); rerender(); }
   async function accountDelete() {
     if (!confirm(t('acct.confirmDelete'))) return;
     try { await ACC.deleteAccount(); } catch (e) { toast(t('auth.errGeneric')); return; }
@@ -1184,6 +1223,7 @@
     else if (el.name === 'email' && form && form.dataset.kind === 'alert') { $('#emailConsent').hidden = !el.checked; if (el.checked) form.mail.focus(); }
     else if (el.dataset.notify) {
       state.notify[el.dataset.notify] = el.checked; save('app.notify', state.notify);
+      if (el.dataset.notify !== 'weekly') { if (state.notify.drops || state.notify.alerts) { if (el.checked) askPush(); } else disablePush(); }
       if (ACC.enabled && ACC.signedIn()) ACC.saveProfile({ notify_push: !!(state.notify.drops || state.notify.alerts), marketing_consent: !!state.notify.weekly, consent_at: state.notify.weekly ? new Date().toISOString() : null }).catch(() => toast(t('auth.syncErr')));
     }
     else if (form && form.dataset.kind === 'sort') { ui.sort = el.value; closeSheet(); rerender(); }
@@ -1225,6 +1265,7 @@
         mail: form.email.checked ? form.mail.value.trim() : '', consent: form.email.checked ? { marketing: true, at: Date.now() } : null });
       save('alerts', state.alerts);
       closeSheet(); toast(t('alert.saved'));
+      if (form.push.checked) askPush();
       const bb = $('[data-sheet="alert"]'); if (bb) { bb.classList.remove('pulse'); void bb.offsetWidth; bb.classList.add('pulse'); }
     }
   });

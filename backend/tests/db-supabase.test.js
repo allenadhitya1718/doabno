@@ -75,3 +75,19 @@ test('adapter: alert candidates come from the database function (paged), and mar
   assert.deepEqual([calls[2].method, calls[2].path, calls[2].query, calls[2].body], ['PATCH', '/rest/v1/alerts', '?id=eq.7', { triggered_at: '2026-10-13T10:00:00Z' }]);
   assert.deepEqual(calls[3].body, { triggered_at: null });
 });
+test('adapter: push tokens are fetched in batches through the service-only function, and dead tokens are dropped in batches', async () => {
+  const calls = [];
+  const fetchImpl = async (url, init = {}) => {
+    const u = new URL(url); const body = init.body ? JSON.parse(init.body) : undefined; calls.push({ method: init.method, path: u.pathname, body, auth: init.headers.Authorization });
+    const rows = u.pathname.endsWith('push_tokens_for') ? body.p_user_ids.map(id => ({ user_id: id, token: 't-' + id, platform: 'android' })) : [];
+    return { ok: true, status: 200, text: async () => JSON.stringify(rows), json: async () => rows };
+  };
+  const db = createSupabaseDb({ url: 'https://x.supabase.co', key: 'SERVICE', fetchImpl });
+  const ids = Array.from({ length: 450 }, (_, i) => 'u' + i);
+  const rows = await db.getPushTokens(ids);
+  assert.equal(rows.length, 450); assert.deepEqual(calls.map(c => c.body.p_user_ids.length), [200, 200, 50]);
+  assert.ok(calls.every(c => c.method === 'POST' && c.path === '/rest/v1/rpc/push_tokens_for' && c.auth === 'Bearer SERVICE'));
+  calls.length = 0;
+  await db.dropPushTokens(['a', 'b']);
+  assert.deepEqual([calls[0].path, calls[0].body], ['/rest/v1/rpc/drop_push_tokens', { p_tokens: ['a', 'b'] }]);
+});

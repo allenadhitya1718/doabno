@@ -3,7 +3,8 @@
 //   - only alerts with email on AND a recorded consent time are emailed (the consent tick in the alert form);
 //   - the price compared is the lowest in-stock total (price + shipping) in the person's market, converted to the alert's currency;
 //   - one email when the price first reaches the target; no more until the price has gone above the target and come back;
-//   - at most `max` emails per run (Resend's free plan allows 100 a day); the rest wait for the next run.
+//   - at most `max` emails per run (Resend's free plan allows 100 a day); the rest wait for the next run;
+//   - phones: if the person turned on push for the alert and a phone is registered, it gets a notification too (see checkAlerts).
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 const SYMBOL = { SAR: { en: 'SAR', ar: 'ر.س' }, AED: { en: 'AED', ar: 'د.إ' }, USD: { en: '$', ar: '$' }, GBP: { en: '£', ar: '£' } };
@@ -30,33 +31,73 @@ function buildEmail(a, { siteUrl, price, lang }) {
   return { subject, text, html };
 }
 
-// db: getAlertCandidates(), getRates(), markAlert(id, triggeredAtIsoOrNull). mailer: send({to, subject, html, text}).
-async function checkAlerts({ db, mailer, siteUrl, max = 80, dryRun = false, log = () => {} }) {
+// The phone notification for an alert: a short title and line, and the page the app opens when it is tapped.
+function buildPush(a, { price, lang }) {
+  const name = lang === 'ar' ? a.name_ar : a.name_en;
+  const now = money(price, a.currency, lang), target = money(a.target_price, a.currency, lang);
+  return lang === 'ar'
+    ? { title: 'انخفض السعر إلى هدفك', body: name + ' الآن ' + now + ' (هدفك: ' + target + ')', url: '#/p/' + a.product_id }
+    : { title: 'Price drop reached your target', body: name + ' is now ' + now + ' (your target: ' + target + ')', url: '#/p/' + a.product_id };
+}
+
+// db: getAlertCandidates(), getRates(), markAlert(id, triggeredAtIsoOrNull), and for push: getPushTokens(userIds) -> [{ user_id, token, platform }], dropPushTokens(tokens).
+// mailer: send({to, subject, html, text}). pusher (optional): send([{ token, platform }], { title, body, url }) -> { sent, invalid, failed, skipped }.
+// Push rules: the person asked for push on that alert (notify_push) and has a registered phone; no email consent is needed (the phone's own permission is the consent).
+// An alert counts as told when email OR push got through; the email cap applies to emails only.
+async function checkAlerts({ db, mailer, pusher, siteUrl, max = 80, dryRun = false, log = () => {} }) {
   const rates = await db.getRates();
   const rows = await db.getAlertCandidates();
-  const out = { checked: rows.length, sent: 0, rearmed: 0, skipped: { noConsent: 0, noEmail: 0, noPrice: 0, waiting: 0, capped: 0 }, failed: 0 };
+  const out = { checked: rows.length, sent: 0, pushed: 0, rearmed: 0, skipped: { noConsent: 0, noEmail: 0, noPrice: 0, waiting: 0, capped: 0 }, failed: 0, pushFailed: 0 };
+  const priceOf = a => (a.market_currency === a.currency ? Number(a.lowest) : Number(a.lowest) / rates[a.market_currency] * rates[a.currency]);   // lowest price in the market's currency -> the alert's currency
+  const wantsPush = a => !!(pusher && pusher.enabled && a.notify_push !== false);
+
+  // People whose alert is reached and who want push: look up their phones in one go.
+  let tokensByUser = new Map();
+  if (wantsPush({ notify_push: true }) && db.getPushTokens) {
+    const ids = [...new Set(rows.filter(a => a.lowest != null && !a.triggered_at && wantsPush(a) && priceOf(a) <= Number(a.target_price) + 1e-9).map(a => a.user_id))];
+    if (ids.length) for (const t of await db.getPushTokens(ids)) { if (!tokensByUser.has(t.user_id)) tokensByUser.set(t.user_id, []); tokensByUser.get(t.user_id).push({ token: t.token, platform: t.platform }); }
+  }
+  const dead = new Set();
+
   for (const a of rows) {
     if (a.lowest == null) { out.skipped.noPrice++; continue; }
-    // lowest price in the market's currency -> the alert's currency
-    const price = a.market_currency === a.currency ? Number(a.lowest) : Number(a.lowest) / rates[a.market_currency] * rates[a.currency];
+    const price = priceOf(a);
     const reached = price <= Number(a.target_price) + 1e-9;
     if (!reached) {
       if (a.triggered_at) { if (!dryRun) await db.markAlert(a.alert_id, null); out.rearmed++; }   // price is back above the target: arm again
       continue;
     }
     if (a.triggered_at) { out.skipped.waiting++; continue; }                                         // already told them about this drop
-    if (!a.notify_email) { out.skipped.noEmail++; continue; }
-    if (!a.consent_at) { out.skipped.noConsent++; continue; }
-    if (out.sent >= max) { out.skipped.capped++; continue; }
-    const mail = buildEmail(a, { siteUrl, price: Math.round(price * 100) / 100, lang: a.lang === 'ar' ? 'ar' : 'en' });
-    if (dryRun) { log('would email ' + a.email + ': ' + mail.subject); out.sent++; continue; }
-    try {
-      await mailer.send({ to: a.email, subject: mail.subject, html: mail.html, text: mail.text });
-      await db.markAlert(a.alert_id, new Date().toISOString());   // only after the email was accepted, so a failure is retried next run
-      out.sent++;
-    } catch (e) { out.failed++; log('email failed for alert ' + a.alert_id + ': ' + e.message); }
+    const emailOk = (dryRun || !!mailer) && !!a.notify_email && !!a.consent_at;   // no mailer (no email key set): only phones are told
+    const phones = wantsPush(a) ? (tokensByUser.get(a.user_id) || []) : [];
+    if (!emailOk && !phones.length) { if (!a.notify_email) out.skipped.noEmail++; else out.skipped.noConsent++; continue; }
+    const shown = Math.round(price * 100) / 100, lang = a.lang === 'ar' ? 'ar' : 'en';
+    let told = false;
+
+    if (emailOk) {
+      if (out.sent >= max) { if (!phones.length) { out.skipped.capped++; continue; } }
+      else {
+        const mail = buildEmail(a, { siteUrl, price: shown, lang });
+        if (dryRun) { log('would email ' + a.email + ': ' + mail.subject); out.sent++; told = true; }
+        else {
+          try { await mailer.send({ to: a.email, subject: mail.subject, html: mail.html, text: mail.text }); out.sent++; told = true; }
+          catch (e) { out.failed++; log('email failed for alert ' + a.alert_id + ': ' + e.message); }
+        }
+      }
+    }
+    if (phones.length) {
+      const msg = buildPush(a, { price: shown, lang });
+      if (dryRun) { log('would push to ' + phones.length + ' phone(s): ' + msg.title + ' - ' + msg.body); out.pushed += phones.length; told = true; }
+      else {
+        const r = await pusher.send(phones, msg);
+        out.pushed += r.sent; out.pushFailed += r.failed; r.invalid.forEach(t => dead.add(t));
+        if (r.sent > 0) told = true; else if (r.failed) log('push failed for alert ' + a.alert_id);
+      }
+    }
+    if (told && !dryRun) await db.markAlert(a.alert_id, new Date().toISOString());   // only after something was accepted, so a failure is retried next run
   }
+  if (dead.size && !dryRun && db.dropPushTokens) await db.dropPushTokens([...dead]);   // phones the makers say no longer exist
   return out;
 }
 
-module.exports = { checkAlerts, buildEmail, money };
+module.exports = { checkAlerts, buildEmail, buildPush, money };

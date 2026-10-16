@@ -23,6 +23,12 @@ jobs:
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       ALERT_FROM: ${{ secrets.ALERT_FROM }}            # for example: DOABNO <alerts@yourdomain.com>
       SITE_URL: ${{ secrets.SITE_URL }}                # the website's address, for the links in the emails
+      # Phone notifications after the import (each platform is skipped when its secrets are empty; see docs/push-notifications.md).
+      FCM_SERVICE_ACCOUNT_JSON: ${{ secrets.FCM_SERVICE_ACCOUNT_JSON }}   # Android: the Firebase service account key (the whole JSON)
+      APNS_KEY_P8: ${{ secrets.APNS_KEY_P8 }}                             # iPhone: the APNs key file text (.p8)
+      APNS_KEY_ID: ${{ secrets.APNS_KEY_ID }}
+      APNS_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      BUNDLE_ID: ${{ vars.BUNDLE_ID }}
       # Store feed logins: add one line per key, then use ${NAME} in the feed's address in the database, for example:
       # FEED_NOON_KEY: ${{ secrets.FEED_NOON_KEY }}
     steps:

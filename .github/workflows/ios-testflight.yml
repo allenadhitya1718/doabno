@@ -9,6 +9,11 @@ on:
         description: "App version shown in TestFlight (for example 1.0.0)"
         required: false
         default: "1.0.0"
+      push:
+        description: "Turn on the Push Notifications capability (signs the archive with the App Store Connect key). Also on automatically when the APNS_KEY_P8 secret exists."
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -24,6 +29,7 @@ jobs:
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
       ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
       APP_VERSION: ${{ inputs.version }}
+      PUSH: ${{ inputs.push == true || secrets.APNS_KEY_P8 != '' }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -76,6 +82,22 @@ jobs:
           /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" "$PLIST" || /usr/libexec/PlistBuddy -c "Set :ITSAppUsesNonExemptEncryption false" "$PLIST"
           /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string DOABNO uses the camera to scan product barcodes." "$PLIST" || /usr/libexec/PlistBuddy -c "Set :NSCameraUsageDescription DOABNO uses the camera to scan product barcodes." "$PLIST"
 
+      - name: Push Notifications entitlement
+        if: env.PUSH == 'true'
+        working-directory: ios-app
+        run: |
+          cat > ios/App/App/App.entitlements <<'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>aps-environment</key><string>production</string>
+          </dict></plist>
+          EOF
+          PBX=ios/App/App.xcodeproj/project.pbxproj
+          # add the entitlements file to the app target's build settings (both Debug and Release)
+          perl -0pi -e 's/(PRODUCT_BUNDLE_IDENTIFIER = \Q$ENV{BUNDLE_ID}\E;)/$1\n\t\t\t\tCODE_SIGN_ENTITLEMENTS = App\/App.entitlements;/g' "$PBX"
+          grep -n "CODE_SIGN_ENTITLEMENTS" "$PBX"
+
       - name: Save the App Store Connect key
         run: |
           mkdir -p "$RUNNER_TEMP/keys"
@@ -87,7 +109,14 @@ jobs:
         run: |
           # Capacitor 7 uses CocoaPods (a workspace); newer versions may use Swift Package Manager (a project only).
           if [ -d App.xcworkspace ]; then TARGET=(-workspace App.xcworkspace); else TARGET=(-project App.xcodeproj); fi
-          xcodebuild archive "${TARGET[@]}" -scheme App -configuration Release             -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/App.xcarchive"             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO             DEVELOPMENT_TEAM="$APPLE_TEAM_ID"             MARKETING_VERSION="$APP_VERSION" CURRENT_PROJECT_VERSION="${{ github.run_number }}"
+          COMMON=(-scheme App -configuration Release -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/App.xcarchive" DEVELOPMENT_TEAM="$APPLE_TEAM_ID" MARKETING_VERSION="$APP_VERSION" CURRENT_PROJECT_VERSION="${{ github.run_number }}")
+          if [ "$PUSH" = "true" ]; then
+            # Signed here (automatic signing through the App Store Connect key), so the push entitlement is embedded in the app.
+            xcodebuild archive "${TARGET[@]}" "${COMMON[@]}" CODE_SIGN_STYLE=Automatic -allowProvisioningUpdates \
+              -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+          else
+            xcodebuild archive "${TARGET[@]}" "${COMMON[@]}" CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
+          fi
 
       - name: Export and upload to TestFlight
         working-directory: ios-app/ios/App

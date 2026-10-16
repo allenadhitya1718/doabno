@@ -85,6 +85,13 @@ function createSupabaseDb({ url = process.env.SUPABASE_URL, key = process.env.SU
         if (page.length < 1000) return out;
       }
     },
+    // Push: the registered phones of some people (service key only), and removal of dead tokens.
+    async getPushTokens(userIds) {
+      const out = [];
+      for (let i = 0; i < userIds.length; i += 200) out.push(...await rest('rpc/push_tokens_for', { method: 'POST', body: { p_user_ids: userIds.slice(i, i + 200) } }));
+      return out;
+    },
+    async dropPushTokens(tokens) { for (let i = 0; i < tokens.length; i += 200) await rest('rpc/drop_push_tokens', { method: 'POST', body: { p_tokens: tokens.slice(i, i + 200) } }); },
     async markAlert(id, triggeredAt) { await rest('alerts?id=eq.' + Number(id), { method: 'PATCH', body: { triggered_at: triggeredAt }, prefer: 'return=minimal' }); },
     async startRun(feedId) { return (await rest('feed_runs', { method: 'POST', body: { feed_id: feedId }, prefer: 'return=representation' }))[0].id; },
     async finishRun(runId, r) {

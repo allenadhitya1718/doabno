@@ -61,7 +61,7 @@ jobs:
         run: |
           MANIFEST=android/app/src/main/AndroidManifest.xml
           # camera for the barcode scanner (optional hardware), notifications for price alerts (Android 13 and newer)
-          sed -i 's#<application#<uses-permission android:name="android.permission.CAMERA" />\n    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n    <uses-feature android:name="android.hardware.camera" android:required="false" />\n    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />\n    <application#' "$MANIFEST"
+          sed -i 's#<application#<uses-permission android:name="android.permission.CAMERA" />\n    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n    <uses-feature android:name="android.hardware.camera" android:required="false" />\n    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />\n    <queries><intent><action android:name="android.media.action.IMAGE_CAPTURE" /></intent></queries>\n    <application#' "$MANIFEST"
           GRADLE=android/app/build.gradle
           sed -i -E "s/versionCode [0-9]+/versionCode ${{ github.run_number }}/; s/versionName \"[^\"]*\"/versionName \"$APP_VERSION\"/" "$GRADLE"
           grep -nE "versionCode|versionName|applicationId" "$GRADLE"

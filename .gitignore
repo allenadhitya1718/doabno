@@ -38,3 +38,4 @@ android-app/node_modules/
 ios-app/ios/
 ios-app/www/
 ios-app/node_modules/
+backend/supabase/.temp/

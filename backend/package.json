@@ -4,7 +4,7 @@
   "description": "DOABNO back end: database schema, seed data, feed importer, click-out function. No dependencies.",
   "scripts": {
     "seed": "node seed/build-seed.js",
-    "test": "node seed/build-seed.js && node --test tests/importer.test.js tests/db-supabase.test.js tests/account.test.js tests/admin-db.test.js tests/alerts.test.js tests/build-site.test.js tests/permissions.test.js tests/identify.test.js && node tests/parity.js",
+    "test": "node seed/build-seed.js && node --test tests/importer.test.js tests/db-supabase.test.js tests/account.test.js tests/admin-db.test.js tests/alerts.test.js tests/build-site.test.js tests/permissions.test.js tests/identify.test.js tests/push.test.js && node tests/parity.js",
     "import:dry": "node importer/cli.js dry-run"
   }
 }
