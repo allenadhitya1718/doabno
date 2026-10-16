@@ -8,7 +8,7 @@ Files: `core.mjs` (all the logic, tested by `backend/tests/identify.test.js` wit
 | Name | Needed | Meaning |
 |---|---|---|
 | `GEMINI_API_KEY` | yes | Google AI Studio key. Set under Project Settings, Edge Functions, Secrets (the exact name matters) |
-| `GEMINI_MODEL` | no | Model to try first. Default: `gemini-flash-lite-latest`, `gemini-flash-latest`, `gemini-2.5-flash-lite`. If none of those exist for the key, the function asks Google which models the key may use and tries up to three Flash models from that list (lite first). Set this secret if you want a specific model |
+| `GEMINI_MODEL` | no | Model to try first. Default: `gemini-2.5-flash-lite`, then `gemini-3.1-flash-lite`, then `gemini-flash-lite-latest` (the `-latest` aliases pointed at newer, slower models). If none of those exist for the key, the function asks Google which models the key may use and tries up to three Flash models from that list (lite first). Set this secret if you want a specific model |
 | `IDENTIFY_DAILY_CAP` | no | Photos per day for everyone, default 1000 |
 | `IDENTIFY_SALT` | no | Any random text; mixed into the visitor hash used for the per-visitor limit |
 

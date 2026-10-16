@@ -10,8 +10,8 @@
 export const MAX_IMAGE_BYTES = 1_800_000;            // decoded size; the app shrinks photos to about 1,000 px first (about 150 KB)
 export const MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 export const CATEGORIES = ['electronics', 'beauty', 'fashion', 'kids', 'home', 'other'];
-// Newest "latest" aliases first, so a retired model name does not break the feature; tried in order only when a model is missing or has no free quota.
-export const DEFAULT_MODELS = ['gemini-flash-lite-latest', 'gemini-flash-latest', 'gemini-2.5-flash-lite'];
+// Fastest stable "lite" model first (the "-latest" aliases pointed at newer, much slower models: 10 to 30 seconds); the next is tried only when a model is missing or has no free quota.
+export const DEFAULT_MODELS = ['gemini-2.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-flash-lite-latest'];
 const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/';
 
 export const PROMPT = [
@@ -105,7 +105,7 @@ const cleanDetail = body => {
   return t.replace(/AIza[0-9A-Za-z_-]{10,}/g, '[key]').replace(/\s+/g, ' ').slice(0, 220);
 };
 
-export async function askGemini({ apiKey, models, image, mime, fetchImpl = fetch, timeoutMs = 20000 }) {
+export async function askGemini({ apiKey, models, image, mime, fetchImpl = fetch, timeoutMs = 12000 }) {
   const first = await tryModels({ apiKey, models, image, mime, fetchImpl, timeoutMs });
   if (first.guess || first.error !== 'model') return first;
   const more = (await discoverModels({ apiKey, fetchImpl })).filter(m => !models.includes(m));
