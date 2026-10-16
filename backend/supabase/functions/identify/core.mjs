@@ -111,13 +111,26 @@ const cleanDetail = body => {
 };
 
 // keys: one or more Gemini keys (a backup key from another Google project has its own free quota). For each model the keys are tried in order.
+// Remembers (key, model) pairs that just said "out of quota" (5 minutes) or "overloaded" (20 seconds), so the next photos skip them instead of
+// waiting for the same refusal again. Kept in memory per running instance; names only, never a whole key. If every pair is cooling, all are tried.
+const cooling = new Map();
+export const resetCooling = () => cooling.clear();
+const coolKey = (apiKey, model) => String(apiKey).slice(-6) + '|' + model;
+const coolFor = (apiKey, model, ms, now = Date.now()) => cooling.set(coolKey(apiKey, model), now + ms);
+const isCooling = (p, now = Date.now()) => (cooling.get(coolKey(p.apiKey, p.model)) || 0) > now;
+function skipCooling(plan) {
+  const live = plan.filter(p => !isCooling(p));
+  return { plan: live.length ? live : plan, skipped: live.length ? plan.filter(p => isCooling(p)).map(p => ({ model: p.model, key: p.label })) : [] };
+}
+
 const planFor = (models, keys) => models.flatMap(model => keys.map((apiKey, i) => ({ model, apiKey, label: 'key' + (i + 1) })));
 
 export async function askGemini({ apiKey, apiKeys, models, image, mime, fetchImpl = fetch, timeoutMs = 12000, hedgeMs = 5000 }) {
   const keys = (apiKeys && apiKeys.length ? apiKeys : [apiKey]).filter(Boolean);
-  const attempts = [];
-  const done = r => Object.assign(r, { attempts });
-  const first = await raceModels({ plan: planFor(models, keys), image, mime, fetchImpl, timeoutMs, attempts, hedgeMs });
+  const attempts = []; let skipped = [];
+  const done = r => Object.assign(r, { attempts }, skipped.length ? { skipped } : {});
+  const sc = skipCooling(planFor(models, keys)); const plan = sc.plan; skipped = sc.skipped;
+  const first = await raceModels({ plan, image, mime, fetchImpl, timeoutMs, attempts, hedgeMs });
   if (first.guess || first.error !== 'model') return done(first);
   const more = (await discoverModels({ apiKey: keys[0], fetchImpl })).filter(m => !models.includes(m));
   if (!more.length) return done(first);
@@ -168,9 +181,10 @@ async function askOne({ apiKey, model, label, image, mime, fetchImpl, timeoutMs,
     const guess = text ? parseGuess(text) : null;
     return guess ? { guess, model } : { status: 502, error: 'unreadable' };       // blocked or empty answer: counts as "could not identify"
   }
-  if (res.status === 429) return { status: 429, error: 'busy', detail: cleanDetail(bodyText) };   // out of quota or too many requests for this model: other models have their own quota, so try them
+  if (res.status === 429) { coolFor(apiKey, model, 300_000); return { status: 429, error: 'busy', detail: cleanDetail(bodyText) }; }   // out of quota or too many requests for this model: other models have their own quota, so try them
   if (res.status === 401 || res.status === 403 || (res.status === 400 && /api key/i.test(bodyText))) return { status: 502, error: 'key', detail: cleanDetail(bodyText) };   // a bad or restricted key: that key is skipped from now on, other keys are still tried
   if (res.status === 404 || (res.status === 400 && /model/i.test(bodyText))) return { status: 502, error: 'model', detail: cleanDetail(bodyText) };
+  if (res.status === 503) coolFor(apiKey, model, 20_000);
   return { status: 502, error: 'upstream', detail: 'HTTP ' + res.status + ': ' + cleanDetail(bodyText) };
 }
 
@@ -246,7 +260,7 @@ export async function handle(req, deps) {
   // For the owner's speed tests: a request may name one model, but only one the key can actually use (checked against Google's own list).
   if (typeof body.model === 'string' && /^[a-z0-9.-]{3,60}$/.test(body.model) && (await discoverModels({ apiKey, fetchImpl: deps.fetchImpl || fetch, all: true })).includes(body.model)) models = [body.model];
   const r = await askGemini({ apiKeys, models, image, mime, fetchImpl: deps.fetchImpl || fetch, hedgeMs: Number(env('IDENTIFY_HEDGE_MS')) || 5000 });
-  if (r.guess) return json(200, { ok: true, guess: r.guess, model: r.model, attempts: r.attempts }, cors);
+  if (r.guess) return json(200, { ok: true, guess: r.guess, model: r.model, attempts: r.attempts, skipped: r.skipped }, cors);
   if (r.error === 'unreadable') return json(200, { ok: true, guess: { found: false, brand: '', name: '', model: '', category: 'other', confidence: 0 } }, cors);
   return json(r.status || 502, Object.assign({ ok: false, error: r.error || 'upstream' }, r.detail ? { detail: r.detail } : {}, r.attempts ? { attempts: r.attempts } : {}), cors);
 }

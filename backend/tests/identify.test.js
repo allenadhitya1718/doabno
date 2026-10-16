@@ -10,7 +10,7 @@ const fail = (status, text) => ({ ok: false, status, text: async () => text || '
 const good = { found: true, brand: 'Sony', name: 'WH-1000XM6 Noise Cancelling Headphones', model: 'WH-1000XM6', category: 'electronics', confidence: 0.93 };
 
 async function setup(fetchImpl, env = {}, limits) {
-  const m = await load();
+  const m = await load(); m.resetCooling();
   const calls = [];
   const deps = {
     env: n => ({ GEMINI_API_KEY: 'AIza-test-secret-key', SUPABASE_ANON_KEY: ANON }[n] ?? env[n]),
@@ -282,4 +282,36 @@ test('a backup key takes over when the first key is out of quota, or refused; ke
   await s.call(ok); assert.equal(s.calls.length, 3);                // one key, three models
   // only the backup key is set
   const m = await load(); assert.deepEqual(m.keysFrom(n => ({ GEMINI_API_KEY_2: ' b ' }[n])), ['b']);
+});
+
+test('a model and key that just ran out of quota are skipped by the next photos, so no time is spent on them', async () => {
+  const keyOf = init => init.headers['x-goog-api-key'];
+  const s = await setup((u, init) => (keyOf(init) === 'AIza-test-secret-key' ? fail(429, 'quota exceeded') : reply(good)), { GEMINI_API_KEY_2: 'backup-key-two' });
+  let j = await (await s.call(ok)).json();
+  assert.equal(j.ok, true); assert.deepEqual(j.attempts.map(x => x.key + ':' + x.status), ['key1:429', 'key2:200']);
+  s.calls.length = 0;
+  j = await (await s.call(ok)).json();                                              // the next photo goes straight to the working key
+  assert.equal(j.ok, true); assert.equal(s.calls.length, 1); assert.deepEqual(j.attempts.map(x => x.key), ['key2']);
+  assert.deepEqual(j.skipped, [{ model: j.model, key: 'key1' }, ...j.skipped.slice(1)].slice(0, j.skipped.length)); assert.ok(j.skipped.every(x => x.key === 'key1'));
+});
+
+test('if every key and model is cooling, they are all tried again rather than failing at once', async () => {
+  const s = await setup(() => fail(429, 'quota exceeded'));
+  await s.call(ok); s.calls.length = 0;                                             // all three models now cooling
+  const r = await s.call(ok); assert.equal(r.status, 429); assert.equal(s.calls.length, 3);
+});
+
+test('an overloaded model (503) is skipped only briefly', async () => {
+  const m = await load(); m.resetCooling();
+  let t = 1_000_000; const realNow = Date.now; Date.now = () => t;
+  try {
+    const bodies = [];
+    const f = async url => { bodies.push(url.match(/models\/([^:]+):/)[1]); return url.includes('model-a:') ? fail(503, 'high demand') : reply(good); };
+    await m.askGemini({ apiKey: 'k', models: ['model-a', 'model-b'], image: IMG, mime: 'image/jpeg', fetchImpl: f });
+    assert.deepEqual(bodies, ['model-a', 'model-b']);
+    bodies.length = 0; await m.askGemini({ apiKey: 'k', models: ['model-a', 'model-b'], image: IMG, mime: 'image/jpeg', fetchImpl: f });
+    assert.deepEqual(bodies, ['model-b']);                                          // a is cooling
+    t += 25_000; bodies.length = 0; await m.askGemini({ apiKey: 'k', models: ['model-a', 'model-b'], image: IMG, mime: 'image/jpeg', fetchImpl: f });
+    assert.deepEqual(bodies, ['model-a', 'model-b']);                               // 20 s later a is tried again
+  } finally { Date.now = realNow; }
 });
