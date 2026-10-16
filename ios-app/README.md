@@ -15,5 +15,5 @@ Actions > **iOS to TestFlight** > Run workflow (version number optional). About 
 
 ## Notes
 - The first upload also needs the **export compliance** and **App Privacy** answers in App Store Connect (the app uses only standard HTTPS; collects email for accounts, favorites and price alerts).
-- The barcode scanner needs `BarcodeDetector`, which iOS web views do not have yet; the app shows its normal "camera not supported" message.
+- Barcode search: iOS web views have no BarcodeDetector, so the app reads barcodes with its bundled reader (ZXing) from a photo (Choose a photo / Take a photo) and from the live camera. The live camera needs the camera permission text the workflow adds; it has not been tried on a real iPhone yet.
 - Confirmation emails link to the website, not the app. Deep links (universal links) need the domain and an `apple-app-site-association` file: a later step.
