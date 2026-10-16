@@ -69,7 +69,7 @@
       favsT: 'Saved products', favsE: 'Tap the heart on a product to save it here.', alertsT: 'Price alerts', alertsD: 'We would email you when the price falls below your target. Demo only: alerts are stored in this browser.',
       alertsE: 'No alerts yet. Open a product and tap “Set price alert”.', target: 'Alert below {x}', remove: 'Remove', now: 'Now {x}',
       'cookie.text': 'We use essential cookies to keep DOABNO working. Analytics cookies help us improve the experience.', 'cookie.ess': 'Essential only', 'cookie.all': 'Accept all',
-      redirect: 'Opening {s} through a tracked partner link… (demo)', 'foot.about': 'DOABNO compares prices across stores. We earn a commission when you visit a store through our links, at no extra cost to you.',
+      redirect: 'Opening {s} through a tracked partner link… (demo)', noLink: 'The store link for {s} is not available yet.', 'foot.about': 'DOABNO compares prices across stores. We earn a commission when you visit a store through our links, at no extra cost to you.',
       'foot.note': 'Prices and availability are collected from store feeds and may change. Always confirm on the store’s website. Prototype for design review: all data is demo data.',
       siTitle: 'Sign in to DOABNO', siD: 'Demo only: any details work, nothing is sent.', email: 'Email', pass: 'Password', siGo: 'Sign in', siDone: 'Signed in (demo)'
     },
@@ -120,7 +120,7 @@
       favsT: 'المنتجات المحفوظة', favsE: 'اضغط على القلب في أي منتج لحفظه هنا.', alertsT: 'تنبيهات الأسعار', alertsD: 'سنرسل لك بريدًا عندما ينخفض السعر عن هدفك. نسخة تجريبية: التنبيهات محفوظة في هذا المتصفح.',
       alertsE: 'لا توجد تنبيهات بعد. افتح منتجًا واضغط «فعّل تنبيه السعر».', target: 'تنبيه عند أقل من {x}', remove: 'إزالة', now: 'الآن {x}',
       'cookie.text': 'نستخدم ملفات تعريف الارتباط الأساسية لتشغيل دوابنو، وملفات التحليلات تساعدنا على تحسين التجربة.', 'cookie.ess': 'الأساسية فقط', 'cookie.all': 'قبول الكل',
-      redirect: 'جارٍ فتح {s} عبر رابط شريك متتبَّع… (تجريبي)', 'foot.about': 'دوابنو يقارن الأسعار بين المتاجر. نحصل على عمولة عند زيارتك لمتجر عبر روابطنا، دون أي تكلفة إضافية عليك.',
+      redirect: 'جارٍ فتح {s} عبر رابط شريك متتبَّع… (تجريبي)', noLink: 'رابط المتجر {s} غير متوفر بعد.', 'foot.about': 'دوابنو يقارن الأسعار بين المتاجر. نحصل على عمولة عند زيارتك لمتجر عبر روابطنا، دون أي تكلفة إضافية عليك.',
       'foot.note': 'الأسعار والتوفر مأخوذة من خلاصات المتاجر وقد تتغير. تأكد دائمًا من موقع المتجر. نموذج أولي للمراجعة: جميع البيانات تجريبية.',
       siTitle: 'تسجيل الدخول إلى دوابنو', siD: 'نسخة تجريبية: أي بيانات تعمل ولا يُرسل شيء.', email: 'البريد الإلكتروني', pass: 'كلمة المرور', siGo: 'دخول', siDone: 'تم تسجيل الدخول (تجريبي)'
     }
@@ -460,7 +460,7 @@
   let user = ACC.enabled ? ACC.user() : store.get('user', null);
   function refreshAccountBtn() {
     const b = $('#signInBtn'); if (!b) return;
-    const s = $('span', b); if (s) { s.textContent = user ? user.name.split(' ')[0] : t('signin'); }
+    const s = $('span', b); if (s) { s.textContent = user && typeof user.name === 'string' && user.name ? user.name.split(' ')[0] : t('signin'); }
   }
   function buildFooter() {
     const f = $('#foot'); if (!f) return;
@@ -473,7 +473,9 @@
   function updateCounts() {
     navMenu.build();
     const a = Object.keys(alerts).length;
-    [['#favCnt', favs.length], ['#alertCnt', a]].forEach(([s, n]) => { const el = $(s); el.hidden = !n; el.textContent = n; });
+    // Count only products that still exist, each once (a hidden or removed product, or a repeated id, is not counted).
+    const f = new Set(favs.filter(id => byId(id))).size;
+    [['#favCnt', f], ['#alertCnt', a]].forEach(([s, n]) => { const el = $(s); el.hidden = !n; el.textContent = n; });
   }
   const closeMenus = () => navMenu.close();
 
@@ -869,7 +871,7 @@
     return html;
   }
   function paintListing() {
-    const ctx = listing.ctx; if (!ctx) return;
+    const ctx = listing.ctx; if (!ctx || !$('#results')) return;   // no results area when the page shown is a "not found" page
     let list = ctx.base.filter(i => {
       if (F.stores.length && !i.offers.some(o => F.stores.includes(o.store.id))) return false;
       if (F.brands.length && !F.brands.includes(i.p.brand)) return false;
@@ -1288,7 +1290,8 @@
         // With the click function configured and a store link on the offer: log the click and go to the store. Otherwise the demo message.
         const go = (window.DOABNO_CONFIG || {}).clickOutUrl;
         if (go && v.dataset.url === '1' && v.dataset.track) { window.open(go.replace(/\/$/, '') + '?t=' + encodeURIComponent(v.dataset.track), '_blank', 'noopener'); return; }
-        toast(t('redirect', { s: v.dataset.visit })); return;
+        // With the live catalog an offer without a store link opens nothing, so say so instead of showing the demo message.
+        toast(t((window.DOABNO_CONFIG || {}).supabaseUrl ? 'noLink' : 'redirect', { s: v.dataset.visit })); return;
       }
       if (e.target.closest('#more')) { F.shown += 20; paintListing(); return; }
       if (e.target.closest('#fToggle')) { $('#filters').classList.toggle('open'); return; }

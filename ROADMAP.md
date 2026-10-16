@@ -29,6 +29,8 @@ Plan and reasoning: [BACKEND-PLAN.md](BACKEND-PLAN.md). Back-end setup: [backend
 
 9. **Account setup with a browser:** the next person's Claude Code follows [SETUP-WITH-BROWSER.md](SETUP-WITH-BROWSER.md) (open sign-in tabs, the person logs in, Claude does the settings; secrets and payments stay with the person). Claim a row here before starting.
 
+10. **Testing:** [TESTING-MANUAL.md](TESTING-MANUAL.md) is the full test manual (normal and edge cases for website, app, admin, database, alerts, tracking, importer, hosting). Run it before launch.
+
 ## Done
 - Website, app and admin redesigns (`web-v2/`, `app-v2/`, `admin-v2/`), including the new admin on `main`.
 - Figma screenshot folders (English + Arabic-only sets).
@@ -49,6 +51,12 @@ Plan and reasoning: [BACKEND-PLAN.md](BACKEND-PLAN.md). Back-end setup: [backend
 - App accounts: email sign-up and sign-in sheet, account card with sign out and delete, favorites and alerts synced, notification choices saved to the profile (`app-v2/mobile.js`, same `account.js`; tested in a browser against the mock server).
 - `ClientRequirements.pdf`: one-page list of what the client must provide (stores and feeds, affiliate accounts, legal approval, domain and accounts, content).
 
+- Test-bug fixes from the emulator testing (2026-10-16): see Requests below and `TEST-RESULTS-EMULATOR.md`; 60 tests and 250 checks pass.
+
+- App photo and barcode search (2026-10-16): reads the barcode in a photo or from the camera on the phone (no upload) and matches the catalogue GTIN. Bundled reader in `app-v2/assets/vendor/`. Tested on the emulator (28 cases); real phone camera still to test. A vision model (identify a product from a plain photo, no barcode) is optional and not built.
+
+- Photo identification with Gemini (2026-10-16): `backend/supabase/functions/identify/` (logic in `core.mjs`, 11 tests, deploy steps in its README) and the app flow in `app-v2/mobile.js`. Tested with a fake Gemini; **not yet deployed**: needs `npx supabase functions deploy identify` and one real call. Free tier: photos may be used by Google, so add a privacy-policy sentence or move to a paid key before launch.
+
 ## Not planned for the first 3 days
 Next.js rebuild for Google, native app, extra Gulf markets, hourly refresh. See `BACKEND-PLAN.md`.
 
@@ -57,3 +65,5 @@ _(add a line: who, what you need, which file)_
 - allenadhitya1718 -> owner of `*/` frontends: the pages answer `/favicon.ico` with 404 (cosmetic, shows in the console). Please add a favicon (the brand app icon in `web-v2/assets/brand/` can be reused) to `web-v2`, `app-v2` and `admin-v2` root, or a `<link rel="icon">`.
 - allenadhitya1718 -> owner of `.github/**`: GitHub warns that `actions/upload-artifact@v4` runs on Node 20 and that `ubuntu-latest` becomes Ubuntu 26 on 2026-10-19. The backup still passes; bump the action version when convenient.
 - allenadhitya1718 -> owner of `backend/**`: `backend/supabase/functions/go/index.ts` returns 500 for an unknown, paused or link-less offer when `SITE_URL` is not set, because `Response.redirect("/")` needs a full address. A live hotfix is deployed (2026-10-15): `const SITE = ... ?? ""` plus `home()` that redirects only when `SITE` starts with http(s), else answers 404 "Link not available". Please copy that into the repo file so the next deploy does not undo it.
+
+- **2026-10-16 (resolved)** Bugs from the emulator testing in `web-v2/v2.js`, `web-v2/assets/account.js` (and the app and admin copies), `app-v2/mobile.js` were fixed in one pass at the repo owner's request: damaged saved session crash, Apple/Google buttons in the app when off, "Visit store" with no link, `#/c/nope` error, long-search overflow, favorites count. Still open: the legal notice placeholders (needs company details and the adviser's approval). Details and re-test results: `TEST-RESULTS-EMULATOR.md`.
