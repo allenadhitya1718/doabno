@@ -217,3 +217,16 @@ test('diagnostic: the owner can list the models the key may use (needs the publi
   assert.equal(r.status, 200); assert.deepEqual(j.available, ['gemini-3-flash-lite', 'gemini-2.5-flash-lite', 'gemini-3-flash', 'gemini-2.5-flash']);
   assert.equal(j.configured, 'gemini-x'); assert.ok(!JSON.stringify(j).includes('AIza'));
 });
+
+test('the reply lists every model tried with its status and time; a request may name one model the key can use', async () => {
+  const m = await load(); m.resetDiscovery();
+  const list = { models: [{ name: 'models/gemini-2.5-flash-lite', supportedGenerationMethods: ['generateContent'] }, { name: 'models/gemini-3-flash', supportedGenerationMethods: ['generateContent'] }] };
+  const s = await setup((u, init) => (u.includes('/models?') ? { ok: true, status: 200, text: async () => JSON.stringify(list) }
+    : u.includes('gemini-3-flash:') ? reply(good) : fail(503, JSON.stringify({ error: { message: 'high demand' } }))), { GEMINI_MODEL: 'gemini-2.5-flash-lite' });
+  let j = await (await s.call(ok)).json();                                      // first model overloaded: not "model missing", so the next default is tried, then it fails
+  assert.equal(j.error, 'upstream'); assert.ok(Array.isArray(j.attempts) && j.attempts[0].model === 'gemini-2.5-flash-lite' && j.attempts[0].status === 503 && typeof j.attempts[0].ms === 'number');
+  j = await (await s.call({ image: IMG, mime: 'image/jpeg', model: 'gemini-3-flash' })).json();   // owner names a model from the key's list
+  assert.equal(j.ok, true); assert.equal(j.model, 'gemini-3-flash'); assert.deepEqual(j.attempts.map(x => x.model), ['gemini-3-flash']);
+  j = await (await s.call({ image: IMG, mime: 'image/jpeg', model: 'not-a-real-model' })).json();   // a name that is not in the list is ignored
+  assert.ok(j.attempts.every(x => x.model !== 'not-a-real-model'));
+});

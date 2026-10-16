@@ -106,19 +106,22 @@ const cleanDetail = body => {
 };
 
 export async function askGemini({ apiKey, models, image, mime, fetchImpl = fetch, timeoutMs = 12000 }) {
-  const first = await tryModels({ apiKey, models, image, mime, fetchImpl, timeoutMs });
-  if (first.guess || first.error !== 'model') return first;
+  const attempts = [];
+  const done = r => Object.assign(r, { attempts });
+  const first = await tryModels({ apiKey, models, image, mime, fetchImpl, timeoutMs, attempts });
+  if (first.guess || first.error !== 'model') return done(first);
   const more = (await discoverModels({ apiKey, fetchImpl })).filter(m => !models.includes(m));
-  if (!more.length) return first;
-  const second = await tryModels({ apiKey, models: more, image, mime, fetchImpl, timeoutMs });
-  return second.guess || second.error !== 'model' ? second : first;
+  if (!more.length) return done(first);
+  const second = await tryModels({ apiKey, models: more, image, mime, fetchImpl, timeoutMs, attempts });
+  return done(second.guess || second.error !== 'model' ? second : first);
 }
 
-async function tryModels({ apiKey, models, image, mime, fetchImpl, timeoutMs }) {
+async function tryModels({ apiKey, models, image, mime, fetchImpl, timeoutMs, attempts = [] }) {
   let last = { status: 502, error: 'upstream' };
   for (const model of models) {
     const ctl = new AbortController(); const timer = setTimeout(() => ctl.abort(), timeoutMs);
     let res, bodyText = '';
+    const t0 = Date.now();
     try {
       // Settings are tried from the most helpful to the plainest: JSON schema plus "no extra thinking" (much faster), then without the
       // thinking setting, then without the schema. A model that rejects a setting gets the same question again with the next variant.
@@ -140,8 +143,9 @@ async function tryModels({ apiKey, models, image, mime, fetchImpl, timeoutMs }) 
         if (/schema|enum|response_?mime|generation_?config/i.test(bodyText)) { i = variants.length - 2; continue; }   // the schema was refused: plainest variant
         break;
       }
-    } catch (e) { clearTimeout(timer); const timeout = e && e.name === 'AbortError'; last = { status: timeout ? 504 : 502, error: timeout ? 'timeout' : 'upstream', detail: cleanDetail(e && e.message) }; continue; }
+    } catch (e) { clearTimeout(timer); attempts.push({ model, status: e && e.name === 'AbortError' ? 'timeout' : 'error', ms: Date.now() - t0 }); const timeout = e && e.name === 'AbortError'; last = { status: timeout ? 504 : 502, error: timeout ? 'timeout' : 'upstream', detail: cleanDetail(e && e.message) }; continue; }
     clearTimeout(timer);
+    attempts.push({ model, status: res.status, ms: Date.now() - t0 });
     if (res.ok) {
       let data; try { data = JSON.parse(bodyText); } catch (e) { last = { status: 502, error: 'upstream', detail: 'Google sent an answer that is not JSON' }; continue; }
       const text = data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts
@@ -196,9 +200,11 @@ export async function handle(req, deps) {
   const wait = deps.limiter.take(who);
   if (wait) return json(429, { ok: false, error: 'busy' }, Object.assign({ 'Retry-After': String(wait.retryAfter) }, cors));
 
-  const models = (env('GEMINI_MODEL') ? [env('GEMINI_MODEL')] : []).concat(DEFAULT_MODELS).filter((m, i, a) => m && a.indexOf(m) === i).slice(0, 3);
+  let models = (env('GEMINI_MODEL') ? [env('GEMINI_MODEL')] : []).concat(DEFAULT_MODELS).filter((m, i, a) => m && a.indexOf(m) === i).slice(0, 3);
+  // For the owner's speed tests: a request may name one model, but only one the key can actually use (checked against Google's own list).
+  if (typeof body.model === 'string' && /^[a-z0-9.-]{3,60}$/.test(body.model) && (await discoverModels({ apiKey, fetchImpl: deps.fetchImpl || fetch, all: true })).includes(body.model)) models = [body.model];
   const r = await askGemini({ apiKey, models, image, mime, fetchImpl: deps.fetchImpl || fetch });
-  if (r.guess) return json(200, { ok: true, guess: r.guess, model: r.model }, cors);
+  if (r.guess) return json(200, { ok: true, guess: r.guess, model: r.model, attempts: r.attempts }, cors);
   if (r.error === 'unreadable') return json(200, { ok: true, guess: { found: false, brand: '', name: '', model: '', category: 'other', confidence: 0 } }, cors);
-  return json(r.status || 502, Object.assign({ ok: false, error: r.error || 'upstream' }, r.detail ? { detail: r.detail } : {}), cors);
+  return json(r.status || 502, Object.assign({ ok: false, error: r.error || 'upstream' }, r.detail ? { detail: r.detail } : {}, r.attempts ? { attempts: r.attempts } : {}), cors);
 }
