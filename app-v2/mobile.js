@@ -77,20 +77,29 @@
   // iPhone app and phone browsers: the page reads it from the visual viewport (the web view or browser already shrinks it, so --kb stays 0 there).
   (function keyboardAvoidance() {
     const root = document.documentElement, isField = el => !!el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName);
-    const keepVisible = () => setTimeout(() => { const el = document.activeElement; if (isField(el) && el.scrollIntoView) el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 150);
-    const setKb = px => {
-      const v = Math.max(0, Math.round(px || 0));
+    // Scroll the field into view inside its sheet (never the page behind it): just enough to sit in the middle of what the keyboard leaves visible.
+    const keepVisible = () => setTimeout(() => {
+      const el = document.activeElement; if (!isField(el)) return;
+      const box = el.closest('.sheet-body');
+      if (box) { const b = box.getBoundingClientRect(), r = el.getBoundingClientRect(); box.scrollTop += (r.top + r.height / 2) - (b.top + b.height / 2); }
+      else if (el.scrollIntoView) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 150);
+    // Two sources, the larger one wins (they describe the same keyboard, so they are never added together).
+    let plugin = 0, viewport = 0;
+    const apply = () => {
+      const v = Math.max(0, Math.round(Math.max(plugin, viewport) || 0));
       if (root.dataset.kb === String(v)) return;
       root.dataset.kb = String(v); root.style.setProperty('--kb', v + 'px'); root.classList.toggle('kb-open', v > 0);
       if (v > 0) keepVisible();
     };
     const cap = window.Capacitor, K = cap && typeof cap.getPlatform === 'function' && cap.getPlatform() === 'android' && cap.Plugins && cap.Plugins.Keyboard;
-    if (K) {
-      ['keyboardWillShow', 'keyboardDidShow'].forEach(n => K.addListener(n, i => setKb(i && i.keyboardHeight)));
-      ['keyboardWillHide', 'keyboardDidHide'].forEach(n => K.addListener(n, () => setKb(0)));
-    } else if (window.visualViewport) {
+    if (K) {      // Android app: the keyboard plugin reports the height
+      ['keyboardWillShow', 'keyboardDidShow'].forEach(n => K.addListener(n, i => { plugin = (i && i.keyboardHeight) || 0; apply(); }));
+      ['keyboardWillHide', 'keyboardDidHide'].forEach(n => K.addListener(n, () => { plugin = 0; apply(); }));
+    }
+    if (window.visualViewport) {      // every phone browser and web view: the visual viewport shrinks by the keyboard's height
       const vv = window.visualViewport;
-      const update = () => { const covered = window.innerHeight - vv.height - vv.offsetTop; setKb(covered > 80 ? covered : 0); };
+      const update = () => { const covered = window.innerHeight - vv.height - vv.offsetTop; viewport = covered > 80 ? covered : 0; apply(); };
       vv.addEventListener('resize', update); vv.addEventListener('scroll', update);
     }
     document.addEventListener('focusin', e => { if (isField(e.target)) keepVisible(); });
