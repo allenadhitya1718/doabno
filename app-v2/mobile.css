@@ -646,3 +646,8 @@ html[lang="ar"] .trend-label { letter-spacing: 0; font-size: 13px; }
 /* A very long unbroken word (for example in a search) wraps instead of making the screen scroll sideways. */
 .empty h3, .empty p, .list-head, .page-title { overflow-wrap: anywhere; }
 #scanOut:not(:empty) { margin-bottom: var(--s4); }
+
+/* Keyboard avoidance: sheets sit above the on-screen keyboard (--kb is set by mobile.js) and may shrink so their top stays visible. */
+.sheet { bottom: var(--kb, 0px); }
+.kb-open .sheet { max-height: calc(100% - var(--kb) - 12px); }
+.kb-open .sheet-foot { padding-bottom: var(--s3); }

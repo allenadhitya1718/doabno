@@ -1282,6 +1282,8 @@
     $('#langBtn').addEventListener('click', () => { lang = lang === 'en' ? 'ar' : 'en'; store.set('lang', lang); applyLang(); route(); });
     $('#signInBtn').addEventListener('click', () => { if (user) location.hash = '#/account'; else openAuth('signin'); });
     $('#modal').addEventListener('click', e => { if (e.target === e.currentTarget || e.target.closest('[data-close-modal]')) e.currentTarget.close(); });
+    // A field in a dialog scrolls into view when it gets focus, so the on-screen keyboard cannot cover it.
+    $('#modal').addEventListener('focusin', e => { if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) setTimeout(() => e.target.scrollIntoView({ block: 'center', behavior: 'smooth' }), 250); });
     document.addEventListener('click', async e => {
       const so = e.target.closest('[data-oauth]');
       if (so) { location.href = ACC.oauthUrl(so.dataset.oauth); return; }

@@ -5,5 +5,7 @@ module.exports = {
   webDir: 'www',                       // filled with the built /app/ pages by the workflow
   backgroundColor: '#0E2A47',
   android: { allowMixedContent: false },
-  server: { androidScheme: 'https', allowNavigation: ['*.supabase.co'] }
+  server: { androidScheme: 'https', allowNavigation: ['*.supabase.co'] },
+  // The page moves bottom sheets above the keyboard itself (it gets the height from this plugin), so the window is not resized.
+  plugins: { Keyboard: { resize: 'none' } }
 };

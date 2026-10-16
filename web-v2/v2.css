@@ -921,3 +921,6 @@ html[lang="ar"] .app-promo2 h2 { letter-spacing: 0; line-height: 1.35; }
 /* A very long unbroken word (for example in a search) wraps instead of making the page scroll sideways. */
 .page-h > div { min-width: 0; max-width: 100%; }
 .page-h h1, .page-h p { overflow-wrap: anywhere; }
+
+/* Dialogs stay inside the visible area and scroll when the on-screen keyboard takes part of it. */
+.modal { max-height: calc(100dvh - 24px); overflow-y: auto; }

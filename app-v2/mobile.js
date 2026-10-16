@@ -71,6 +71,31 @@
       closeSheet(); toast(t(up ? 'auth.welcome' : 'auth.signedIn')); rerender(); syncFromAccount();
     } catch (ex) { btn.disabled = false; fail(authErr(ex)); }
   }
+  // ---- keyboard avoidance: the on-screen keyboard must never cover the field being typed in ----
+  // --kb is the keyboard's height. Bottom sheets sit above it (see .sheet in mobile.css) and the field in focus is scrolled into view.
+  // Android app: the keyboard plugin reports the height (the installed app is edge to edge, so the web view is not resized and a page cannot see the keyboard).
+  // iPhone app and phone browsers: the page reads it from the visual viewport (the web view or browser already shrinks it, so --kb stays 0 there).
+  (function keyboardAvoidance() {
+    const root = document.documentElement, isField = el => !!el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName);
+    const keepVisible = () => setTimeout(() => { const el = document.activeElement; if (isField(el) && el.scrollIntoView) el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 150);
+    const setKb = px => {
+      const v = Math.max(0, Math.round(px || 0));
+      if (root.dataset.kb === String(v)) return;
+      root.dataset.kb = String(v); root.style.setProperty('--kb', v + 'px'); root.classList.toggle('kb-open', v > 0);
+      if (v > 0) keepVisible();
+    };
+    const cap = window.Capacitor, K = cap && typeof cap.getPlatform === 'function' && cap.getPlatform() === 'android' && cap.Plugins && cap.Plugins.Keyboard;
+    if (K) {
+      ['keyboardWillShow', 'keyboardDidShow'].forEach(n => K.addListener(n, i => setKb(i && i.keyboardHeight)));
+      ['keyboardWillHide', 'keyboardDidHide'].forEach(n => K.addListener(n, () => setKb(0)));
+    } else if (window.visualViewport) {
+      const vv = window.visualViewport;
+      const update = () => { const covered = window.innerHeight - vv.height - vv.offsetTop; setKb(covered > 80 ? covered : 0); };
+      vv.addEventListener('resize', update); vv.addEventListener('scroll', update);
+    }
+    document.addEventListener('focusin', e => { if (isField(e.target)) keepVisible(); });
+  })();
+
   // ---- push notifications (only inside the installed Android and iPhone apps; the website and the browser never do any of this) ----
   // The phone's push token is saved on the account so the daily price-alert job can send a notification when a target price is reached.
   const NATIVE = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
