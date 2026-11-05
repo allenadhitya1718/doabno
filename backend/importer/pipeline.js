@@ -47,13 +47,18 @@ function processRows(rows, { store, marketCurrency, rates, productsByGtin, marke
   return { accepted: [...accepted.values()], rejects };
 }
 
-async function runFeed({ feed, db, fetchText = fetchFeedText, now = () => new Date() }) {
+async function runFeed({ feed, db, fetchText = fetchFeedText, readPages = require('./scrape').readPages, now = () => new Date() }) {
   const runId = await db.startRun(feed.id);
   const finish = async (extra) => { await db.finishRun(runId, extra); return Object.assign({ runId }, extra); };
-  let rows;
+  let rows, pageRejects = [], unread = new Set();     // unread: products whose store page could not be read this time (keep their last offer)
   try {
-    const text = await fetchText(feed.url);
-    rows = parseFeed(feed.format, text);
+    if (feed.format === 'scrape') {
+      const r = await readPages({ feed, db });
+      rows = r.rows; pageRejects = r.rejects; unread = r.failed;
+    } else {
+      const text = await fetchText(feed.url);
+      rows = parseFeed(feed.format, text);
+    }
   } catch (e) {
     return finish({ status: 'error', items: 0, rejected: 0, error: e.code || 'other', message: e.message });
   }
@@ -63,21 +68,23 @@ async function runFeed({ feed, db, fetchText = fetchFeedText, now = () => new Da
   const products = await db.getProducts();
   const productsByGtin = new Map(products.filter(p => p.gtin).map(p => [gtinKey(p.gtin), p]));
   const marketPrices = await db.getMarketPrices(store.market);
-  const { accepted, rejects } = processRows(rows, { store, marketCurrency: market.currency, rates, productsByGtin, marketPrices });
+  const processed = processRows(rows, { store, marketCurrency: market.currency, rates, productsByGtin, marketPrices });
+  const accepted = processed.accepted, rejects = pageRejects.concat(processed.rejects);
+  const total = rows.length + pageRejects.length;
 
   await db.upsertOffers(accepted);
   // Products this store used to list but the feed no longer mentions: show as out of stock (kept, not deleted).
   const seen = new Set(accepted.map(a => a.product_id));
   const before = await db.getOfferProductIds(store.id);
-  const missing = [...before].filter(id => !seen.has(id));
+  const missing = [...before].filter(id => !seen.has(id) && !unread.has(id));
   if (rows.length) await db.markOutOfStock(store.id, missing);
   if (rejects.length) await db.saveRejects(runId, rejects);
   await db.updateHistory(store.market, [...new Set([...seen, ...missing])]);
 
-  const ratio = rows.length ? rejects.length / rows.length : 0;
-  const status = rows.length && !accepted.length ? 'error' : ratio >= 0.2 ? 'warning' : 'ok';
+  const ratio = total ? rejects.length / total : 0;
+  const status = total && !accepted.length ? 'error' : ratio >= 0.2 ? 'warning' : 'ok';
   return finish({ status, items: accepted.length, rejected: rejects.length, error: status === 'error' ? 'other' : null,
-    message: status === 'error' ? 'No usable items in the feed' : null, missing: missing.length });
+    message: status === 'error' ? (feed.format === 'scrape' ? 'No store page could be used' : 'No usable items in the feed') : null, missing: missing.length });
 }
 
 module.exports = { runFeed, processRows, fetchFeedText, median };

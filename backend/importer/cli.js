@@ -6,6 +6,8 @@
 //   node backend/importer/cli.js alerts [--dry true]           email and push-notify people whose price alert was reached (needs RESEND_API_KEY, ALERT_FROM, SITE_URL for email; FCM_SERVICE_ACCOUNT_JSON and/or APNS_KEY_P8, APNS_KEY_ID, APNS_TEAM_ID, BUNDLE_ID for phones)
 //   node backend/importer/cli.js dry-run --file feed.csv --format csv --store noon-sa
 //                                                              try a feed file against the demo catalog, saving nothing
+//   node backend/importer/cli.js page-test --url https://www.extra.com/en-sa/.../p/00123456 --product sony-wh1000xm6
+//                                                              read one store page (robots.txt obeyed) and show what the importer would take from it, saving nothing
 // In a feed's address, ${NAME} is replaced with the environment variable NAME (names must start with FEED_), so keys stay out of the database.
 const fs = require('fs');
 const path = require('path');
@@ -41,6 +43,23 @@ async function main() {
     console.log(JSON.stringify(res, null, 2));
     if (db.rejects.length) console.log('Rejected items:\n' + db.rejects.map(r => '  ' + r.reason.padEnd(16) + r.ref).join('\n'));
     console.log('Nothing was saved (dry run).');
+    return;
+  }
+  if (cmd === 'page-test') {       // one store page against one demo-catalog product, nothing saved
+    const { createMemoryDb } = require('./db-memory');
+    const { readPages, readProduct } = require('./scrape');
+    if (!opt.url || !opt.product) throw new Error('--url and --product <catalog product id> are required');
+    const catalog = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'seed', 'catalog.local.json'), 'utf8'));
+    const p = catalog.products.find(x => x.id === opt.product);
+    if (!p) throw new Error('Unknown product ' + opt.product + ' (see backend/seed/catalog.local.json)');
+    const db = createMemoryDb({ stores: [], markets: {}, rates: {}, products: [{ id: p.id, gtin: p.gtin, brand: p.brand }], pages: [{ product_id: p.id, store_id: 'test', url: opt.url }] });
+    let raw = null;
+    const fetchImpl = async (url, init) => { const res = await fetch(url, init); if (url === opt.url) { const text = await res.text(); raw = readProduct(text); return { ok: res.ok, status: res.status, text: async () => text }; } return res; };
+    const r = await readPages({ feed: { store_id: 'test' }, db, fetchImpl, log: m => console.log(m) });
+    console.log('Page says:   ' + JSON.stringify(raw));
+    console.log('Importer row: ' + JSON.stringify(r.rows[0] || null));
+    if (r.rejects.length) console.log('Rejected:     ' + JSON.stringify(r.rejects));
+    console.log('Nothing was saved.');
     return;
   }
   if (cmd === 'run') {

@@ -60,7 +60,7 @@
       const runs = await acc.rest('feed_runs?select=feed_id,started_at,finished_at,status,items,rejected,error&order=started_at.desc&limit=1000');
       const last = new Map();
       runs.forEach(r => { if (!last.has(r.feed_id)) last.set(r.feed_id, r); });
-      const FORMAT = { xml: 'XML', csv: 'CSV', json: 'JSON API', google_merchant: 'Google Merchant' }, SCHEDULE = { hourly: 'hourly', six_hourly: 'six', daily: 'daily' };
+      const FORMAT = { xml: 'XML', csv: 'CSV', json: 'JSON API', google_merchant: 'Google Merchant', scrape: 'Store pages' }, SCHEDULE = { hourly: 'hourly', six_hourly: 'six', daily: 'daily' };
       return feeds.filter(f => f.active).map(f => {
         const r = last.get(f.id);
         return { storeId: f.store_id, format: FORMAT[f.format] || f.format, schedule: SCHEDULE[f.schedule] || f.schedule,

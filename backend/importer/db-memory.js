@@ -1,14 +1,15 @@
 // In-memory stand-in for the database, same interface as db-supabase.js. Used by tests and dry runs.
-// Interface: getStore, getMarket, getRates, getProducts, getMarketPrices, getOfferProductIds, upsertOffers,
+// Interface: getStore, getMarket, getRates, getProducts, getScrapePages, getMarketPrices, getOfferProductIds, upsertOffers,
 //            markOutOfStock, saveRejects, updateHistory, startRun, finishRun.
-function createMemoryDb({ stores, markets, rates, products, offers = [], history = [] }) {
-  const db = { stores, markets, rates, products, offers: offers.map(o => Object.assign({}, o)), history: history.slice(), runs: [], rejects: [] };
+function createMemoryDb({ stores, markets, rates, products, offers = [], history = [], pages = [] }) {
+  const db = { stores, markets, rates, products, offers: offers.map(o => Object.assign({}, o)), history: history.slice(), runs: [], rejects: [], pages };
   const today = () => new Date().toISOString().slice(0, 10);
   return Object.assign(db, {
     async getStore(id) { return stores.find(s => s.id === id); },
     async getMarket(id) { return markets[id]; },
     async getRates() { return rates; },
     async getProducts() { return products; },
+    async getScrapePages(storeId) { return db.pages.filter(p => p.store_id === storeId && p.active !== false); },
     async getMarketPrices(market) { return new Map(db.offers.filter(o => o.market === market && o.in_stock).reduce((m, o) => { (m.get(o.product_id) || m.set(o.product_id, []).get(o.product_id)).push({ store_id: o.store_id, price: o.price }); return m; }, new Map())); },
     async getOfferProductIds(storeId) { return new Set(db.offers.filter(o => o.store_id === storeId && o.in_stock).map(o => o.product_id)); },
     async upsertOffers(rows) {

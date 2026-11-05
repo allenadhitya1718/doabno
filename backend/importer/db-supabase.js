@@ -33,7 +33,9 @@ function createSupabaseDb({ url = process.env.SUPABASE_URL, key = process.env.SU
     async getStore(id) { return (await rest('stores?id=eq.' + encodeURIComponent(id) + '&select=id,market'))[0]; },
     async getMarket(id) { return (await rest('markets?id=eq.' + encodeURIComponent(id) + '&select=id,currency'))[0]; },
     async getRates() { return Object.fromEntries((await all('currencies?select=code,per_usd')).map(c => [c.code, Number(c.per_usd)])); },
-    async getProducts() { return all('products?status=eq.active&select=id,gtin'); },
+    async getProducts() { return all('products?status=eq.active&select=id,gtin,brand'); },
+    // Store page reader: the product pages a person mapped for this store (see migrations/0011_scrape_pages.sql).
+    async getScrapePages(storeId) { return all('scrape_pages?store_id=eq.' + encodeURIComponent(storeId) + '&active=eq.true&select=product_id,url&order=product_id'); },
     async getMarketPrices(market) {
       const m = new Map();
       (await all('offers?market=eq.' + encodeURIComponent(market) + '&in_stock=eq.true&select=product_id,store_id,price')).forEach(o => {
