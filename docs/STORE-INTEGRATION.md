@@ -29,7 +29,7 @@ Where we stand today:
 | Saco | D (later C) | Live, 7 products |
 | Nahdi | D (later A) | Live, 29 products (2026-11-06) |
 | Amazon.sa | B | Apply (affiliate-program.amazon.sa) |
-| noon | B (or A) | Apply (affiliates.noon.com) |
+| noon | B (or A) | **Joined 2026-11-06**: affiliate id `AFF7afd47407a73`, organisation JEC (project `PRJ651175`), terms accepted, Everyday Campaign active. Links are made one by one in the dashboard (server-side, no link pattern); payouts need ID and bank documents. Next: email affiliate.support@noon.com for a product feed/API with deep links and written OK to use noon's name and logo (terms 8.3) |
 | Jarir | C | Page reading forbidden by its robots.txt: ask Jarir for a feed |
 | Namshi, Centrepoint, Sephora, Ounass | A | Through ArabClicks or Admitad |
 | Carrefour, Virgin | A or C | To ask |
