@@ -10,3 +10,4 @@ next-env.d.ts
 app/v2.css
 public/assets/
 lib/generated/
+.dev.vars

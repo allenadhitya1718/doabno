@@ -29,11 +29,13 @@ export type Data = {
 /** A product with its offers in one market, as web-v2's items() returns it. */
 export type Item = { p: Product; offers: Offer[]; best: Offer; save: number; n: number };
 
-const DB_URL = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
-const DB_KEY = process.env.SUPABASE_ANON_KEY || '';
+// Read on first use, not at import, so hosts that fill process.env per request (Cloudflare Workers) see the values.
+const dbUrl = () => (process.env.SUPABASE_URL || '').replace(/\/$/, '');
+const dbKey = () => process.env.SUPABASE_ANON_KEY || '';
 
 // Throws on failure, so a failed request is never cached (the next request tries again).
 async function fetchLiveCatalog(): Promise<unknown> {
+  const DB_URL = dbUrl(), DB_KEY = dbKey();
   const r = await fetch(DB_URL + '/rest/v1/rpc/get_catalog', {
     method: 'POST',
     headers: { apikey: DB_KEY, Authorization: 'Bearer ' + DB_KEY, 'Content-Type': 'application/json' },
@@ -48,12 +50,14 @@ async function fetchLiveCatalog(): Promise<unknown> {
 }
 
 // The database address is part of the cache key, so switching databases (or demo -> live) never serves an old answer.
-const cachedLive = unstable_cache(fetchLiveCatalog, ['doabno-catalog', DB_URL], { revalidate: REVALIDATE_SECONDS, tags: ['catalog'] });
+const cachedFor: Record<string, () => Promise<unknown>> = {};
 
 async function cachedCatalog(): Promise<unknown | null> {
-  if (!DB_URL || !DB_KEY) return null;
+  const url = dbUrl();
+  if (!url || !dbKey()) return null;
+  cachedFor[url] ||= unstable_cache(fetchLiveCatalog, ['doabno-catalog', url], { revalidate: REVALIDATE_SECONDS, tags: ['catalog'] });
   try {
-    return await cachedLive();
+    return await cachedFor[url]();
   } catch (e) {
     console.warn('Catalog not loaded (' + (e as Error).message + '). Using demo data.');
     return null;
