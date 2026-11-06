@@ -635,7 +635,7 @@
     const usual = hasDrop ? b.total / (1 - p.drop / 100) : 0;
     const rv = p.reviews >= 1000 ? (p.reviews / 1000).toFixed(1).replace('.0', '') + 'k' : String(p.reviews);
     return '<a class="sq" href="#/p/' + p.id + '"><div class="sq-im">' + thumb(p, 360, 360) + '</div>' +
-      '<div class="sq-chips"><span class="sq-c drop">' + (hasDrop ? '↓ ' + pct(p.drop) + '%' : storesLabel(i.n)) + '</span><span class="sq-c rate"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" fill="currentColor"/></svg>' + p.rating.toFixed(1) + ' (' + rv + ')</span></div>' +
+      '<div class="sq-chips"><span class="sq-c drop">' + (hasDrop ? '↓ ' + pct(p.drop) + '%' : storesLabel(i.n)) + '</span>' + (p.rating != null ? '<span class="sq-c rate"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" fill="currentColor"/></svg>' + p.rating.toFixed(1) + ' (' + rv + ')</span>' : '') + '</div>' +
       '<h3 dir="auto">' + esc(nm(p)) + '</h3>' +
       '<div class="sq-pr">' + dot(b.store) + '<b>' + money(b.total) + '</b></div>' +
       '<div class="sq-us">' + (hasDrop ? '<span>' + t('usually', { x: moneyText(usual) }) + '</span><em>' + t('lessN', { n: pct(p.drop) }) + '</em>' : '<span>' + storesLabel(i.n) + '</span>') + '</div>' +
@@ -934,7 +934,7 @@
       '<td class="tot-c num tot">' + money(o.total) + '</td><td class="s-c">' + (o.inStock ? '<span class="stock-ok">' + t('inStock') + '</span>' : '<span class="stock-no">' + t('outStock') + '</span>') + '<small>' + fresh(o) + '</small></td>' +
       '<td class="a-c num"><button class="btn ' + (o === bestOffer ? 'primary' : 'visit') + ' sm" type="button" data-visit="' + esc(o.store.name) + '" data-track="' + esc(o.trackingId) + '"' + (o.url ? ' data-url="1"' : '') + '>' + t('visit') + '</button></td></tr>').join('');
     return '<div class="page"><div class="wrap"><div class="crumbs"><a href="#/">' + t('home') + '</a> / ' + (c ? '<a href="#/c/' + c.id + '">' + esc(nm(c)) + '</a>' : '') + (sub ? ' / <a href="#/c/' + c.id + '/' + sub.id + '">' + esc(nm(sub)) + '</a>' : '') + '</div>' +
-      '<div class="phead"><div class="im">' + thumb(p, 140, 140) + '</div><div><h1 dir="auto">' + esc(nm(p)) + '</h1><div class="pmeta"><span>' + esc(p.brand) + '</span><span><span class="stars" aria-hidden="true">★</span> <b>' + p.rating + '</b> · ' + t('p.reviews', { n: p.reviews.toLocaleString('en-US') }) + '</span><span>' + storesLabel(it.n) + '</span></div></div></div>' +
+      '<div class="phead"><div class="im">' + thumb(p, 140, 140) + '</div><div><h1 dir="auto">' + esc(nm(p)) + '</h1><div class="pmeta"><span>' + esc(p.brand) + '</span>' + (p.rating != null ? '<span><span class="stars" aria-hidden="true">★</span> <b>' + p.rating + '</b> · ' + t('p.reviews', { n: p.reviews.toLocaleString('en-US') }) + '</span>' : '') + '<span>' + storesLabel(it.n) + '</span></div></div></div>' +
       '<div class="pgrid"><div>' +
       '<section class="card"><h2>' + t('p.compare') + '</h2><table class="otable"><thead><tr><th>' + t('th.store') + '</th><th class="num">' + t('th.price') + '</th><th class="num">' + t('th.ship') + '</th><th class="num">' + t('th.total') + '</th><th>' + t('th.stock') + '</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></section>' +
       '<section class="card"><h2>' + t('p.history') + '</h2><div class="ptabs"><button class="btn ghost sm" type="button" data-days="30" aria-pressed="true">' + t('p.d30') + '</button><button class="btn ghost sm" type="button" data-days="90" aria-pressed="false">' + t('p.d90') + '</button></div><div id="hist"></div></section>' +
@@ -1193,7 +1193,7 @@
       if (it) {
         const mx = Math.max.apply(null, it.offers.map(o => o.total));
         title = nm(it.p) + ' | ' + brand; desc = (lang === 'ar' ? 'قارن أسعار ' : 'Compare prices for ') + nm(it.p) + ' ' + (lang === 'ar' ? 'من ' : 'from ') + moneyText(it.best.total) + ' ' + (lang === 'ar' ? 'عبر ' + it.n + ' متاجر.' : 'across ' + it.n + ' stores.');
-        ld = { '@context': 'https://schema.org', '@type': 'Product', name: it.p.en, brand: { '@type': 'Brand', name: it.p.brand }, aggregateRating: { '@type': 'AggregateRating', ratingValue: it.p.rating, reviewCount: it.p.reviews },
+        ld = { '@context': 'https://schema.org', '@type': 'Product', name: it.p.en, brand: { '@type': 'Brand', name: it.p.brand }, aggregateRating: it.p.rating != null && it.p.reviews ? { '@type': 'AggregateRating', ratingValue: it.p.rating, reviewCount: it.p.reviews } : undefined,
           offers: { '@type': 'AggregateOffer', priceCurrency: mcur(), lowPrice: it.best.total.toFixed(2), highPrice: mx.toFixed(2), offerCount: it.offers.length } };
       }
     } else if (seg[0] === 'deals') { title = t('dealsT') + ' | ' + brand; }

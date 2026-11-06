@@ -365,7 +365,7 @@
       (s.count ? '<span class="prow-price"><small>' + t('from') + '</small>' + money(s.min, s.cur) + (p.drop >= 5 ? sav(p.drop) : '') + '</span>' +
           '<span class="prow-meta">' + tp('n.offers', s.count) + ' · ' + t('p.updatedToday') + (s.free ? ' · <span class="free">' + t('o.freeDelivery') + '</span>' : '') + '</span>'
         : '<span class="prow-meta">' + t('p.noOffers') + '</span>') +
-      '<span class="prow-meta">' + stars(p.rating) + '<span>' + p.rating.toFixed(1) + ' (' + num(p.reviews) + ')</span></span></span>' + icon(ICONS.chevron, 18, 'prow-go flip') + '</a>';
+      (p.rating != null ? '<span class="prow-meta">' + stars(p.rating) + '<span>' + p.rating.toFixed(1) + ' (' + num(p.reviews) + ')</span></span>' : '') + '</span>' + icon(ICONS.chevron, 18, 'prow-go flip') + '</a>';
   }
 
   function toast(msg) {
@@ -718,7 +718,7 @@
     const html = '<div class="gallery"><div class="gallery-track" id="gallery">' + photos.map((_, i) => photo(p, 390, 312, i, i > 0)).join('') + '</div>' +
           (photos.length > 1 ? '<div class="dots" aria-hidden="true">' + photos.map((_, i) => '<i' + (i ? '' : ' class="on"') + '></i>').join('') + '</div>' : '') + '</div>' +
         '<div class="pinfo"><a class="pbrand" href="#/search?q=' + encodeURIComponent(p.brand) + '">' + esc(p.brand) + '</a><h2 class="pname" dir="auto">' + esc(L(p)) + '</h2>' +
-          '<p class="prating">' + stars(p.rating) + '<strong>' + p.rating.toFixed(1) + '</strong><span>' + tp('n.reviews', p.reviews) + '</span></p></div>' +
+          (p.rating != null ? '<p class="prating">' + stars(p.rating) + '<strong>' + p.rating.toFixed(1) + '</strong><span>' + tp('n.reviews', p.reviews) + '</span></p>' : '') + '</div>' +
         '<div class="pricecard">' + (s.count
           ? '<p class="lbl">' + t('o.best') + '</p><p class="big" id="bigPrice">' + money(bigStart, s.cur, { split: true }) + '</p>' +
             '<p class="at">' + storeLogo(s.best.store) + t('p.bestAt', { s: esc(s.best.store.name) }) + '</p>' +

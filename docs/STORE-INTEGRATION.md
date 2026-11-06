@@ -157,7 +157,7 @@ The reader opens each mapped product page on the store's site, takes the price f
 ```bash
 curl -s https://www.<store>.com/robots.txt
 ```
-Continue only if product pages are not disallowed for `*` or for bots in general. Today: eXtra, Saco, Nahdi allow it; Jarir forbids product pages; Centrepoint and Sephora refuse bots (403); Amazon shows a captcha; noon does not answer. Never work around a block.
+Continue only if product pages are not disallowed for `*` or for bots in general. Today: eXtra, Saco, Nahdi allow it (Saco's robots.txt also blocks AI crawlers by name, `ClaudeBot` and `Claude`: the daily `DOABNOBot` reader is allowed, but do not use an AI assistant to browse Saco when looking for new pages; find them by hand); Jarir forbids product pages; Centrepoint and Sephora refuse bots (403); Amazon shows a captcha; noon does not answer. Never work around a block.
 Get the client's legal adviser's OK for each store read this way.
 
 ### 5.2 Find the product's page
@@ -183,6 +183,20 @@ If the product was hidden (no real price yet), show it again: `update public.pro
 
 ### 5.5 Run and check
 Run **Import store feeds** (section 2.3 step 5). The log shows `feed N (extra): ok, X items, Y rejected`. Rejected reasons for pages: `robots_disallow`, `fetch_failed`, `timeout`, `no_product_data`, `page_mismatch`, `bad_url`.
+
+### 5.6 Add new products from a store's pages
+The reader can only fill prices for products already in our catalogue. To add products the store sells:
+1. Download the store's sitemap addresses into a text file, one per line (sitemaps are listed in robots.txt; wait 3 s between files).
+2. Write a list `products.json`: `[["our-id", "category", "subcategory", "<page address or a regular expression for the sitemap>"], ...]`. Categories and subcategories must already exist (see `01-catalog.sql`).
+3. Run, from `backend`:
+   ```bash
+   node importer/pages-to-catalog.js --store extra --list products.json --urls extra-urls.txt --out supabase/seed/06-extra-catalog.sql --photo-query "?fmt=webp&wid=640"
+   ```
+   It reads each page in English and Arabic (3 s apart, robots.txt obeyed, stops on 403/429) and writes SQL with the products (the store's own names), the store's photo credited to it, and the page mapping. Out-of-stock and unreadable pages are skipped and listed at the top of the file. Use `--existing id1,id2` for products already in the catalogue: their page is mapped and they are shown again.
+4. Read the SQL, fix any odd names, run it (needs migration `0015_product_mpn.sql` once), then run **Import store feeds**.
+5. A new photo host must be allowed in the site's Content-Security-Policy (`img-src` in `scripts/build-site.js`), then rebuild and redeploy.
+
+Done on 2026-11-06: `06-extra-catalog.sql` and `07-nahdi-catalog.sql`.
 
 ---
 

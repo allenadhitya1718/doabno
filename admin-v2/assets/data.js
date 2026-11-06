@@ -22,7 +22,9 @@
   };
 
   // Demo photos are hotlinked from Unsplash (free license). Merchant feeds replace them in production.
+  // A full https address (a store's product image) is used as is.
   function photoUrl(id, w, h) {
+    if (/^https:\/\//.test(id)) return id;
     return 'https://images.unsplash.com/photo-' + id + '?auto=format&fit=crop&w=' + w + '&h=' + h + '&q=70';
   }
 
