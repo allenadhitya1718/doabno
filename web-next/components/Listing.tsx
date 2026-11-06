@@ -36,7 +36,7 @@ export function Listing({ items, stores, lang, market, tx, cardTx, curCode, hasQ
     });
     if (sort === 'price') out.sort((a, b) => a.total - b.total);
     else if (sort === 'drop') out.sort((a, b) => b.drop - a.drop);
-    else if (sort === 'rating') out.sort((a, b) => b.rating - a.rating);
+    else if (sort === 'rating') out.sort((a, b) => (b.rating ?? -1) - (a.rating ?? -1));
     else if (!hasQuery) out.sort((a, b) => b.reviews - a.reviews);
     return out;
   }, [items, f, sort, hasQuery]);

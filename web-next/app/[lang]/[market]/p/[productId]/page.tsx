@@ -12,6 +12,8 @@ import { PriceHistory } from '@/components/product/PriceHistory';
 import { FavToggle } from '@/components/product/FavToggle';
 import { AlertButton } from '@/components/product/AlertButton';
 import { VisitStore } from '@/components/product/VisitStore';
+import { RecordView } from '@/components/product/RecordView';
+import { recommend, cheaper } from '@/lib/generated/recommend.js';
 
 export const revalidate = 900;
 
@@ -65,15 +67,13 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   };
 }
 
-function similarOf(items: Item[], it: Item): Item[] {
-  const p = it.p;
-  return items
-    .filter(i => i.p.id !== p.id)
-    .map(i => ({ i, s: (i.p.sub === p.sub ? 2 : 0) + (i.p.cat === p.cat ? 1 : 0) + (i.p.brand === p.brand ? 0.5 : 0) }))
-    .filter(x => x.s >= 1)
-    .sort((a, b) => b.s - a.s || Math.abs(a.i.best.total - it.best.total) - Math.abs(b.i.best.total - it.best.total))
-    .slice(0, 4)
-    .map(x => x.i);
+// Same rules as web-v2 (assets/recommend.js, shared through lib/generated): similar products, then cheaper alternatives.
+function recommendationsFor(items: Item[], it: Item, market: Market): { similar: Item[]; cheaper: Item[] } {
+  const byId = new Map(items.map(i => [i.p.id, i]));
+  const opts = { market, limit: 4, price: (q: { id: string }) => byId.get(q.id)?.best.total ?? null };
+  const all = items.map(i => i.p);
+  const pick = (list: { id: string }[]) => list.map(q => byId.get(q.id)).filter((x): x is Item => !!x);
+  return { similar: pick(recommend(it.p, all, opts)), cheaper: pick(cheaper(it.p, all, opts)) };
 }
 
 export default async function ProductPage({ params }: { params: Promise<Params> }) {
@@ -83,7 +83,7 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
   const it = await getItem(M, productId);
   if (!it) notFound();
 
-  const { data, live } = await getData();
+  const { data, live, gtins } = await getData();
   const items = await getItems(M);
   const p = it.p, b = it.best;
   const cur = data.MARKETS[M].currency;
@@ -103,17 +103,20 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
     const sym = data.CURRENCIES[cur] ? data.CURRENCIES[cur][L] : cur;
     return { sym, isSym: /^[^A-Za-z؀-ۿ]/.test(sym), ar: L === 'ar' };
   })();
-  const near = similarOf(items, it);
+  const recs = recommendationsFor(items, it, M);
   const txt = (v: number) => moneyText(L, data.CURRENCIES, cur, v);
   const M$ = (v: number, dec?: boolean) => <Money lang={L} data={data} currency={cur} v={v} dec={dec} />;
 
-  const ld = productJsonLd({ item: it, lang: L, market: M, currency: cur, image: ogImage });
+  const specsRaw = p.specs ? (p.specs[L] || p.specs.en) : null;
+  const specs: string[] = Array.isArray(specsRaw) ? specsRaw : [];
+  const ld = productJsonLd({ item: it, lang: L, market: M, currency: cur, image: ogImage, realGtin: gtins[p.id] || null });
   const crumbLd = breadcrumbJsonLd({ lang: L, market: M, homeLabel: t(L, 'home'), cat: c, sub, productName: nm(L, p), productId: p.id });
 
   return (
     <div className="page">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(ld) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(crumbLd) }} />
+      <RecordView productId={p.id} market={M} supabaseUrl={live ? process.env.SUPABASE_URL || '' : ''} anonKey={live ? process.env.SUPABASE_ANON_KEY || '' : ''} />
       <div className="wrap">
         <div className="crumbs">
           <Link href={href(L, M)}>{t(L, 'home')}</Link> /{' '}
@@ -126,7 +129,7 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
             <h1 dir="auto">{nm(L, p)}</h1>
             <div className="pmeta">
               <span>{p.brand}</span>
-              <span><span className="stars" aria-hidden="true">★</span> <b>{p.rating}</b> · {t(L, 'p.reviews', { n: Number(p.reviews).toLocaleString('en-US') })}</span>
+              {p.rating != null ? <span><span className="stars" aria-hidden="true">★</span> <b>{p.rating}</b> · {t(L, 'p.reviews', { n: Number(p.reviews || 0).toLocaleString('en-US') })}</span> : null}
               <span>{storesLabel(L, it.n)}</span>
             </div>
           </div>
@@ -146,18 +149,20 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
                 labels={{ hi: t(L, 'p.hi'), cur: t(L, 'p.cur'), lo: t(L, 'p.lo'), title: t(L, 'p.history'), d30: t(L, 'p.d30'), d90: t(L, 'p.d90'), d180: L === 'ar' ? '180 يومًا' : '180 days' }}
               />
             </section>
-            <section className="card">
-              <h2>{t(L, 'p.specs')}</h2>
-              <ul className="specs">{(nm(L, p.specs) as unknown as string[]).map((s, i) => <li key={i}>{s}</li>)}</ul>
-            </section>
-            {near.length ? (
+            {specs.length ? (
               <section className="card">
-                <h2>{t(L, 'p.similar')}</h2>
-                <div className="grid4 similar">
-                  {near.map(i => <ProductCard key={i.p.id} item={i} lang={L} market={M} data={data} />)}
-                </div>
+                <h2>{t(L, 'p.specs')}</h2>
+                <ul className="specs">{specs.map((s, i) => <li key={i}>{s}</li>)}</ul>
               </section>
             ) : null}
+            {([['p.similar', recs.similar], ['p.cheaper', recs.cheaper]] as const).map(([key, list]) => list.length ? (
+              <section className="card" key={key}>
+                <h2>{t(L, key)}</h2>
+                <div className="grid4 similar">
+                  {list.map(i => <ProductCard key={i.p.id} item={i} lang={L} market={M} data={data} />)}
+                </div>
+              </section>
+            ) : null)}
           </div>
           <aside>
             <div className="card best-card">

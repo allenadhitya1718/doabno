@@ -6,7 +6,7 @@ import type { Photo } from './ui';
 
 export type Slim = {
   id: string; en: string; ar: string; brand: string; cat: string; sub: string;
-  drop: number; rating: number; reviews: number; n: number;
+  drop: number; rating: number | null; reviews: number; n: number;
   total: number; text: string; usual: string; usualV: number; cur: string;
   photo: Photo;
   store: { id: string; name: string; color: string; domain?: string };
@@ -23,7 +23,7 @@ export function toSlim(i: Item, lang: Lang, data: Data, market: Market, size = 3
   const hasDrop = p.drop >= 3;
   return {
     id: p.id, en: p.en, ar: p.ar || p.en, brand: p.brand, cat: p.cat, sub: p.sub,
-    drop: p.drop || 0, rating: p.rating || 0, reviews: p.reviews || 0, n: i.n,
+    drop: p.drop || 0, rating: p.rating == null ? null : Number(p.rating), reviews: p.reviews || 0, n: i.n,
     total: b.total, cur, text: moneyText(lang, data.CURRENCIES, cur, b.total),
     usualV: hasDrop ? b.total / (1 - p.drop / 100) : 0,
     usual: hasDrop ? moneyText(lang, data.CURRENCIES, cur, b.total / (1 - p.drop / 100)) : '',

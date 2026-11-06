@@ -24,7 +24,7 @@ export function OfferTable({ lang, data, offers, best, live }: { lang: Lang; dat
               {o.promo ? <small><span className="tag tag-code">{t(lang, 'promo', { c: o.promo.code })}</span></small> : null}
             </td>
             <td className="p-c num money">{m(o, o.price)}</td>
-            <td className="d-c num">{o.shipping ? m(o, o.shipping) : t(lang, 'free')}{o.days && o.days[0] != null && o.days[1] != null ? <small>{t(lang, 'days', { a: o.days[0], b: o.days[1] })}</small> : null}</td>
+            <td className="d-c num">{o.shipping ? m(o, o.shipping) : t(lang, 'free')}{o.days && o.days[0] != null ? <small>{t(lang, 'days', { a: o.days[0], b: o.days[1] != null ? o.days[1] : o.days[0] })}</small> : null}</td>
             <td className="tot-c num tot">{m(o, o.total)}</td>
             <td className="s-c">
               {o.inStock ? <span className="stock-ok">{t(lang, 'inStock')}</span> : <span className="stock-no">{t(lang, 'outStock')}</span>}

@@ -21,7 +21,7 @@ export function ListCardView({ s, lang, market, tx }: { s: Slim; lang: string; m
       <div className="sq-im"><Thumb photo={s.photo} w={360} h={360} /></div>
       <div className="sq-chips">
         <span className="sq-c drop">{hasDrop ? '↓ ' + Math.round(s.drop) + '%' : storesLabel(tx, s.n)}</span>
-        <span className="sq-c rate"><Star />{s.rating.toFixed(1)} ({rv})</span>
+        {s.rating != null ? <span className="sq-c rate"><Star />{s.rating.toFixed(1)} ({rv})</span> : null}
       </div>
       <h3 dir="auto">{lang === 'ar' ? s.ar : s.en}</h3>
       <div className="sq-pr"><LogoBox name={s.store.name} color={s.store.color} domain={s.store.domain} /><b><Money v={s.total} c={s.cur}>{s.text}</Money></b></div>

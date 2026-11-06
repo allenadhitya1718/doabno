@@ -7,14 +7,14 @@ export const jsonLdString = (o: unknown) => JSON.stringify(o).replace(/</g, '\\u
 
 const money = (v: number) => (Math.round(v * 100) / 100).toFixed(2);
 
-export function productJsonLd(args: { item: Item; lang: Lang; market: Market; currency: string; image?: string }) {
-  const { item, lang, market, currency, image } = args;
+export function productJsonLd(args: { item: Item; lang: Lang; market: Market; currency: string; image?: string; realGtin?: string | null }) {
+  const { item, lang, market, currency, image, realGtin } = args;
   const p = item.p;
   const url = abs(href(lang, market, '/p/' + p.id));
-  const totals = item.offers.map((o: Offer) => o.total as number);
+  const totals = item.offers.map((o: Offer) => o.price as number);
   const offerNodes = item.offers.map((o: Offer) => ({
     '@type': 'Offer',
-    price: money(o.total),
+    price: money(o.price), // the item price; delivery goes in shippingDetails
     priceCurrency: currency,
     availability: o.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
     seller: { '@type': 'Organization', name: o.store.name },
@@ -22,10 +22,11 @@ export function productJsonLd(args: { item: Item; lang: Lang; market: Market; cu
     shippingDetails: {
       '@type': 'OfferShippingDetails',
       shippingRate: { '@type': 'MonetaryAmount', value: money(o.shipping || 0), currency },
-      deliveryTime: {
+      // Page-read stores have no delivery days; leave the delivery time out rather than guess.
+      deliveryTime: o.days?.[0] != null ? {
         '@type': 'ShippingDeliveryTime',
-        transitTime: { '@type': 'QuantitativeValue', minValue: o.days?.[0], maxValue: o.days?.[1], unitCode: 'DAY' },
-      },
+        transitTime: { '@type': 'QuantitativeValue', minValue: o.days[0], maxValue: o.days[1] ?? o.days[0], unitCode: 'DAY' },
+      } : undefined,
     },
   }));
   const ld: Record<string, unknown> = {
@@ -35,16 +36,18 @@ export function productJsonLd(args: { item: Item; lang: Lang; market: Market; cu
     image: image ? [image] : undefined,
     brand: p.brand ? { '@type': 'Brand', name: p.brand } : undefined,
     sku: p.id,
-    gtin13: p.gtin || undefined,
+    // Only identifiers and ratings that came from the database: data.js fills demo barcodes, and ratings are never invented.
+    gtin13: realGtin || undefined,
+    mpn: p.mpn || undefined,
     url,
-    aggregateRating: p.rating
+    aggregateRating: p.rating != null && p.reviews > 0
       ? { '@type': 'AggregateRating', ratingValue: p.rating, reviewCount: p.reviews }
       : undefined,
     offers: {
       '@type': 'AggregateOffer',
       priceCurrency: currency,
-      lowPrice: money(item.best.total),
-      highPrice: money(totals.length ? Math.max(...totals) : item.best.total),
+      lowPrice: money(totals.length ? Math.min(...totals) : item.best.price),
+      highPrice: money(totals.length ? Math.max(...totals) : item.best.price),
       offerCount: item.offers.length,
       offers: offerNodes,
     },

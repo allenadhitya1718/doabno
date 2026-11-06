@@ -64,14 +64,17 @@ async function cachedCatalog(): Promise<unknown | null> {
   }
 }
 
-type Built = { data: Data; live: boolean; items: Partial<Record<Market, Item[]>> };
+type Built = { data: Data; live: boolean; items: Partial<Record<Market, Item[]>>; gtins: Record<string, string> };
 let memo: { raw: unknown; built: Built } | null = null;
 
 /** The catalogue for this request. Built once per cached database answer. */
 export async function getData(): Promise<Built> {
   const raw = await cachedCatalog();
   if (memo && memo.raw === raw) return memo.built;
-  const built: Built = { data: buildData(raw) as Data, live: !!raw, items: {} };
+  // Barcodes that really came from the database, read before data.js fills demo ones into the same objects.
+  const gtins: Record<string, string> = {};
+  for (const p of ((raw as { products?: Product[] } | null)?.products || [])) if (p && p.gtin) gtins[p.id] = String(p.gtin);
+  const built: Built = { data: buildData(raw) as Data, live: !!raw, items: {}, gtins };
   memo = { raw, built };
   return built;
 }
