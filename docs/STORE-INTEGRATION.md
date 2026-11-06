@@ -25,9 +25,9 @@ Where we stand today:
 
 | Store | Method | State |
 |---|---|---|
-| eXtra | D (later C) | Live, 7 products |
+| eXtra | D (later C) | Live, 63 products (2026-11-06) |
 | Saco | D (later C) | Live, 7 products |
-| Nahdi | D (later A) | Live, 1 product |
+| Nahdi | D (later A) | Live, 29 products (2026-11-06) |
 | Amazon.sa | B | Apply (affiliate-program.amazon.sa) |
 | noon | B (or A) | Apply (affiliates.noon.com) |
 | Jarir | C | Page reading forbidden by its robots.txt: ask Jarir for a feed |
