@@ -5,7 +5,7 @@
 // mapped it to (scrape_pages), and the page has to agree: the same barcode when the page gives one, the product's brand
 // in the page's name otherwise. Anything else is rejected, never guessed.
 const { FeedError } = require('./parse');
-const { gtinKey } = require('./normalize');
+const { gtinKey, PAGE_PRODUCT } = require('./normalize');
 
 const BOT_NAME = 'DOABNOBot';
 const USER_AGENT = BOT_NAME + '/1.0 (+https://doabno.pages.dev; price comparison)';
@@ -116,13 +116,16 @@ function stockWord(availability) {
 // The page must be about our product: same barcode when it gives one, our brand in its name otherwise.
 function pageMatches(page, product) {
   if (page.gtin && product.gtin) return gtinKey(page.gtin) === gtinKey(product.gtin);
-  if (product.brand) { const b = String(product.brand).toLowerCase(); return [page.name, page.brand].some(s => s && s.toLowerCase().includes(b)); }
+  // Letters and digits only, accents removed: "De'Longhi" matches "DeLonghi", "L'Oréal" matches "Loreal".
+  const key = v => String(v || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (product.brand) { const b = key(product.brand); return !!b && [page.name, page.brand].some(s => s && key(s).includes(b)); }
   return !!page.name;
 }
 
-// A feed-style row for the importer (normalizeRow reads these keys). The barcode is ours: the page was matched to the product.
+// A feed-style row for the importer (normalizeRow reads these keys). The page was matched to the product, so the row
+// names it directly (products without a barcode work too); the barcode, when we have one, is ours.
 function rowFor(page, product, pageUrl) {
-  const row = { gtin: product.gtin, sku: page.sku || page.mpn, title: page.name, price: page.price, currency: page.currency,
+  const row = { [PAGE_PRODUCT]: product.id, gtin: product.gtin || undefined, sku: page.sku || page.mpn, title: page.name, price: page.price, currency: page.currency,
     availability: stockWord(page.availability), url: pageUrl };
   if (page.shipping !== undefined) row.shipping = page.shipping;
   return row;

@@ -123,3 +123,22 @@ test('run: only https pages, a page cap, no pages at all', async () => {
   const none = await runFeed({ db: makeDb([]), feed: { id: 9, store_id: 'extra', format: 'scrape' }, readPages: o => readPages(Object.assign({ fetchImpl }, o)) });
   assert.equal(none.status, 'ok'); assert.equal(none.items, 0);
 });
+
+test('page rows match by product id when the product has no barcode; feed rows still need one', () => {
+  const { processRows } = require('../importer/pipeline');
+  const { rowFor } = require('../importer/scrape');
+  const product = { id: 'galaxy-s26', gtin: null, brand: 'Samsung' };
+  const pageRow = rowFor({ name: 'SAMSUNG Galaxy S26', price: '3099', currency: 'SAR', availability: 'https://schema.org/InStock', shipping: '25' }, product, 'https://www.extra.com/en-sa/p/1');
+  const feedRow = { product_id: 'galaxy-s26', title: 'x', price: '1', currency: 'SAR' };      // a feed column cannot pick the product
+  const r = processRows([pageRow, feedRow], { store: { id: 'extra', market: 'sa' }, marketCurrency: 'SAR', rates: { SAR: 1 },
+    productsByGtin: new Map(), productsById: new Map([[product.id, product]]), marketPrices: new Map() });
+  assert.equal(r.accepted.length, 1);
+  assert.equal(r.accepted[0].product_id, 'galaxy-s26'); assert.equal(r.accepted[0].price, 3099); assert.equal(r.accepted[0].shipping, 25);
+  assert.deepEqual(r.rejects.map(x => x.reason), ['no_gtin']);
+});
+
+test('brand match ignores punctuation and accents', () => {
+  assert.equal(pageMatches({ name: 'DeLonghi Dedica Duo' }, { brand: "De'Longhi" }), true);
+  assert.equal(pageMatches({ name: 'Loreal Paris Elvive' }, { brand: "L'Oréal" }), true);
+  assert.equal(pageMatches({ name: 'Philips 2200' }, { brand: "De'Longhi" }), false);
+});

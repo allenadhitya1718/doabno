@@ -18,14 +18,14 @@ Files: `core.mjs` (all the logic, tested by `backend/tests/identify.test.js` wit
 ## Deploy
 From the `backend/` folder (needs a one-time `npx supabase login`):
 ```bash
-npx supabase functions deploy identify --project-ref hmanlftkhvruqgvkencn --no-verify-jwt
+npx supabase functions deploy identify --project-ref jturenubwqxzesjlyjpi --no-verify-jwt
 ```
 Or in the dashboard: Edge Functions, Deploy a new function, name `identify`, add `index.ts` and `core.mjs`, and turn off "Verify JWT".
 
 ## Check it works
 Send any small JPEG (replace the key with the public key from `assets/config.js`):
 ```bash
-curl -s -X POST https://hmanlftkhvruqgvkencn.supabase.co/functions/v1/identify \
+curl -s -X POST https://jturenubwqxzesjlyjpi.supabase.co/functions/v1/identify \
   -H "apikey: <publishable key>" -H "Content-Type: application/json" \
   -d "{\"mime\":\"image/jpeg\",\"image\":\"$(base64 -w0 photo.jpg)\"}"
 ```

@@ -33,13 +33,13 @@
   };
   if (state.market !== 'all' && !MARKETS.includes(state.market)) state.market = 'all';
   if (ACC.enabled && (!ACC.signedIn() || !(state.session && state.session.role))) state.session = null;   // a database sign-in is always required
-  let auditRows = [], dbUsers = [], dbRequests = [], liveTeam = [], liveFeeds = new Map(), liveClicks = new Map(), liveRecent = [];
+  let liveSettings = null, auditRows = [], dbUsers = [], dbRequests = [], liveTeam = [], liveFeeds = new Map(), liveClicks = new Map(), liveRecent = [];
   // Who may change what. This mirrors the database's rules (0001_schema.sql): the database is what really enforces them,
   // the screens just stop offering buttons a role cannot use. In demo mode everything is allowed.
   const ROLE_RULES = { product: ['owner', 'catalog'], category: ['owner', 'catalog'], popular: ['owner', 'catalog'], store: ['owner', 'partners'], coupon: ['owner', 'partners'],
-    feed: ['owner', 'partners'], rates: ['owner'], team: ['owner'], users: ['owner', 'analyst'], userActions: ['owner'], privacy: ['owner'] };
+    feed: ['owner', 'partners'], rates: ['owner'], team: ['owner'], conversions: ['owner', 'partners'], settings: ['owner'], users: ['owner', 'analyst'], userActions: ['owner'], privacy: ['owner'] };
   const can = what => !LIVE() || ROLE_RULES[what].includes((state.session || {}).role);
-  const ui = { editCat: null, keepScroll: false };
+  const ui = { editCat: null, keepScroll: false, import: null };
   let ov = A.loadOverrides();
   let current = { path: '', params: {} };
 
@@ -226,7 +226,7 @@
       const out = new Array(DAYS).fill(0);
       if (x.p.status === 'hidden') return out;
       const rnd = D.seeded(x.o.trackingId + 'clicks');
-      const base = Math.sqrt(x.p.reviews || 400) / 8 * MARKET_WEIGHT[x.m] * (0.55 + x.o.store.rating / 10) * (x.o.inStock ? 1 : 0.2);
+      const base = Math.sqrt(x.p.reviews || 400) / 8 * MARKET_WEIGHT[x.m] * (0.55 + (x.o.store.rating || 4) / 10) * (x.o.inStock ? 1 : 0.2);
       for (let i = 0; i < DAYS; i++) {
         out[i] = Math.round(base * WEEKDAY[DOW[i]] * (0.72 + 0.28 * i / (DAYS - 1)) * (0.7 + rnd() * 0.6));
       }
@@ -713,7 +713,7 @@
       card(t('prod.photos'), '<div class="photos">' + (p.photos.length ? p.photos.map(ph => '<img src="' + D.photoUrl(ph.id, 200, 200) + '" alt="" width="100" height="100" loading="lazy">').join('') : '<p class="muted">' + t('prod.noPhotos') + '</p>') + '</div>' +
         '<p class="hint">' + t('prod.photosHint') + '</p>') +
       card(t('prod.performance'), '<dl class="facts"><div><dt>' + t('kpi.clicks') + '</dt><dd>' + num(total(rows, 'clicks')) + '</dd></div><div><dt>' + t('kpi.revenue') + '</dt><dd>' + sar(total(rows, 'revenue'), { whole: true }) + '</dd></div>' +
-        '<div><dt>' + t('col.offers') + '</dt><dd>' + num(offers.length) + '</dd></div><div><dt>' + t('prod.rating') + '</dt><dd>' + p.rating + ' · ' + tp('n.reviews', p.reviews) + '</dd></div></dl>' +
+        '<div><dt>' + t('col.offers') + '</dt><dd>' + num(offers.length) + '</dd></div><div><dt>' + t('prod.rating') + '</dt><dd>' + (p.rating != null ? p.rating + ' · ' + tp('n.reviews', p.reviews) : '—') + '</dd></div></dl>' +
         (rows.length ? sparkline(totalsByDay(rows, false).slice(DAYS - R)) : ''), { sub: scopeName() + ' · ' + t('range.' + R).toLowerCase() }) +
       '</div></form>' +
       card(t('prod.offers'), offers.length ? offersTable(offers, false) : empty(t('prod.noOffers')), { sub: scopeName(), cls: 'card-flush' });
@@ -868,7 +868,7 @@
           return '<tr' + (s.active === false ? ' class="row-muted"' : '') + '><td>' + storeCell(s) + '</td>' +
             '<td class="cats-cell">' + catChips(s.cats) + '</td>' +
             '<td class="num">' + num(offersBy.get(s.id) || 0) + '</td><td class="num">' + num(g ? g.clicks : 0) + '</td>' +
-            '<td class="num">' + sar(s.cpc * D.RATES.SAR) + '</td><td>' + badge(f.status, t('status.' + f.status)) + '</td><td class="num">' + s.rating.toFixed(1) + '</td>' +
+            '<td class="num">' + sar(s.cpc * D.RATES.SAR) + '</td><td>' + badge(f.status, t('status.' + f.status)) + '</td><td class="num">' + (s.rating != null ? s.rating.toFixed(1) : '—') + '</td>' +
             '<td><label class="switch"><input type="checkbox" role="switch" data-store-toggle="' + s.id + '"' + (s.active !== false ? ' checked' : '') + '><span class="switch-ui" aria-hidden="true"></span><span class="sr-only">' + t('col.active') + ': ' + esc(s.name) + '</span></label></td>' +
             '<td class="actions"><button type="button" class="row-act" data-store-form="' + s.id + '" title="' + t('act.edit') + '" aria-label="' + t('act.edit') + ': ' + esc(s.name) + '">' + icon(ICONS.edit, 17) + '</button></td></tr>';
         }).join('') + '</tbody></table></div>' + pager(pg, base, params, sorted.length) : empty(t('empty.filters'))) + '</section>';
@@ -918,10 +918,9 @@
       const market = fd.get('market');
       let sid = slug(name) + '-' + market, i = 2;
       while (storeById(sid)) sid = slug(name) + '-' + market + '-' + i++;
-      const rnd = D.seeded(sid + 'rating');
       const s = { id: sid, name, market, cats, cpc, color: fd.get('color'), active: !!fd.get('active') };
       ov.newStores = (ov.newStores || []).concat([Object.assign({}, s)]);
-      A.STORES[market].push(Object.assign(s, { rating: Math.round((3.8 + rnd() * 1.1) * 10) / 10, reviews: 300 + Math.floor(rnd() * 12000) }));
+      A.STORES[market].push(Object.assign(s, { rating: null, reviews: 0 }));
       commit('log.storeAdded', { s: name });
       sync('new store', () => DB.addStore(s));
     }
@@ -1048,6 +1047,11 @@
   }
 
   // ---------- reports ----------
+  // Four report views: clicks (the original), purchases, clicks and views with no purchase, and the conversion import.
+  function pageReports(params) {
+    const view = REP_VIEWS.includes(params.view) && (params.view !== 'import' || can('conversions')) ? params.view : 'clicks';
+    return ({ clicks: repClickView, purchases: repPurchases, nopurchase: repNoPurchase, import: repImport })[view](params);
+  }
   // Report groupings: [key, table cell, plain text for CSV].
   const GROUPS = {
     store: [r => r.o.store.id, r => storeCell(r.o.store), r => r.o.store.name + ' (' + r.m.toUpperCase() + ')'],
@@ -1059,15 +1063,14 @@
     const [key, label] = GROUPS[group];
     return groupBy(traffic(), key, label);
   }
-  function pageReports(params) {
+  function repClickView(params) {
     const group = GROUPS[params.group] ? params.group : 'store';
     const R = state.range;
     const rows = traffic();
     const clicks = total(rows, 'clicks'), revenue = total(rows, 'revenue');
     const grouped = reportRows(group);
     const recent = siteClicks().filter(x => inScope(x.m)).slice(0, 10);
-    return pageHead(t('nav.reports'), t('rep.sub', { m: scopeName() }), rangeSeg() +
-      '<button type="button" class="btn btn-ghost" data-export="' + group + '">' + icon(ICONS.download, 16) + t('rep.export') + '</button>') +
+    return repTop('clicks', t('rep.sub', { m: scopeName() }), group, t('rep.by.' + group)) +
       '<section class="tiles tiles-3">' +
       statTile(t('kpi.clicks'), num(clicks), { icon: 'click', delta: change(clicks, total(rows, 'prev')) }) +
       statTile(t('kpi.revenue'), sarBig(revenue), { icon: 'reports', tone: 'orange', delta: change(revenue, total(rows, 'prevRevenue')) }) +
@@ -1085,17 +1088,221 @@
         empty(t(LIVE() ? 'rep.recentEmptyLive' : 'rep.recentEmpty')), { sub: t(LIVE() ? 'rep.recentSubLive' : 'rep.recentSub') });
   }
 
-  function exportCsv(group) {
-    const clicks = total(traffic(), 'clicks');
-    const head = [t('rep.by.' + group), t('col.clicks'), t('col.share'), t('col.revenue') + ' (SAR)', t('rep.rpcShort') + ' (SAR)', t('col.change')];
-    const body = reportRows(group).map(g => [GROUPS[group][2](g.row), g.clicks, (clicks ? g.clicks / clicks : 0).toFixed(4), g.revenue.toFixed(2), (g.clicks ? g.revenue / g.clicks : 0).toFixed(3), change(g.clicks, g.prev).toFixed(4)]);
+  // The pure report logic (CSV reading, purchase and non-purchase totals) lives in admin-db.js so the tests can load it.
+  const REP = (window.ADMIN_DB || {}).reports;
+  const REPORT_DAYS = 90;   // how far back conversions and page views are loaded (the longest range)
+  const ymd = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  let liveReport = { conv: [], views: null };
+  // With a database: the conversions and page views of the last 90 days. A missing or unreadable table gives no rows (views: null = "no view data yet").
+  function loadReport() {
+    const from = REP.rangeDates(REPORT_DAYS).from;
+    return Promise.all([DB.listConversions(from).then(rows => { liveReport.conv = rows; }, () => { liveReport.conv = []; }),
+      DB.productViews(from).then(rows => { liveReport.views = rows; }, () => { liveReport.views = null; })])
+      .then(() => { Object.keys(cache).forEach(k => { delete cache[k]; }); });
+  }
+  // Demo orders: about 0.6% of the demo clicks buy (not on every product); a few are still pending or were rejected. Orders uploaded in this browser are added.
+  const demoConv = () => memo('demoConv', () => {
+    const out = [];
+    MARKETS.forEach(m => offersIn(m).forEach(x => {
+      if (D.seeded(x.p.id + 'nobuy')() < 0.3) return;   // some products are looked at but never bought
+      const daily = dailyClicks(x), rnd = D.seeded(x.o.trackingId + 'orders');
+      for (let i = DAYS - REPORT_DAYS; i < DAYS; i++) {
+        const n = Math.floor(daily[i] * 0.006 + rnd());
+        for (let k = 0; k < n; k++) {
+          const r = rnd();
+          out.push({ network: 'demo', order_ref: x.o.trackingId + '-' + i + '-' + k, tracking_id: x.o.trackingId, store_id: x.o.store.id, market: m, amount: x.o.price, currency: D.MARKETS[m].currency,
+            commission: Math.round(x.o.price * 4.5) / 100, status: DAYS - 1 - i < 7 ? (r < 0.75 ? 'pending' : 'approved') : r < 0.68 ? 'approved' : r < 0.84 ? 'pending' : 'rejected', ordered_at: ymd(dayDate(i)) + 'T12:00:00Z' });
+        }
+      }
+    }));
+    return out.concat(load('conversions', []));
+  });
+  // Demo product page views: about nine per click.
+  const demoViews = () => memo('demoViews', () => {
+    const sums = new Map();
+    MARKETS.forEach(m => offersIn(m).forEach(x => {
+      const daily = dailyClicks(x);
+      for (let i = DAYS - REPORT_DAYS; i < DAYS; i++) if (daily[i]) { const k = x.p.id + '|' + m + '|' + ymd(dayDate(i)); sums.set(k, (sums.get(k) || 0) + daily[i] * 9); }
+    }));
+    return Array.from(sums, ([k, views]) => { const [product_id, market, day] = k.split('|'); return { product_id, market, day, views }; });
+  });
+  const storeIds = () => allStores().map(s => s.id);
+  const convSar = (v, c) => { const cur = c.currency || (D.MARKETS[c.market] || {}).currency; return cur && D.RATES[cur] ? toSAR(v, cur) : v; };
+  const repConv = () => memo('repConv', () => REP.enrichConversions(LIVE() ? liveReport.conv : demoConv(), [], storeIds()));
+  const repOpts = () => Object.assign(REP.rangeDates(state.range), { market: state.market, toSar: convSar, storeIds: storeIds() });
+  // One row per offer in scope with its clicks in the range (the real recorded clicks with a database).
+  const repClicks = () => scopedOffers().map(x => ({ tracking_id: x.o.trackingId, product_id: x.p.id, store_id: x.o.store.id, market: x.m, n: sumDays(dailyClicks(x), DAYS - state.range, DAYS) })).filter(c => c.n > 0);
+
+  const REP_VIEWS = ['clicks', 'purchases', 'nopurchase', 'import'];
+  const repTabs = view => '<nav class="seg rep-tabs" aria-label="' + t('rep.tabs') + '">' + REP_VIEWS.filter(v => v !== 'import' || can('conversions')).map(v =>
+    '<a href="#/reports' + (v === 'clicks' ? '' : '?view=' + v) + '"' + (v === view ? ' aria-current="page"' : '') + '>' + t('rep.tab.' + v) + '</a>').join('') + '</nav>';
+  const repButtons = csv => '<button type="button" class="btn btn-ghost" data-export="' + csv + '">' + icon(ICONS.download, 16) + t('rep.export') + '</button>' +
+    '<button type="button" class="btn btn-ghost" data-print title="' + esc(t('rep.pdfTip')) + '">' + icon(ICONS.download, 16) + t('rep.pdf') + '</button>';
+  // Page top of every report: the print-only header (DOABNO, report, market, dates, time), the title, range and export buttons, the report tabs.
+  function repTop(view, sub, csv, extra) {
+    const w = REP.rangeDates(state.range), day = s => fmtDate(new Date(s + 'T12:00:00'), { day: 'numeric', month: 'short', year: 'numeric' });
+    const title = t('nav.reports') + ' · ' + t('rep.tab.' + view) + (extra ? ' · ' + extra : '');
+    return '<div class="print-head" data-title="' + esc('DOABNO ' + title + ' ' + scopeName() + ' ' + w.from + ' ' + w.to) + '"><strong>DOABNO</strong><h2>' + esc(title) + '</h2>' +
+      '<p>' + esc(scopeName()) + ' · ' + day(w.from) + ' – ' + day(w.to) + '</p><p>' + t('rep.generated', { d: new Date().toLocaleString(dateLocale()) }) + '</p></div>' +
+      pageHead(t('nav.reports'), sub, csv ? rangeSeg() + repButtons(csv) : '') + repTabs(view);
+  }
+  const tbl = (head, rows) => '<div class="table-wrap"><table class="table"><thead><tr>' + head.map(h => '<th' + (h[1] ? ' class="num"' : '') + '>' + h[0] + '</th>').join('') + '</tr></thead><tbody>' + rows.join('') + '</tbody></table></div>';
+  const statusBadge = st => badge(st === 'approved' ? 'ok' : st === 'pending' ? 'warning' : 'error', t('rep.st.' + st));
+  const prodCellById = id => { const p = productById(id); return p ? '<a class="prod-cell" href="#/products/' + esc(p.id) + '">' + thumb(p, 32) + '<span>' + esc(L(p)) + '</span></a>' : esc(id || '—'); };
+  const prodName = id => { const p = productById(id); return p ? L(p) : (id || ''); };
+  const storeCellById = id => { const s = storeById(id); return s ? storeCell(s) : esc(id || '—'); };
+  const storeName = id => { const s = storeById(id); return s ? s.name : (id || ''); };
+
+  function repPurchases(params) {
+    const s = REP.summarisePurchases(repConv(), repOpts()), by = params.by === 'day' ? 'day' : 'store';
+    const share = n => pct(s.orders ? n / s.orders : 0);
+    const list = by === 'store' ? s.byStore : s.byDay.filter(d => d.orders).reverse();
+    const head = [[t('rep.by.' + by)], [t('rep.col.orders'), 1], [t('rep.st.approved'), 1], [t('rep.st.pending'), 1], [t('rep.st.rejected'), 1], [t('rep.orderValue'), 1], [t('rep.commission'), 1]];
+    return repTop('purchases', t('rep.purchases.sub', { m: scopeName() }), 'purchases:' + by, t('rep.by.' + by)) +
+      '<section class="tiles tiles-3">' + statTile(t('rep.col.orders'), num(s.orders), { icon: 'offers' }) + statTile(t('rep.orderValue'), sarBig(s.value), { icon: 'stores', sub: t('rep.amountsNote') }) +
+      statTile(t('rep.commission'), sarBig(s.commission), { icon: 'reports', tone: 'orange' }) + '</section>' +
+      (s.orders ? '' : card(t('rep.tab.purchases'), empty(t('rep.noConv')))) +
+      card(t('rep.byStatus'), tbl([[t('rep.col.status')], [t('rep.col.orders'), 1], [t('col.share'), 1], [t('rep.orderValue'), 1], [t('rep.commission'), 1]], REP.STATUSES.map(st => {
+        const g = s.byStatus[st];
+        return '<tr><td>' + statusBadge(st) + '</td><td class="num">' + num(g.orders) + '</td><td class="num">' + share(g.orders) + '</td><td class="num">' + sar(g.value, { whole: true }) + '</td><td class="num">' + sar(g.commission) + '</td></tr>';
+      })), { cls: 'card-flush' }) +
+      (s.orders ? card(t('rep.trendCommission'), lineChart(s.byDay.map(d => d.commission), v => num(v), t('rep.commission')), { sub: t('range.' + state.range) }) : '') +
+      '<section class="card card-flush"><header class="card-head"><div><h2>' + t('rep.breakdown') + '</h2></div>' +
+      '<div class="seg" role="group" aria-label="' + t('rep.groupBy') + '">' + ['store', 'day'].map(g => '<a href="#/reports?view=purchases&by=' + g + '" aria-pressed="' + (g === by) + '">' + t('rep.by.' + g) + '</a>').join('') + '</div></header>' +
+      (list.length ? tbl(head, list.map(g => '<tr><td>' + (by === 'store' ? storeCellById(g.key) : fmtDate(new Date(g.key + 'T12:00:00'), { weekday: 'short', day: 'numeric', month: 'short' })) + '</td><td class="num">' + num(g.orders) + '</td><td class="num">' + num(g.approved) +
+        '</td><td class="num">' + num(g.pending) + '</td><td class="num">' + num(g.rejected) + '</td><td class="num">' + sar(g.value, { whole: true }) + '</td><td class="num">' + sar(g.commission) + '</td></tr>')) : empty(t('rep.noConv'))) + '</section>';
+  }
+
+  function repNoPurchase() {
+    const o = repOpts(), convs = repConv().filter(c => state.market === 'all' || c.market === state.market), clicks = repClicks();
+    const nc = REP.nonConvertingClicks(clicks, convs, o);
+    const views = LIVE() ? liveReport.views : demoViews();
+    const bought = REP.purchasedProducts(convs, clicks, o);
+    const top = REP.viewsWithoutPurchase(views, bought, o).slice(0, 25);
+    return repTop('nopurchase', t('rep.nopurchase.sub', { m: scopeName() }), 'nopurchase') +
+      (convs.length ? '' : '<p class="role-note" role="note">' + icon(ICONS.info, 16) + '<span>' + t('rep.noConvNote') + '</span></p>') +
+      '<section class="tiles tiles-3">' + statTile(t('kpi.clicks'), num(nc.totalClicks), { icon: 'click' }) + statTile(t('rep.kpi.noBuy'), num(nc.lostClicks), { icon: 'offers', tone: 'orange' }) +
+      statTile(t('rep.kpi.noBuyShare'), pct(nc.lostShare), { icon: 'reports' }) + '</section>' +
+      card(t('rep.noBuyClicks'), nc.rows.length ? tbl([[t('rep.col.product')], [t('rep.col.store')], [t('rep.col.clicks'), 1], [t('rep.col.orders'), 1], [t('rep.kpi.noBuy'), 1], [t('col.share'), 1]], nc.rows.slice(0, 25).map(r =>
+        '<tr><td>' + prodCellById(r.productId) + '</td><td>' + storeCellById(r.storeId) + '</td><td class="num">' + num(r.clicks) + '</td><td class="num">' + num(r.orders) + '</td><td class="num">' + num(r.lost) + '</td><td class="num">' + pct(nc.lostClicks ? r.lost / nc.lostClicks : 0) + '</td></tr>')) :
+        empty(t(nc.totalClicks ? 'rep.noBuyEmpty' : 'rep.noClicksEmpty')), { cls: 'card-flush', sub: t('rep.noBuyClicksSub') }) +
+      card(t('rep.viewsTitle'), !views || !views.length ? empty(t('rep.noViews')) : top.length ? tbl([[t('rep.col.product')], [t('rep.col.views'), 1]], top.map(r =>
+        '<tr><td>' + prodCellById(r.productId) + '</td><td class="num">' + num(r.views) + '</td></tr>')) : empty(t('rep.allBought')),
+        { cls: 'card-flush', sub: t('rep.viewsSub'), action: top.length ? '<button type="button" class="btn btn-ghost btn-sm no-print" data-export="noviews">' + icon(ICONS.download, 16) + t('rep.export') + '</button>' : '' });
+  }
+
+  // ---- importing a network's conversion report (CSV) ----
+  const convOpts = form => ({ network: form.network.value.trim(), storeId: form.storeId.value, market: form.market.value, currency: form.currency.value.trim().toUpperCase() });
+  function convPreview() {
+    const im = ui.import;
+    if (!im || im.text == null) return;
+    im.result = REP.csvToConversions(im.text, Object.assign({}, im.opts, { markets: MARKETS, storeIds: storeIds() }));
+  }
+  function convChanged(el) {
+    const form = el.form, opts = convOpts(form);
+    if (el.type === 'file') {
+      const f = el.files && el.files[0];
+      if (!f) return;
+      if (f.size > 5e6) { toast(t('rep.imp.tooBig')); return; }
+      f.arrayBuffer().then(buf => {   // UTF-8, or UTF-16 as saved by Excel's "Unicode text"
+        const b = new Uint8Array(buf);
+        ui.import = { fileName: f.name, text: new TextDecoder(b[0] === 0xFF && b[1] === 0xFE ? 'utf-16le' : b[0] === 0xFE && b[1] === 0xFF ? 'utf-16be' : 'utf-8').decode(buf), opts };
+        convPreview();
+        rerender();
+      });
+      return;
+    }
+    ui.import = Object.assign(ui.import || {}, { opts });
+    if (ui.import.text != null) { convPreview(); rerender(); }
+  }
+  function importConversions(form) {
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    const im = ui.import;
+    if (!im || im.text == null) { toast(t('rep.imp.nothing')); return; }
+    im.opts = convOpts(form);
+    convPreview();
+    const rows = im.result.rows, net = im.opts.network;
+    if (!rows.length) { toast(t('rep.imp.nothing')); return; }
+    if (!can('conversions')) { toast(t('err.noPermission')); return; }
+    const done = () => {
+      logActivity('log.convImport', { n: rows.length, net });
+      toast(t('toast.convImported', { n: num(rows.length) }));
+      ui.import = null;
+      Object.keys(cache).forEach(k => { delete cache[k]; });
+      rerender();
+    };
+    if (!LIVE()) {   // demo: kept in this browser
+      const key = c => c.network + '|' + c.order_ref, fresh = new Set(rows.map(key));
+      save('conversions', load('conversions', []).filter(c => !fresh.has(key(c))).concat(rows).slice(-5000));
+      done();
+      return;
+    }
+    const btn = $('button[type=submit]', form);
+    if (btn) btn.disabled = true;
+    DB.upsertConversions(rows).then(loadReport).then(done, e => {
+      console.error('Import failed', e);
+      if (btn) btn.disabled = false;
+      toast(t(e.status === 401 || e.status === 403 || /42501/.test(e.message || '') ? 'err.noPermission' : 'err.saveFailed'));
+    });
+  }
+  function repImport() {
+    const im = ui.import || {}, o = im.opts || {}, r = im.result;
+    const FIELDS = ['order_ref', 'tracking_id', 'amount', 'commission', 'currency', 'status', 'ordered_at'];
+    const preview = !r ? '' : r.missing.length ? '<p class="form-err" role="alert">' + t('rep.imp.noRef') + '</p>' :
+      '<p class="set-label">' + t('rep.imp.cols') + '</p>' +
+      '<ul class="rep-map">' + FIELDS.map(f => '<li><span>' + t('rep.field.' + f) + '</span><b' + (r.mapping[f] ? '' : ' class="muted"') + '>' + (r.mapping[f] ? esc(r.mapping[f]) : t('rep.imp.notFound')) + '</b></li>').join('') + '</ul>' +
+      '<p>' + t('rep.imp.ready', { n: num(r.rows.length) }) + '</p>' +
+      (r.skipped.length ? '<p class="hint">' + t('rep.imp.skipped', { n: num(r.skipped.length) }) + '</p>' : '') +
+      (r.duplicates ? '<p class="hint">' + t('rep.imp.dups', { n: num(r.duplicates) }) + '</p>' : '') +
+      (r.rows.length ? '<p class="set-label">' + t('rep.imp.preview') + '</p>' + tbl([[t('rep.field.order_ref')], [t('rep.field.tracking_id')], [t('rep.col.status')], [t('rep.field.amount'), 1], [t('rep.field.commission'), 1], [t('col.date')]],
+        r.rows.slice(0, 10).map(c => '<tr><td>' + esc(c.order_ref) + '</td><td class="muted">' + esc(c.tracking_id || '—') + '</td><td>' + statusBadge(c.status) + '</td><td class="num">' + (c.amount == null ? '—' : num(c.amount, 2) + ' ' + esc(c.currency || '')) +
+          '</td><td class="num">' + (c.commission == null ? '—' : num(c.commission, 2)) + '</td><td class="muted">' + (c.ordered_at ? fmtDate(new Date(c.ordered_at), { day: 'numeric', month: 'short', year: 'numeric' }) : '—') + '</td></tr>')) +
+        '<div class="form-actions"><button class="btn btn-primary" type="submit">' + t('rep.imp.go', { n: num(r.rows.length) }) + '</button></div>' : '');
+    return repTop('import', t('rep.imp.sub'), null) +
+      card(t('rep.imp.title'), '<form id="convForm" class="form-stack"><div class="form-grid">' +
+        '<label class="field"><span>' + t('rep.imp.network') + '</span><input name="network" list="netList" maxlength="40" required autocomplete="off" value="' + esc(o.network || '') + '"><datalist id="netList"><option value="Awin"><option value="Impact"><option value="Noon"><option value="Amazon"></datalist><small class="hint">' + t('rep.imp.networkHint') + '</small></label>' +
+        '<label class="field"><span>' + t('rep.imp.currency') + '</span><input name="currency" maxlength="3" autocomplete="off" value="' + esc(o.currency || '') + '" placeholder="SAR"></label>' +
+        '<label class="field"><span>' + t('rep.imp.store') + '</span><select name="storeId">' + selectOpts([['', t('rep.imp.auto')]].concat(allStores().map(s => [s.id, esc(s.name) + ' (' + s.market.toUpperCase() + ')'])), o.storeId || '') + '</select></label>' +
+        '<label class="field"><span>' + t('rep.imp.market') + '</span><select name="market">' + selectOpts([['', t('rep.imp.auto')]].concat(MARKETS.map(m => [m, t('market.' + m)])), o.market || '') + '</select></label></div>' +
+        '<label class="field"><span>' + t('rep.imp.file') + '</span><input type="file" id="convFile" accept=".csv,.tsv,.txt,text/csv"><small class="hint">' + (im.fileName ? t('rep.imp.chosen', { f: esc(im.fileName) }) + '. ' : '') + t('rep.imp.fileHint') + '</small></label>' +
+        preview + '</form>' + (LIVE() ? '' : '<p class="hint">' + t('rep.imp.demo') + '</p>'), { icon: 'feeds', sub: t(LIVE() ? 'rep.imp.stored' : 'rep.imp.storedDemo', { n: num(repConv().length) }) });
+  }
+
+  // Report CSV downloads: the clicks groupings (data-export="store" ...) and the purchase / non-purchase reports.
+  const REPORT_CSV = {
+    'purchases:store': () => { const s = REP.summarisePurchases(repConv(), repOpts()); return ['purchases-by-store', [t('rep.by.store'), t('rep.col.orders'), t('rep.st.approved'), t('rep.st.pending'), t('rep.st.rejected'), t('rep.orderValue') + ' (SAR)', t('rep.commission') + ' (SAR)'],
+      s.byStore.map(g => [storeName(g.key), g.orders, g.approved, g.pending, g.rejected, g.value.toFixed(2), g.commission.toFixed(2)])]; },
+    'purchases:day': () => { const s = REP.summarisePurchases(repConv(), repOpts()); return ['purchases-by-day', [t('col.date'), t('rep.col.orders'), t('rep.st.approved'), t('rep.st.pending'), t('rep.st.rejected'), t('rep.orderValue') + ' (SAR)', t('rep.commission') + ' (SAR)'],
+      s.byDay.map(g => [g.key, g.orders, g.approved, g.pending, g.rejected, g.value.toFixed(2), g.commission.toFixed(2)])]; },
+    nopurchase: () => { const nc = REP.nonConvertingClicks(repClicks(), repConv().filter(c => state.market === 'all' || c.market === state.market), repOpts()); return ['clicks-without-purchase', [t('rep.col.product'), t('rep.col.store'), t('rep.col.clicks'), t('rep.col.orders'), t('rep.kpi.noBuy')],
+      nc.rows.map(r => [prodName(r.productId), storeName(r.storeId), r.clicks, r.orders, r.lost])]; },
+    noviews: () => { const o = repOpts(), convs = repConv().filter(c => state.market === 'all' || c.market === state.market); return ['views-without-purchase', [t('rep.col.product'), t('rep.col.views')],
+      REP.viewsWithoutPurchase(LIVE() ? liveReport.views : demoViews(), REP.purchasedProducts(convs, repClicks(), o), o).map(r => [prodName(r.productId), r.views])]; }
+  };
+  function downloadCsv(name, head, body) {
     const csv = '﻿' + [head].concat(body).map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\r\n');
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
     const a = document.createElement('a');
-    a.href = url; a.download = 'doabno-clicks-by-' + group + '-' + state.market + '-' + state.range + 'd.csv';
+    a.href = url; a.download = 'doabno-' + name + '-' + state.market + '-' + state.range + 'd.csv';
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     toast(t('toast.exported'));
+  }
+  // "Export PDF": the print stylesheet (admin.css) prints only the report; the browser's print window offers "Save as PDF".
+  function printReport() {
+    const head = $('.print-head'), prev = document.title;
+    if (head) document.title = head.dataset.title;
+    const back = () => { document.title = prev; window.removeEventListener('afterprint', back); };
+    window.addEventListener('afterprint', back);
+    window.print();
+  }
+
+  function exportCsv(group) {
+    if (REPORT_CSV[group]) { const [name, head, body] = REPORT_CSV[group](); downloadCsv(name, head, body); return; }
+    const clicks = total(traffic(), 'clicks');
+    const head = [t('rep.by.' + group), t('col.clicks'), t('col.share'), t('col.revenue') + ' (SAR)', t('rep.rpcShort') + ' (SAR)', t('col.change')];
+    const body = reportRows(group).map(g => [GROUPS[group][2](g.row), g.clicks, (clicks ? g.clicks / clicks : 0).toFixed(4), g.revenue.toFixed(2), (g.clicks ? g.revenue / g.clicks : 0).toFixed(3), change(g.clicks, g.prev).toFixed(4)]);
+    downloadCsv('clicks-by-' + group, head, body);
   }
 
   // ---------- users ----------
@@ -1313,7 +1520,8 @@
     twoFactor: true, sso: false, session: '8h', adminDomain: 'doabno.com'
   }, ...MARKETS.map(m => ({ ['on_' + m]: true, ['lang_' + m]: m === 'sa' || m === 'ae' ? 'ar' : 'en' })),
   ...ROLES.slice(1).flatMap(r => AREAS.map(a => ({ ['perm_' + r + '_' + a]: PERMS[r].includes(a) }))));
-  const settings = () => Object.assign({}, SET_DEFAULTS, load('settings', {}));
+  // With a database the settings come from the settings table (liveSettings, null until loaded or when the table is missing); otherwise from this browser.
+  const settings = () => Object.assign({}, SET_DEFAULTS, LIVE() && liveSettings ? liveSettings : load('settings', {}));
   const TABS = ['general', 'notifications', 'content', 'tracking', 'security', 'log'];
 
   // Small builders for the settings forms; every field's name is its settings key.
@@ -1329,7 +1537,7 @@
   function pageSettings(params) {
     const tab = TABS.includes(params.tab) ? params.tab : 'general';
     return pageHead(t('nav.settings'), t('settings.sub')) +
-      (LIVE() ? '<p class="role-note" role="note">' + icon(ICONS.info, 16) + '<span>' + t('set.localNote') + '</span></p>' : '') +
+      (LIVE() && !liveSettings ? '<p class="role-note" role="note">' + icon(ICONS.info, 16) + '<span>' + t('set.localNote') + '</span></p>' : '') +
       '<nav class="seg set-tabs" aria-label="' + t('nav.settings') + '">' + TABS.map(k => '<a href="#/settings' + (k === 'general' ? '' : '?tab=' + k) + '"' + (k === tab ? ' aria-current="page"' : '') + '>' + t('set.tab.' + k) + '</a>').join('') + '</nav>' +
       ({ general: setGeneral, notifications: setNotifications, content: setContent, tracking: setTracking, security: setSecurity, log: setLog })[tab]();
   }
@@ -1412,12 +1620,13 @@
 
   function saveSettings(form) {
     if (!form.checkValidity()) { form.reportValidity(); return; }
-    const s = load('settings', {});
+    const vals = {};
     $$('input[name], select[name], textarea[name]', form).forEach(el => {
       if (el.disabled) return;
-      s[el.name] = el.type === 'checkbox' ? el.checked : el.type === 'number' ? parseFloat(el.value) : el.value.trim();
+      vals[el.name] = el.type === 'checkbox' ? el.checked : el.type === 'number' ? parseFloat(el.value) : el.value.trim();
     });
-    save('settings', s);
+    if (LIVE() && liveSettings) { Object.assign(liveSettings, vals); sync('settings', () => DB.saveSetting(form.dataset.set, vals)); }
+    else save('settings', Object.assign(load('settings', {}), vals));
     logActivity('log.settings', { s: t('set.' + form.dataset.set) });
     toast(t('toast.saved'));
     rerender();
@@ -1486,6 +1695,7 @@
     if (section === 'coupons' && !can('coupon')) { limited = drop('[data-coupon-form], [data-del-coupon]') > 0; }
     if (section === 'feeds' && !can('feed')) { limited = drop('[data-run]') > 0; }
     if (section === 'settings') {
+      if (!can('settings')) { limited = lock('.set-form input, .set-form select, .set-form textarea') > 0 || limited; drop('.set-form button[type=submit]'); }
       if (!can('rates')) { limited = lock('#ratesForm input') > 0 || limited; drop('#ratesForm button[type=submit]'); }
       if (!can('popular')) { limited = lock('#popularForm textarea') > 0 || limited; drop('#popularForm button[type=submit]'); }
       if (!can('team')) { limited = drop('[data-invite]') > 0 || limited; }
@@ -1579,6 +1789,8 @@
         Object.keys(cache).forEach(k => { delete cache[k]; });
       }, () => {}),
       DB.recentClicks(10).then(rows => { liveRecent = rows; }, () => {}),
+      DB.loadSettings().then(v => { liveSettings = v; }, () => { liveSettings = null; }),
+      loadReport(),
       DB.listFeeds().then(rows => { liveFeeds = new Map(rows.map(r => [r.storeId, r])); Object.keys(cache).forEach(k => { delete cache[k]; }); }, () => {})];
     await Promise.all(jobs);
     rerender();
@@ -1693,7 +1905,7 @@
   // ---------- events ----------
   document.addEventListener('click', e => {
     if (!e.target.closest('#userBtn, #userMenu')) setUserMenu(false);
-    const el = e.target.closest('[data-top-tab],[data-range],[data-run],[data-store-form],[data-coupon-form],[data-del-coupon],[data-edit-cat],[data-cancel-cat],[data-del-sub],[data-user],[data-user-export],[data-user-delete],[data-req],[data-invite],[data-remove-member],[data-reset],[data-export],[data-logout],[data-close-drawer],[data-close-menu],[data-dialog-cancel],#dialogOk,#menuBtn,#sideToggle,#userBtn,.lang-toggle,.nav a');
+    const el = e.target.closest('[data-top-tab],[data-range],[data-run],[data-store-form],[data-coupon-form],[data-del-coupon],[data-edit-cat],[data-cancel-cat],[data-del-sub],[data-user],[data-user-export],[data-user-delete],[data-req],[data-invite],[data-remove-member],[data-reset],[data-export],[data-print],[data-logout],[data-close-drawer],[data-close-menu],[data-dialog-cancel],#dialogOk,#menuBtn,#sideToggle,#userBtn,.lang-toggle,.nav a');
     if (!el) return;
     if (el.dataset.topTab) { ui.topTab = el.dataset.topTab; rerender(); }
     else if (el.dataset.range) { state.range = +el.dataset.range; save('range', state.range); ui.barsAnim = true; rerender(); }
@@ -1727,6 +1939,7 @@
       });
     }
     else if (el.dataset.export) exportCsv(el.dataset.export);
+    else if (el.hasAttribute('data-print')) printReport();
     else if (el.hasAttribute('data-logout')) {
       if (ACC.enabled) { ACC.signOut().then(() => { state.session = null; save('session', null); location.hash = '#/'; location.reload(); }); }
       else { state.session = null; save('session', null); location.hash = '#/'; route(); }
@@ -1758,6 +1971,7 @@
       const c = catById(el.value);
       $('#prodSub').innerHTML = selectOpts(c.subs.map(s => [s.id, L(s)]), '');
     }
+    else if (el.closest('#convForm')) convChanged(el);
     else if (el.closest('form[data-filter]') && el.name !== 'q') applyFilters(el.closest('form'));
   });
 
@@ -1795,6 +2009,7 @@
     else if (form.id === 'storeForm') saveStore(form);
     else if (form.id === 'couponForm') saveCoupon(form);
     else if (form.id === 'inviteForm') saveInvite(form);
+    else if (form.id === 'convForm') importConversions(form);
     else if (form.classList.contains('cat-edit')) saveCategory(form);
     else if (form.id === 'ratesForm') saveRates(form);
     else if (form.id === 'popularForm') savePopular(form);

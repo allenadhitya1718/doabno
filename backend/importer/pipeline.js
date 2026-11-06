@@ -25,14 +25,14 @@ async function fetchFeedText(url, { headers = {}, timeoutMs = 60000, fetchImpl =
 }
 
 // Pure core: rows in, decisions out. No storage.
-function processRows(rows, { store, marketCurrency, rates, productsByGtin, marketPrices, missingCheck }) {
+function processRows(rows, { store, marketCurrency, rates, productsByGtin, productsById = new Map(), marketPrices, missingCheck }) {
   const accepted = new Map();           // product id -> offer (cheapest in-stock price when a feed lists a product twice)
   const rejects = [];
   rows.forEach(row => {
     const r = normalizeRow(row, { marketCurrency, rates });
     if (r.reject) { rejects.push(r.reject); return; }
     const o = r.offer;
-    const product = productsByGtin.get(o.gtinKey);
+    const product = o.productId ? productsById.get(o.productId) : productsByGtin.get(o.gtinKey);
     if (!product) { rejects.push({ reason: 'no_match', ref: o.ref }); return; }
     const others = (marketPrices.get(product.id) || []).filter(x => x.store_id !== store.id).map(x => x.price);
     if (others.length >= 3) {
@@ -68,7 +68,8 @@ async function runFeed({ feed, db, fetchText = fetchFeedText, readPages = requir
   const products = await db.getProducts();
   const productsByGtin = new Map(products.filter(p => p.gtin).map(p => [gtinKey(p.gtin), p]));
   const marketPrices = await db.getMarketPrices(store.market);
-  const processed = processRows(rows, { store, marketCurrency: market.currency, rates, productsByGtin, marketPrices });
+  const productsById = new Map(products.map(p => [p.id, p]));
+  const processed = processRows(rows, { store, marketCurrency: market.currency, rates, productsByGtin, productsById, marketPrices });
   const accepted = processed.accepted, rejects = pageRejects.concat(processed.rejects);
   const total = rows.length + pageRejects.length;
 

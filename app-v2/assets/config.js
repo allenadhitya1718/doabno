@@ -6,9 +6,9 @@
  *   socialLogin: providers switched on in Supabase, for example ['google', 'apple']. Their buttons then appear; leave empty until set up.
  * Never put a service_role key or a database password in this file. */
 window.DOABNO_CONFIG = {
-  supabaseUrl: 'https://hmanlftkhvruqgvkencn.supabase.co',
-  anonKey: 'sb_publishable_-bpLYU0crmM1-amgU5sjjQ_EOhLHipA',
+  supabaseUrl: 'https://jturenubwqxzesjlyjpi.supabase.co',
+  anonKey: 'sb_publishable_muNj3TVn1QI5Va0LAszOnA_dKWrAmMm',
   catalogUrl: '',
-  clickOutUrl: 'https://hmanlftkhvruqgvkencn.supabase.co/functions/v1/go',
+  clickOutUrl: 'https://jturenubwqxzesjlyjpi.supabase.co/functions/v1/go',
   socialLogin: []
 };

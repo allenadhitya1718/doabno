@@ -40,7 +40,7 @@
       'pr.err': 'Enter your name, a valid email address and tick the confirmation.', 'pr.doneT': 'Request received', 'pr.doneP': 'Your reference is {r}. We will reply to {e} within 30 days. We may ask you to confirm your identity first.', 'pr.demo': 'Prototype: requests are stored in this browser only.', 'pr.link': 'Make a privacy request',
       'usually': 'Usually {x}', 'lessN': '{n}% less', 'viz.buy': 'Buy {p} at {s}', 'viz.buyNow': 'Buy now', 'viz.view': 'View product and buy', 'foot.aboutUs': 'About us', 'foot.disclaimer': 'Disclaimer', 'about.crumb': 'About us',
       'ac.marketing': 'Yes, email me deals, coupons and product updates. I can unsubscribe at any time. (optional)', 'trust.1': 'Verified prices', 'trust.2': 'Delivery included', 'trust.3': 'Price history', 'trust.4': 'Price-drop alerts',
-      stores: '{n} stores', store1: '1 store', bestPrice: 'Best price', compareN: 'Comparing {n} stores', live: 'Live price comparison', cmpN: '{n} stores compared', bestTotal: 'Best total price', moreStores: '+ {n} more stores', viewFull: 'View full comparison', 'sec.brands': 'Popular brands', 'p.similar': 'Similar and alternative products', coupons: 'Coupons',
+      stores: '{n} stores', store1: '1 store', bestPrice: 'Best price', compareN: 'Comparing {n} stores', live: 'Live price comparison', cmpN: '{n} stores compared', bestTotal: 'Best total price', moreStores: '+ {n} more stores', viewFull: 'View full comparison', 'sec.brands': 'Popular brands', 'p.similar': 'Similar and alternative products', 'p.cheaper': 'Cheaper alternatives', coupons: 'Coupons',
       'foot.legal': 'Legal', 'foot.privacy': 'Privacy policy', 'foot.terms': 'Terms of use', 'foot.cookies': 'Cookie policy', 'foot.ccpa': 'Do not sell or share my personal information', 'foot.cookieSet': 'Cookie settings', 'foot.explore': 'Explore', 'foot.how': 'How DOABNO works',
       'cp.title': 'Coupons and promo codes', 'cp.sub': 'Codes from stores in {m}. Copy a code, then paste it at checkout.', 'cp.copy': 'Copy code', 'cp.copied': 'Code {c} copied', 'cp.exp': 'Expires in {n} days', 'cp.exp0': 'Expires today', 'cp.all': 'All', 'cp.none': 'No coupons in this category yet.', 'cp.shop': 'Shop at {s}',
       'ac.signup': 'Create account', 'ac.name': 'Full name', 'ac.have': 'Already have an account? Sign in', 'ac.new': 'New to DOABNO? Create an account', 'ac.title': 'My profile', 'ac.prefs': 'Notifications', 'ac.notif': 'Email me when a price alert triggers', 'ac.promo': 'Send me deals and coupons',
@@ -91,7 +91,7 @@
       'pr.err': 'أدخل اسمك وبريدًا إلكترونيًا صحيحًا وضع علامة التأكيد.', 'pr.doneT': 'تم استلام الطلب', 'pr.doneP': 'رقمك المرجعي {r}. سنرد على {e} خلال 30 يومًا. وقد نطلب منك تأكيد هويتك أولًا.', 'pr.demo': 'نموذج أولي: تُحفظ الطلبات في هذا المتصفح فقط.', 'pr.link': 'قدّم طلب خصوصية',
       'usually': 'عادةً {x}', 'lessN': 'أقل بنسبة {n}%', 'viz.buy': 'اشترِ {p} من {s}', 'viz.buyNow': 'اشترِ الآن', 'viz.view': 'عرض المنتج والشراء', 'foot.aboutUs': 'من نحن', 'foot.disclaimer': 'إخلاء المسؤولية', 'about.crumb': 'من نحن',
       'ac.marketing': 'نعم، أرسلوا لي العروض والكوبونات وتحديثات المنتجات عبر البريد. يمكنني إلغاء الاشتراك في أي وقت. (اختياري)', 'trust.1': 'أسعار موثّقة', 'trust.2': 'التوصيل مشمول', 'trust.3': 'سجل الأسعار', 'trust.4': 'تنبيهات انخفاض السعر',
-      stores: '{n} متاجر', store1: 'متجر واحد', bestPrice: 'أفضل سعر', compareN: 'مقارنة {n} متاجر', live: 'مقارنة أسعار مباشرة', cmpN: 'تمت مقارنة {n} متاجر', bestTotal: 'أفضل سعر إجمالي', moreStores: '+ {n} متاجر أخرى', viewFull: 'عرض المقارنة الكاملة', 'sec.brands': 'ماركات شائعة', 'p.similar': 'منتجات مشابهة وبدائل', coupons: 'الكوبونات',
+      stores: '{n} متاجر', store1: 'متجر واحد', bestPrice: 'أفضل سعر', compareN: 'مقارنة {n} متاجر', live: 'مقارنة أسعار مباشرة', cmpN: 'تمت مقارنة {n} متاجر', bestTotal: 'أفضل سعر إجمالي', moreStores: '+ {n} متاجر أخرى', viewFull: 'عرض المقارنة الكاملة', 'sec.brands': 'ماركات شائعة', 'p.similar': 'منتجات مشابهة وبدائل', 'p.cheaper': 'بدائل أرخص', coupons: 'الكوبونات',
       'foot.legal': 'قانوني', 'foot.privacy': 'سياسة الخصوصية', 'foot.terms': 'شروط الاستخدام', 'foot.cookies': 'سياسة ملفات الارتباط', 'foot.ccpa': 'لا تبيع أو تشارك معلوماتي الشخصية', 'foot.cookieSet': 'إعدادات ملفات الارتباط', 'foot.explore': 'استكشف', 'foot.how': 'كيف يعمل دوابنو',
       'cp.title': 'الكوبونات وأكواد الخصم', 'cp.sub': 'أكواد من متاجر {m}. انسخ الكود ثم الصقه عند الدفع.', 'cp.copy': 'نسخ الكود', 'cp.copied': 'تم نسخ الكود {c}', 'cp.exp': 'ينتهي بعد {n} يومًا', 'cp.exp0': 'ينتهي اليوم', 'cp.all': 'الكل', 'cp.none': 'لا توجد كوبونات في هذا القسم حاليًا.', 'cp.shop': 'تسوّق من {s}',
       'ac.signup': 'إنشاء حساب', 'ac.name': 'الاسم الكامل', 'ac.have': 'لديك حساب؟ سجّل الدخول', 'ac.new': 'جديد في دوابنو؟ أنشئ حسابًا', 'ac.title': 'ملفي الشخصي', 'ac.prefs': 'الإشعارات', 'ac.notif': 'أرسل لي بريدًا عند تفعيل تنبيه سعر', 'ac.promo': 'أرسل لي العروض والكوبونات',
@@ -635,7 +635,7 @@
     const usual = hasDrop ? b.total / (1 - p.drop / 100) : 0;
     const rv = p.reviews >= 1000 ? (p.reviews / 1000).toFixed(1).replace('.0', '') + 'k' : String(p.reviews);
     return '<a class="sq" href="#/p/' + p.id + '"><div class="sq-im">' + thumb(p, 360, 360) + '</div>' +
-      '<div class="sq-chips"><span class="sq-c drop">' + (hasDrop ? '↓ ' + pct(p.drop) + '%' : storesLabel(i.n)) + '</span><span class="sq-c rate"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" fill="currentColor"/></svg>' + p.rating.toFixed(1) + ' (' + rv + ')</span></div>' +
+      '<div class="sq-chips"><span class="sq-c drop">' + (hasDrop ? '↓ ' + pct(p.drop) + '%' : storesLabel(i.n)) + '</span>' + (p.rating != null ? '<span class="sq-c rate"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" fill="currentColor"/></svg>' + p.rating.toFixed(1) + ' (' + rv + ')</span>' : '') + '</div>' +
       '<h3 dir="auto">' + esc(nm(p)) + '</h3>' +
       '<div class="sq-pr">' + dot(b.store) + '<b>' + money(b.total) + '</b></div>' +
       '<div class="sq-us">' + (hasDrop ? '<span>' + t('usually', { x: moneyText(usual) }) + '</span><em>' + t('lessN', { n: pct(p.drop) }) + '</em>' : '<span>' + storesLabel(i.n) + '</span>') + '</div>' +
@@ -904,19 +904,37 @@
     const last = pts[pts.length - 1];
     return '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="' + t('p.history') + '"><path d="' + line + ' L' + last[0] + ' ' + H + ' L' + pts[0][0] + ' ' + H + ' Z" fill="#16845B" opacity=".08"/><path d="' + line + '" fill="none" stroke="#16845B" stroke-width="2.4" stroke-linejoin="round" vector-effect="non-scaling-stroke"/><circle cx="' + last[0] + '" cy="' + last[1] + '" r="5" fill="#16845B" stroke="#fff" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>';
   }
+  /* ---------- page views ---------- */
+  // Counts one view per product per browser session for the admin's "most viewed" report. Anonymous; skipped without a database,
+  // when the visitor chose "Essential only" or sends Global Privacy Control; it never shows an error.
+  const viewed = new Set();
+  function recordView(id) {
+    try {
+      const cfg = window.DOABNO_CONFIG || {};
+      if (!cfg.supabaseUrl || !cfg.anonKey || !window.__CATALOG || store.get('cookie', null) === 'essential' || navigator.globalPrivacyControl) return;
+      const key = market + ':' + id; if (viewed.has(key)) return; viewed.add(key);
+      let seen = []; try { seen = JSON.parse(sessionStorage.getItem('doabno2.views') || '[]'); } catch (e) { /* storage blocked */ }
+      if (seen.indexOf(key) >= 0) return;
+      try { sessionStorage.setItem('doabno2.views', JSON.stringify(seen.concat(key).slice(-200))); } catch (e) { /* storage blocked */ }
+      fetch(cfg.supabaseUrl.replace(/\/$/, '') + '/rest/v1/rpc/record_view', { method: 'POST', keepalive: true,
+        headers: { apikey: cfg.anonKey, Authorization: 'Bearer ' + cfg.anonKey, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_product_id: id, p_market: market }) }).catch(() => {});
+    } catch (e) { /* analytics must never break the page */ }
+  }
   function product(id) {
     const it = byId(id); if (!it) return notFound();
+    recordView(id);
     const p = it.p, b = it.best, h30 = D.historyFor(p, market, 30);
     const avg = h30.reduce((s, v) => s + v, 0) / h30.length, diff = avg - b.price;
     const c = catOf(p.cat), sub = c && c.subs.find(s => s.id === p.sub);
     const bestOffer = b;
     const isFav = favs.includes(p.id), al = alerts[p.id];
     const rows = it.offers.map(o => '<tr class="' + (o === bestOffer ? 'best' : '') + '"><td class="store-c"><div class="store">' + dot(o.store) + '<span>' + esc(o.store.name) + (o === bestOffer ? ' <span class="tag best">' + icon.check + t('bestTag') + '</span>' : '') + '</span></div>' + (o.promo ? '<small><span class="tag tag-code">' + esc(t('promo', { c: o.promo.code })) + '</span></small>' : '') + '</td>' +
-      '<td class="p-c num money">' + money(o.price) + '</td><td class="d-c num">' + (o.shipping ? money(o.shipping) : t('free')) + '<small>' + t('days', { a: o.days[0], b: o.days[1] }) + '</small></td>' +
+      '<td class="p-c num money">' + money(o.price) + '</td><td class="d-c num">' + (o.shipping ? money(o.shipping) : t('free')) + (o.days[0] != null ? '<small>' + t('days', { a: o.days[0], b: o.days[1] != null ? o.days[1] : o.days[0] }) + '</small>' : '') + '</td>' +
       '<td class="tot-c num tot">' + money(o.total) + '</td><td class="s-c">' + (o.inStock ? '<span class="stock-ok">' + t('inStock') + '</span>' : '<span class="stock-no">' + t('outStock') + '</span>') + '<small>' + fresh(o) + '</small></td>' +
       '<td class="a-c num"><button class="btn ' + (o === bestOffer ? 'primary' : 'visit') + ' sm" type="button" data-visit="' + esc(o.store.name) + '" data-track="' + esc(o.trackingId) + '"' + (o.url ? ' data-url="1"' : '') + '>' + t('visit') + '</button></td></tr>').join('');
     return '<div class="page"><div class="wrap"><div class="crumbs"><a href="#/">' + t('home') + '</a> / ' + (c ? '<a href="#/c/' + c.id + '">' + esc(nm(c)) + '</a>' : '') + (sub ? ' / <a href="#/c/' + c.id + '/' + sub.id + '">' + esc(nm(sub)) + '</a>' : '') + '</div>' +
-      '<div class="phead"><div class="im">' + thumb(p, 140, 140) + '</div><div><h1 dir="auto">' + esc(nm(p)) + '</h1><div class="pmeta"><span>' + esc(p.brand) + '</span><span><span class="stars" aria-hidden="true">★</span> <b>' + p.rating + '</b> · ' + t('p.reviews', { n: p.reviews.toLocaleString('en-US') }) + '</span><span>' + storesLabel(it.n) + '</span></div></div></div>' +
+      '<div class="phead"><div class="im">' + thumb(p, 140, 140) + '</div><div><h1 dir="auto">' + esc(nm(p)) + '</h1><div class="pmeta"><span>' + esc(p.brand) + '</span>' + (p.rating != null ? '<span><span class="stars" aria-hidden="true">★</span> <b>' + p.rating + '</b> · ' + t('p.reviews', { n: p.reviews.toLocaleString('en-US') }) + '</span>' : '') + '<span>' + storesLabel(it.n) + '</span></div></div></div>' +
       '<div class="pgrid"><div>' +
       '<section class="card"><h2>' + t('p.compare') + '</h2><table class="otable"><thead><tr><th>' + t('th.store') + '</th><th class="num">' + t('th.price') + '</th><th class="num">' + t('th.ship') + '</th><th class="num">' + t('th.total') + '</th><th>' + t('th.stock') + '</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></section>' +
       '<section class="card"><h2>' + t('p.history') + '</h2><div class="ptabs"><button class="btn ghost sm" type="button" data-days="30" aria-pressed="true">' + t('p.d30') + '</button><button class="btn ghost sm" type="button" data-days="90" aria-pressed="false">' + t('p.d90') + '</button></div><div id="hist"></div></section>' +
@@ -931,11 +949,10 @@
       '<button class="btn ghost block" type="button" id="favBtn" aria-pressed="' + isFav + '">' + icon.heart(isFav) + ' ' + (isFav ? t('p.saved') : t('p.save')) + '</button></div></div></aside></div></div></div>';
   }
   function similarHtml(it) {
-    const p = it.p;
-    const near = items().filter(i => i.p.id !== p.id).map(i => ({ i, s: (i.p.sub === p.sub ? 2 : 0) + (i.p.cat === p.cat ? 1 : 0) + (i.p.brand === p.brand ? .5 : 0) }))
-      .filter(x => x.s >= 1).sort((a, b) => b.s - a.s || Math.abs(a.i.best.total - it.best.total) - Math.abs(b.i.best.total - it.best.total)).slice(0, 4).map(x => x.i);
-    if (!near.length) return '';
-    return '<section class="card"><h2>' + t('p.similar') + '</h2><div class="grid4 similar">' + near.map(productCard).join('') + '</div></section>';
+    const R = window.DOABNO_RECOMMEND; if (!R) return '';
+    const all = items().map(i => i.p), opts = { market, limit: 4, price: q => { const i = byId(q.id); return i ? i.best.total : null; } };
+    const row = (key, list) => list.length ? '<section class="card"><h2>' + t(key) + '</h2><div class="grid4 similar">' + list.map(q => productCard(byId(q.id))).join('') + '</div></section>' : '';
+    return row('p.similar', R.recommend(it.p, all, opts)) + row('p.cheaper', R.cheaper(it.p, all, opts));
   }
   function paintHist(it, days) {
     const v = D.historyFor(it.p, market, days), cu = it.best.price;
@@ -1176,7 +1193,7 @@
       if (it) {
         const mx = Math.max.apply(null, it.offers.map(o => o.total));
         title = nm(it.p) + ' | ' + brand; desc = (lang === 'ar' ? 'قارن أسعار ' : 'Compare prices for ') + nm(it.p) + ' ' + (lang === 'ar' ? 'من ' : 'from ') + moneyText(it.best.total) + ' ' + (lang === 'ar' ? 'عبر ' + it.n + ' متاجر.' : 'across ' + it.n + ' stores.');
-        ld = { '@context': 'https://schema.org', '@type': 'Product', name: it.p.en, brand: { '@type': 'Brand', name: it.p.brand }, aggregateRating: { '@type': 'AggregateRating', ratingValue: it.p.rating, reviewCount: it.p.reviews },
+        ld = { '@context': 'https://schema.org', '@type': 'Product', name: it.p.en, brand: { '@type': 'Brand', name: it.p.brand }, aggregateRating: it.p.rating != null && it.p.reviews ? { '@type': 'AggregateRating', ratingValue: it.p.rating, reviewCount: it.p.reviews } : undefined,
           offers: { '@type': 'AggregateOffer', priceCurrency: mcur(), lowPrice: it.best.total.toFixed(2), highPrice: mx.toFixed(2), offerCount: it.offers.length } };
       }
     } else if (seg[0] === 'deals') { title = t('dealsT') + ' | ' + brand; }
@@ -1284,7 +1301,14 @@
     navMenu.init();
     $('#langBtn').addEventListener('click', () => { lang = lang === 'en' ? 'ar' : 'en'; store.set('lang', lang); applyLang(); route(); });
     $('#signInBtn').addEventListener('click', () => { if (user) location.hash = '#/account'; else openAuth('signin'); });
-    $('#modal').addEventListener('click', e => { if (e.target === e.currentTarget || e.target.closest('[data-close-modal]')) e.currentTarget.close(); });
+    // Close on the backdrop only: the press and the release must both land outside the dialog box. Clicks on the dialog's own
+    // padding (and a drag that starts in a field and ends outside) report the dialog itself as the target, so the target alone is not enough.
+    (() => {
+      const m = $('#modal'); let downOut = false;
+      const outside = e => { const r = m.getBoundingClientRect(); return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom; };
+      m.addEventListener('pointerdown', e => { downOut = e.target === m && outside(e); });
+      m.addEventListener('click', e => { const out = downOut && e.target === m && outside(e); downOut = false; if (out || e.target.closest('[data-close-modal]')) m.close(); });
+    })();
     // A field in a dialog scrolls into view when it gets focus, so the on-screen keyboard cannot cover it.
     $('#modal').addEventListener('focusin', e => { if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) setTimeout(() => e.target.scrollIntoView({ block: 'center', behavior: 'smooth' }), 250); });
     document.addEventListener('click', async e => {

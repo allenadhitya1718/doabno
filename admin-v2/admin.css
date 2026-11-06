@@ -633,3 +633,33 @@ a.prod-cell:hover strong, a.prod-cell:hover > span { text-decoration: underline;
 /* shown when the signed-in role can look at a page but not change it */
 .role-note { display: flex; align-items: center; gap: 10px; margin: -6px 0 16px; padding: 10px 14px; border-radius: 12px; background: var(--info-bg, #E6F0FA); color: var(--navy); font-size: 13px; font-weight: 500; }
 .role-note svg { flex: none; }
+
+/* reports: tabs, conversion import */
+.rep-tabs { margin: -6px 0 18px; max-width: 100%; overflow-x: auto; }
+.form-err { color: var(--bad); font-size: 13px; }
+.rep-map { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px 18px; font-size: 13px; }
+.rep-map li { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line, #E5E9EF); }
+.rep-map .muted { font-weight: 400; }
+#convForm .table-wrap { margin-top: 4px; }
+
+/* "Export PDF" = the browser's print window with only the current report: the header below replaces the page chrome */
+.print-head { display: none; }
+@media print {
+  @page { margin: 14mm; }
+  html, body { background: #fff !important; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .sidebar, .side-backdrop, .topbar, .page-head, .rep-tabs, .seg, .no-print, .toast, .drawer, .drawer-backdrop, .dialog, .login, .chart-table, .lchart-tip, .lchart-cross, .lchart-dot, .btn, .role-note { display: none !important; }
+  .app { display: block !important; }
+  .workspace { display: block; }
+  .main { padding: 0; max-width: none; }
+  .main, .main * { animation: none !important; }
+  .print-head { display: block; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--navy); }
+  .print-head strong { font-size: 13px; letter-spacing: .12em; color: var(--navy); }
+  .print-head h2 { font-size: 22px; margin: 2px 0 4px; }
+  .print-head p { font-size: 12px; color: var(--muted); margin: 0; }
+  .card, .tile { box-shadow: none !important; border: 1px solid #D5DBE3; break-inside: avoid; }
+  .table-wrap { overflow: visible; }
+  .table tr { break-inside: avoid; }
+  a { color: inherit; text-decoration: none; }
+}
+

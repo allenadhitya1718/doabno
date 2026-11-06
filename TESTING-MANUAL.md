@@ -430,7 +430,7 @@ Screens: Welcome, Home, Search, Product list, Product, Deals, Saved, Profile (ju
 Use `curl` with the **publishable** key only. Never use the secret (`service_role`) key for these tests, and never paste keys into chat.
 
 ```bash
-URL=https://hmanlftkhvruqgvkencn.supabase.co
+URL=https://jturenubwqxzesjlyjpi.supabase.co
 ANON=<publishable key from assets/config.js>
 ```
 
