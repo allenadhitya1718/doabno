@@ -437,6 +437,8 @@
 
   window.DOABNO_DATA = {
     RATES, CURRENCIES, MARKETS, CATEGORIES, COUPONS, POPULAR, HERO_PHOTO,
+    // Public site settings saved in the admin (hero text, maintenance notice, app links...); {} without a database.
+    SITE: (CAT && CAT.site) || {},
     STORES: ACTIVE_STORES, PRODUCTS: VISIBLE_PRODUCTS,
     offersFor, historyFor, seeded, photoUrl,
     // The admin portal works on the full lists (paused stores, hidden products) and saves overrides.
