@@ -24,8 +24,9 @@ export const abs = (path: string) => SITE_URL + path;
 
 /** Text lookup with the same {var} placeholders as web-v2. Falls back to English, then to the key. */
 export function t(lang: Lang, key: string, vars?: Record<string, string | number>): string {
-  let s: unknown = S[lang][key];
-  if (s == null) s = S.en[key];
+  const tables = S as Record<Lang, Record<string, unknown>>;
+  let s: unknown = tables[lang][key];
+  if (s == null) s = tables.en[key];
   if (s == null) return key;
   if (vars && typeof s === 'string') s = s.replace(/\{(\w+)\}/g, (_m: string, n: string) => (vars[n] == null ? '' : String(vars[n])));
   return s as string;
