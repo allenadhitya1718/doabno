@@ -168,6 +168,8 @@
   const ui = { listKey: '', sort: 'popular', filters: { brand: [], free: false, sale: false }, listBase: [], dealsCat: '', savedTab: 'favs', freeOnly: false, days: 30, keepScroll: false, error: false, pop: '', authMode: 'signin', authNote: '' };
 
   // ---------- text, numbers, money ----------
+  Object.assign(window.APP_I18N.en, { 'p.cheaper': 'Cheaper alternatives' });
+  Object.assign(window.APP_I18N.ar, { 'p.cheaper': 'بدائل أرخص' });
   function t(key, vars) {
     const A = window.APP_I18N, S = window.I18N;
     let s = (A[state.lang] && A[state.lang][key]) || (S[state.lang] && S[state.lang][key]) || A.en[key] || S.en[key] || key;
@@ -676,15 +678,35 @@
     })(t0);
   }
 
+  // Counts one view per product per browser session for the admin's "most viewed" report. Anonymous; skipped without a database,
+  // when "Essential only" was chosen on the website or Global Privacy Control is on; it never shows an error.
+  const viewed = new Set();
+  function recordView(id) {
+    try {
+      const cfg = window.DOABNO_CONFIG || {};
+      let ck = null; try { ck = JSON.parse(localStorage.getItem('doabno2.cookie')); } catch (e) { /* storage blocked */ }
+      if (!cfg.supabaseUrl || !cfg.anonKey || !window.__CATALOG || ck === 'essential' || navigator.globalPrivacyControl) return;
+      const key = state.market + ':' + id; if (viewed.has(key)) return; viewed.add(key);
+      let seen = []; try { seen = JSON.parse(sessionStorage.getItem('doabno.views') || '[]'); } catch (e) { /* storage blocked */ }
+      if (seen.indexOf(key) >= 0) return;
+      try { sessionStorage.setItem('doabno.views', JSON.stringify(seen.concat(key).slice(-200))); } catch (e) { /* storage blocked */ }
+      fetch(cfg.supabaseUrl.replace(/\/$/, '') + '/rest/v1/rpc/record_view', { method: 'POST', keepalive: true,
+        headers: { apikey: cfg.anonKey, Authorization: 'Bearer ' + cfg.anonKey, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_product_id: id, p_market: state.market }) }).catch(() => {});
+    } catch (e) { /* analytics must never break the screen */ }
+  }
   function screenProduct(id) {
     const p = productById(id);
     if (!p) return screenNotFound();
+    recordView(id);
     const s = summary(p);
     const c = catById(p.cat), sub = subById(c, p.sub);
     const fav = state.favs.includes(p.id);
     const offers = s.offers.filter(o => !ui.freeOnly || !o.shipping);
     const bestId = s.best && s.best.inStock ? s.best.trackingId : null;
-    const similar = listed().filter(x => x.cat === p.cat && x.id !== p.id).sort(byPopularity).slice(0, 8);
+    const R = window.DOABNO_RECOMMEND, ropts = { market: state.market, limit: 8, price: q => { const o = summary(q); return o.count ? o.min : null; } };
+    const similar = R ? R.recommend(p, listed(), ropts) : [], cheaper = R ? R.cheaper(p, listed(), ropts) : [];
+    const miniRow = (key, list) => list.length ? '<section class="section">' + sectionHead(t(key)) + '<div class="hscroll">' + list.map(miniCard).join('') + '</div></section>' : '';
     const photos = p.photos.length ? p.photos : [null];
     const anim = !ui.keepScroll && !ui.error && s.count && !matchMedia('(prefers-reduced-motion: reduce)').matches;
     const bestOffer = offers.find(o => o.trackingId === bestId);
@@ -716,7 +738,7 @@
           '<dl class="details"><div><dt>' + t('d.brand') + '</dt><dd>' + esc(p.brand) + '</dd></div><div><dt>' + t('d.category') + '</dt><dd>' + L(c) + ' › ' + L(sub) + '</dd></div>' +
           (s.count ? '<div><dt>' + t('p.range') + '</dt><dd>' + money(s.min, s.cur) + ' – ' + money(s.max, s.cur) + '</dd></div>' : '') + '</dl>' +
           (p.photos.length ? '<p class="card-note">' + t('p.photoCredit', { n: esc(p.photos[0].by) }) + '</p>' : '') + '</div></section>' +
-        (similar.length ? '<section class="section">' + sectionHead(t('p.similar')) + '<div class="hscroll">' + similar.map(miniCard).join('') + '</div></section>' : '') +
+        miniRow('p.similar', similar) + miniRow('p.cheaper', cheaper) +
         '<div class="bottombar"><button type="button" class="btn btn-outline" data-sheet="alert">' + icon(ICONS.bell, 20) + t('p.alertShort') + '</button>' +
           (bestId ? '<button type="button" class="btn btn-primary btn-visit-main" data-visit="' + bestId + '" data-store="' + esc(s.best.store.name) + '"' + (s.best.url ? ' data-url="1"' : '') + '><span class="vm-text"><small>' + t('p.visitAt', { s: esc(s.best.store.name) }) + '</small><b>' + money(s.min, s.cur) + '</b></span>' + icon(ICONS.chevron, 20, 'flip') + '</button>' : '') + '</div>';
     return {

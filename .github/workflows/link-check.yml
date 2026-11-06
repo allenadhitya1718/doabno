@@ -1,0 +1,28 @@
+# Checks every saved store link once a week (and on demand from the Actions tab) and records which ones no longer work.
+# NOT ACTIVE YET: GitHub only runs scheduled workflows from the default branch (main), and it needs the two repository
+# secrets SUPABASE_URL and SUPABASE_SERVICE_KEY. Without them it skips safely. Broken links do not fail the run.
+name: Check store links
+permissions:
+  contents: read
+on:
+  schedule:
+    - cron: "0 4 * * 1"          # Mondays 04:00 UTC
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check links
+        if: env.SUPABASE_URL != '' && env.SUPABASE_SERVICE_KEY != ''
+        run: node backend/importer/linkcheck.js
+      - name: Skipped (secrets not set)
+        if: env.SUPABASE_URL == '' || env.SUPABASE_SERVICE_KEY == ''
+        run: echo "SUPABASE_URL / SUPABASE_SERVICE_KEY are not set; no links checked."
