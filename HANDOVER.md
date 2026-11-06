@@ -93,7 +93,8 @@ If a secret is ever exposed, rotate it (section 7) before anything else.
 **Still demo or not done:**
 - **Prices and stores are demo data** until real feeds are connected. Needs the affiliate approvals and feeds from the client.
 - **"Visit store" does not track clicks yet.** The function is written but not deployed (and `clickOutUrl` is empty), and demo offers have no store links.
-- **Admin settings tabs are saved in the browser only** (markets and language switches, notification and sender settings, site content, app links, maintenance message, affiliate tags, security). Only exchange rates, popular searches and the team are saved in the database. Wiring the rest means a settings table and making the site read it.
+- **Admin settings tabs are saved in the database** (table `settings`, migration 0012; owner edits, other roles read). **The public site does not read them yet**, so changing a setting there has no effect on the site until that is wired.
+- **Reports** (Reports page tabs Purchases, No purchase, Import conversions, plus PDF export by printing): purchases come from network conversion CSVs uploaded in the admin (`conversions`, migration 0012); "most viewed without purchase" needs `product_views` (0013). Both are empty until the networks approve us and the new database is set up.
 - **Admin traffic and revenue numbers are real but read zero until clicks exist** (they come from the recorded "Visit store" clicks, times each store's cost per click). Only owner, partners and analyst roles can read clicks; a catalog manager sees zeros. The Store feeds page is real too: each feed's latest run, and "No feed yet" for stores without one.
 - Price-drop emails are written and tested but need a Resend account and domain to send.
 - **Apple and Google sign-in** are wired in but switched off: set the provider up in Supabase, then list it in `socialLogin` in the three `config.js` files and the buttons appear (details in `remainingthings.md`).

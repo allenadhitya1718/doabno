@@ -455,14 +455,70 @@ Object.assign(ADMIN_I18N.ar, {
 Object.assign(ADMIN_I18N.en, { 'rep.recentLive': 'Latest clicks', 'rep.recentSubLive': 'The most recent "Visit store" clicks from all visitors', 'rep.recentEmptyLive': 'No clicks recorded yet. They appear here once the click function is deployed and offers have store links.' });
 Object.assign(ADMIN_I18N.ar, { 'rep.recentLive': 'آخر النقرات', 'rep.recentSubLive': 'أحدث نقرات «زيارة المتجر» من جميع الزوار', 'rep.recentEmptyLive': 'لم تُسجَّل نقرات بعد. ستظهر هنا بعد نشر دالة النقرات وإضافة روابط المتاجر للعروض.' });
 Object.assign(ADMIN_I18N.en, {
-  'set.localNote': 'Settings on this page, other than exchange rates, popular searches and the team, are saved in this browser only for now and do not change the live site.',
+  'set.localNote': 'The settings table is not available in the database yet (run migration 0012_reports.sql), so settings on this page, other than exchange rates, popular searches and the team, are saved in this browser only.',
   'set.rolesLive': 'These roles are enforced by the database, so they cannot be switched here. Changing them means changing the database rules.',
   'users.readOnly': 'Your role can view this account but not change it.',
   'req.t.restrict': 'Restrict processing', 'req.t.port': 'Data portability', 'req.t.object': 'Object to processing', 'req.t.consent': 'Withdraw consent'
 });
 Object.assign(ADMIN_I18N.ar, {
-  'set.localNote': 'الإعدادات في هذه الصفحة، عدا أسعار الصرف وعمليات البحث الشائعة والفريق، تُحفظ في هذا المتصفح فقط حاليًا ولا تغيّر الموقع المباشر.',
+  'set.localNote': 'جدول الإعدادات غير متاح في قاعدة البيانات بعد (شغّل الترحيل 0012_reports.sql)، لذلك تُحفظ الإعدادات في هذه الصفحة، عدا أسعار الصرف وعمليات البحث الشائعة والفريق، في هذا المتصفح فقط.',
   'set.rolesLive': 'هذه الأدوار تفرضها قاعدة البيانات، لذلك لا يمكن تغييرها من هنا. تغييرها يعني تغيير قواعد قاعدة البيانات.',
   'users.readOnly': 'دورك يتيح عرض هذا الحساب دون تعديله.',
   'req.t.restrict': 'تقييد المعالجة', 'req.t.port': 'نقل البيانات', 'req.t.object': 'الاعتراض على المعالجة', 'req.t.consent': 'سحب الموافقة'
+});
+Object.assign(ADMIN_I18N.en, {
+  'rep.tabs': 'Report type', 'rep.tab.clicks': 'Clicks', 'rep.tab.purchases': 'Purchases', 'rep.tab.nopurchase': 'No purchase', 'rep.tab.import': 'Import conversions',
+  'rep.pdf': 'Export PDF', 'rep.pdfTip': 'Opens your browser’s print window. Choose “Save as PDF” as the printer to get a PDF of this report.',
+  'rep.generated': 'Generated {d}',
+  'rep.purchases.sub': 'Orders reported by the affiliate networks in {m}', 'rep.nopurchase.sub': 'Clicks and product views that did not lead to a purchase in {m}',
+  'rep.by.day': 'Day', 'rep.col.orders': 'Orders', 'rep.col.status': 'Status', 'rep.col.product': 'Product', 'rep.col.store': 'Store', 'rep.col.clicks': 'Clicks', 'rep.col.views': 'Views',
+  'rep.orderValue': 'Order value', 'rep.commission': 'Commission', 'rep.amountsNote': 'Converted to SAR at the rates in Settings',
+  'rep.byStatus': 'By status', 'rep.st.approved': 'Approved', 'rep.st.pending': 'Pending', 'rep.st.rejected': 'Rejected',
+  'rep.trendCommission': 'Commission per day',
+  'rep.noConv': 'No purchases reported in this period. Upload a network report under “Import conversions”.',
+  'rep.noConvNote': 'No conversion reports are imported for this period yet, so every click counts as not converting.',
+  'rep.kpi.noBuy': 'Clicks with no purchase', 'rep.kpi.noBuyShare': 'Share of all clicks',
+  'rep.noBuyClicks': 'Offers clicked but not bought', 'rep.noBuyClicksSub': 'Clicks are matched to orders by tracking ID: each order accounts for one click. A rejected order does not count as a purchase.',
+  'rep.noBuyEmpty': 'Every click in this period led to a purchase.', 'rep.noClicksEmpty': 'No clicks recorded in this period.',
+  'rep.viewsTitle': 'Most viewed products without a purchase', 'rep.viewsSub': 'Product page views in the period; products with a purchase are left out',
+  'rep.noViews': 'No view data yet. Page views appear here once the site starts counting them.', 'rep.allBought': 'Every viewed product had a purchase in this period.',
+  'rep.imp.title': 'Import a network report', 'rep.imp.sub': 'Upload the conversions CSV from an affiliate network. Orders already imported are updated, new ones are added.',
+  'rep.imp.stored': '{n} orders stored in the last 90 days', 'rep.imp.storedDemo': '{n} demo orders in the last 90 days',
+  'rep.imp.network': 'Network', 'rep.imp.networkHint': 'For example Awin, Impact or Noon. The network and order ID identify an order, so uploading the same report twice does not duplicate it.',
+  'rep.imp.currency': 'Currency if the file has none', 'rep.imp.store': 'Store', 'rep.imp.market': 'Market', 'rep.imp.auto': 'From the tracking ID',
+  'rep.imp.file': 'CSV file', 'rep.imp.chosen': 'File: {f}', 'rep.imp.fileHint': 'Columns are recognised by name: order ID or reference, tracking ID or sub ID, amount, commission, currency, status and date. Comma, semicolon or tab separated.',
+  'rep.imp.cols': 'Columns found', 'rep.imp.notFound': 'not found', 'rep.imp.noRef': 'No order ID column found. Rename a column to “Order ID” and choose the file again.',
+  'rep.imp.ready': '{n} orders ready to import', 'rep.imp.skipped': '{n} rows skipped (no order ID, or an unreadable date or number)', 'rep.imp.dups': '{n} repeated order IDs in the file (the last one is used)',
+  'rep.imp.preview': 'Preview (first 10)', 'rep.imp.go': 'Import {n} orders', 'rep.imp.nothing': 'Choose a CSV file with at least one order first.', 'rep.imp.tooBig': 'The file is larger than 5 MB.',
+  'rep.imp.demo': 'Demo: uploaded orders are kept in this browser only.',
+  'rep.field.order_ref': 'Order ID', 'rep.field.tracking_id': 'Tracking ID', 'rep.field.amount': 'Amount', 'rep.field.commission': 'Commission', 'rep.field.currency': 'Currency', 'rep.field.status': 'Status', 'rep.field.ordered_at': 'Date',
+  'toast.convImported': '{n} orders imported', 'log.convImport': 'Imported {n} orders from {net}'
+});
+Object.assign(ADMIN_I18N.ar, {
+  'rep.tabs': 'نوع التقرير', 'rep.tab.clicks': 'النقرات', 'rep.tab.purchases': 'المشتريات', 'rep.tab.nopurchase': 'بدون شراء', 'rep.tab.import': 'استيراد التحويلات',
+  'rep.pdf': 'تصدير PDF', 'rep.pdfTip': 'يفتح نافذة الطباعة في المتصفح. اختر «حفظ كملف PDF» كطابعة للحصول على ملف PDF لهذا التقرير.',
+  'rep.generated': 'أُنشئ في {d}',
+  'rep.purchases.sub': 'الطلبات التي أبلغت عنها شبكات التسويق بالعمولة في {m}', 'rep.nopurchase.sub': 'النقرات ومشاهدات المنتجات التي لم تُفضِ إلى شراء في {m}',
+  'rep.by.day': 'اليوم', 'rep.col.orders': 'الطلبات', 'rep.col.status': 'الحالة', 'rep.col.product': 'المنتج', 'rep.col.store': 'المتجر', 'rep.col.clicks': 'النقرات', 'rep.col.views': 'المشاهدات',
+  'rep.orderValue': 'قيمة الطلبات', 'rep.commission': 'العمولة', 'rep.amountsNote': 'محوّلة إلى الريال حسب الأسعار في الإعدادات',
+  'rep.byStatus': 'حسب الحالة', 'rep.st.approved': 'مقبول', 'rep.st.pending': 'قيد الانتظار', 'rep.st.rejected': 'مرفوض',
+  'rep.trendCommission': 'العمولة اليومية',
+  'rep.noConv': 'لا توجد مشتريات مُبلَّغ عنها في هذه الفترة. ارفع تقرير شبكة من «استيراد التحويلات».',
+  'rep.noConvNote': 'لم يُستورد أي تقرير تحويلات لهذه الفترة بعد، لذلك تُحسب كل نقرة على أنها بلا شراء.',
+  'rep.kpi.noBuy': 'نقرات بلا شراء', 'rep.kpi.noBuyShare': 'نسبة من كل النقرات',
+  'rep.noBuyClicks': 'عروض نُقر عليها ولم تُشترَ', 'rep.noBuyClicksSub': 'تُطابَق النقرات مع الطلبات عبر معرّف التتبع: كل طلب يقابل نقرة واحدة. الطلب المرفوض لا يُعدّ شراءً.',
+  'rep.noBuyEmpty': 'كل نقرة في هذه الفترة أفضت إلى شراء.', 'rep.noClicksEmpty': 'لا توجد نقرات مسجلة في هذه الفترة.',
+  'rep.viewsTitle': 'أكثر المنتجات مشاهدة بدون شراء', 'rep.viewsSub': 'مشاهدات صفحات المنتجات في الفترة؛ المنتجات التي تم شراؤها مستبعدة',
+  'rep.noViews': 'لا توجد بيانات مشاهدات بعد. ستظهر المشاهدات هنا عندما يبدأ الموقع بعدّها.', 'rep.allBought': 'كل منتج تمت مشاهدته تم شراؤه في هذه الفترة.',
+  'rep.imp.title': 'استيراد تقرير شبكة', 'rep.imp.sub': 'ارفع ملف CSV للتحويلات من شبكة التسويق بالعمولة. تُحدَّث الطلبات المستوردة سابقًا وتُضاف الجديدة.',
+  'rep.imp.stored': '{n} طلب محفوظ في آخر 90 يومًا', 'rep.imp.storedDemo': '{n} طلب تجريبي في آخر 90 يومًا',
+  'rep.imp.network': 'الشبكة', 'rep.imp.networkHint': 'مثل Awin أو Impact أو Noon. تحدّد الشبكة ورقم الطلب هوية الطلب، فلا يتكرر برفع التقرير نفسه مرتين.',
+  'rep.imp.currency': 'العملة إن لم يحتوها الملف', 'rep.imp.store': 'المتجر', 'rep.imp.market': 'السوق', 'rep.imp.auto': 'من معرّف التتبع',
+  'rep.imp.file': 'ملف CSV', 'rep.imp.chosen': 'الملف: {f}', 'rep.imp.fileHint': 'تُعرَف الأعمدة بأسمائها: رقم الطلب أو المرجع، معرّف التتبع أو Sub ID، المبلغ، العمولة، العملة، الحالة والتاريخ. الفاصل فاصلة أو فاصلة منقوطة أو مسافة جدولة.',
+  'rep.imp.cols': 'الأعمدة التي وُجدت', 'rep.imp.notFound': 'غير موجود', 'rep.imp.noRef': 'لم يوجد عمود لرقم الطلب. غيّر اسم عمود إلى «Order ID» ثم اختر الملف مرة أخرى.',
+  'rep.imp.ready': '{n} طلب جاهز للاستيراد', 'rep.imp.skipped': 'تم تخطي {n} صفًا (بدون رقم طلب، أو تاريخ أو رقم غير مقروء)', 'rep.imp.dups': '{n} من أرقام الطلبات مكررة في الملف (يُستخدم آخرها)',
+  'rep.imp.preview': 'معاينة (أول 10)', 'rep.imp.go': 'استيراد {n} طلب', 'rep.imp.nothing': 'اختر أولًا ملف CSV يحتوي طلبًا واحدًا على الأقل.', 'rep.imp.tooBig': 'حجم الملف أكبر من 5 ميغابايت.',
+  'rep.imp.demo': 'نسخة تجريبية: تُحفظ الطلبات المرفوعة في هذا المتصفح فقط.',
+  'rep.field.order_ref': 'رقم الطلب', 'rep.field.tracking_id': 'معرّف التتبع', 'rep.field.amount': 'المبلغ', 'rep.field.commission': 'العمولة', 'rep.field.currency': 'العملة', 'rep.field.status': 'الحالة', 'rep.field.ordered_at': 'التاريخ',
+  'toast.convImported': 'تم استيراد {n} طلب', 'log.convImport': 'استورد {n} طلب من {net}'
 });
