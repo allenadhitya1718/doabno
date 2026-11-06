@@ -295,15 +295,15 @@
     c.subs.forEach(s => Object.assign(s, names[c.id + '/' + s.id]));
   });
 
-  // Store ratings come from shopper reviews and cost per click from the store's contract in production.
+  // Store ratings come only from a real source (shopper reviews); none is invented. Cost per click is a demo default.
   (OV.newStores || []).forEach(s => {
     if (STORES[s.market] && !STORES[s.market].some(x => x.id === s.id)) STORES[s.market].push(Object.assign({}, s));
   });
   Object.keys(STORES).forEach(m => STORES[m].forEach(s => {
     const rnd = seeded(s.id + 'rating');
     const r1 = rnd(), r2 = rnd(), r3 = rnd();
-    if (s.rating == null) s.rating = Math.round((3.8 + r1 * 1.1) * 10) / 10;
-    if (s.reviews == null) s.reviews = 300 + Math.floor(r2 * 12000);
+    if (s.rating === undefined) s.rating = null;
+    if (s.reviews == null) s.reviews = 0;
     if (s.cpc == null) s.cpc = Math.round((0.22 + r3 * 0.38) * 100) / 100; // USD per click
     if (s.active === undefined) s.active = true;
     s.market = m;

@@ -226,7 +226,7 @@
       const out = new Array(DAYS).fill(0);
       if (x.p.status === 'hidden') return out;
       const rnd = D.seeded(x.o.trackingId + 'clicks');
-      const base = Math.sqrt(x.p.reviews || 400) / 8 * MARKET_WEIGHT[x.m] * (0.55 + x.o.store.rating / 10) * (x.o.inStock ? 1 : 0.2);
+      const base = Math.sqrt(x.p.reviews || 400) / 8 * MARKET_WEIGHT[x.m] * (0.55 + (x.o.store.rating || 4) / 10) * (x.o.inStock ? 1 : 0.2);
       for (let i = 0; i < DAYS; i++) {
         out[i] = Math.round(base * WEEKDAY[DOW[i]] * (0.72 + 0.28 * i / (DAYS - 1)) * (0.7 + rnd() * 0.6));
       }
@@ -713,7 +713,7 @@
       card(t('prod.photos'), '<div class="photos">' + (p.photos.length ? p.photos.map(ph => '<img src="' + D.photoUrl(ph.id, 200, 200) + '" alt="" width="100" height="100" loading="lazy">').join('') : '<p class="muted">' + t('prod.noPhotos') + '</p>') + '</div>' +
         '<p class="hint">' + t('prod.photosHint') + '</p>') +
       card(t('prod.performance'), '<dl class="facts"><div><dt>' + t('kpi.clicks') + '</dt><dd>' + num(total(rows, 'clicks')) + '</dd></div><div><dt>' + t('kpi.revenue') + '</dt><dd>' + sar(total(rows, 'revenue'), { whole: true }) + '</dd></div>' +
-        '<div><dt>' + t('col.offers') + '</dt><dd>' + num(offers.length) + '</dd></div><div><dt>' + t('prod.rating') + '</dt><dd>' + p.rating + ' · ' + tp('n.reviews', p.reviews) + '</dd></div></dl>' +
+        '<div><dt>' + t('col.offers') + '</dt><dd>' + num(offers.length) + '</dd></div><div><dt>' + t('prod.rating') + '</dt><dd>' + (p.rating != null ? p.rating + ' · ' + tp('n.reviews', p.reviews) : '—') + '</dd></div></dl>' +
         (rows.length ? sparkline(totalsByDay(rows, false).slice(DAYS - R)) : ''), { sub: scopeName() + ' · ' + t('range.' + R).toLowerCase() }) +
       '</div></form>' +
       card(t('prod.offers'), offers.length ? offersTable(offers, false) : empty(t('prod.noOffers')), { sub: scopeName(), cls: 'card-flush' });
@@ -868,7 +868,7 @@
           return '<tr' + (s.active === false ? ' class="row-muted"' : '') + '><td>' + storeCell(s) + '</td>' +
             '<td class="cats-cell">' + catChips(s.cats) + '</td>' +
             '<td class="num">' + num(offersBy.get(s.id) || 0) + '</td><td class="num">' + num(g ? g.clicks : 0) + '</td>' +
-            '<td class="num">' + sar(s.cpc * D.RATES.SAR) + '</td><td>' + badge(f.status, t('status.' + f.status)) + '</td><td class="num">' + s.rating.toFixed(1) + '</td>' +
+            '<td class="num">' + sar(s.cpc * D.RATES.SAR) + '</td><td>' + badge(f.status, t('status.' + f.status)) + '</td><td class="num">' + (s.rating != null ? s.rating.toFixed(1) : '—') + '</td>' +
             '<td><label class="switch"><input type="checkbox" role="switch" data-store-toggle="' + s.id + '"' + (s.active !== false ? ' checked' : '') + '><span class="switch-ui" aria-hidden="true"></span><span class="sr-only">' + t('col.active') + ': ' + esc(s.name) + '</span></label></td>' +
             '<td class="actions"><button type="button" class="row-act" data-store-form="' + s.id + '" title="' + t('act.edit') + '" aria-label="' + t('act.edit') + ': ' + esc(s.name) + '">' + icon(ICONS.edit, 17) + '</button></td></tr>';
         }).join('') + '</tbody></table></div>' + pager(pg, base, params, sorted.length) : empty(t('empty.filters'))) + '</section>';
@@ -918,10 +918,9 @@
       const market = fd.get('market');
       let sid = slug(name) + '-' + market, i = 2;
       while (storeById(sid)) sid = slug(name) + '-' + market + '-' + i++;
-      const rnd = D.seeded(sid + 'rating');
       const s = { id: sid, name, market, cats, cpc, color: fd.get('color'), active: !!fd.get('active') };
       ov.newStores = (ov.newStores || []).concat([Object.assign({}, s)]);
-      A.STORES[market].push(Object.assign(s, { rating: Math.round((3.8 + rnd() * 1.1) * 10) / 10, reviews: 300 + Math.floor(rnd() * 12000) }));
+      A.STORES[market].push(Object.assign(s, { rating: null, reviews: 0 }));
       commit('log.storeAdded', { s: name });
       sync('new store', () => DB.addStore(s));
     }

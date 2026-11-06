@@ -650,7 +650,7 @@
     return '<div class="orow' + (best ? ' best' : '') + (o.inStock ? '' : ' oos') + '">' + storeLogo(o.store) +
       '<div class="orow-main"><p class="orow-store">' + esc(o.store.name) + (best ? '<span class="best-tag">' + t('o.best') + '</span>' : '') + '</p>' +
       '<p class="orow-sub ' + (o.inStock ? 'ok' : 'no') + '">' + t(o.inStock ? 'o.inStock' : 'o.outStock') + (o.inStock && o.days[0] != null ? ' · ' + t('o.days', { n: o.days[0], m: o.days[1] != null ? o.days[1] : o.days[0] }) : '') + '</p>' +
-      '<p class="orow-sub">' + stars(o.store.rating) + o.store.rating.toFixed(1) + '</p>' +
+      (o.store.rating != null ? '<p class="orow-sub">' + stars(o.store.rating) + o.store.rating.toFixed(1) + '</p>' : '') +
       (d >= 3 || o.promo ? '<p class="orow-tags">' + (d >= 3 ? sav(d) : '') +
         (o.promo ? '<button type="button" class="tag tag-promo" data-copy="' + esc(o.promo.code) + '">' + t('offer.promo') + ': ' + esc(o.promo.code) + '</button>' : '') + '</p>' : '') + '</div>' +
       '<div class="orow-side"><strong>' + money(o.total, o.currency) + '</strong>' +
