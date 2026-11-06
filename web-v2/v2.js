@@ -930,7 +930,7 @@
     const bestOffer = b;
     const isFav = favs.includes(p.id), al = alerts[p.id];
     const rows = it.offers.map(o => '<tr class="' + (o === bestOffer ? 'best' : '') + '"><td class="store-c"><div class="store">' + dot(o.store) + '<span>' + esc(o.store.name) + (o === bestOffer ? ' <span class="tag best">' + icon.check + t('bestTag') + '</span>' : '') + '</span></div>' + (o.promo ? '<small><span class="tag tag-code">' + esc(t('promo', { c: o.promo.code })) + '</span></small>' : '') + '</td>' +
-      '<td class="p-c num money">' + money(o.price) + '</td><td class="d-c num">' + (o.shipping ? money(o.shipping) : t('free')) + '<small>' + t('days', { a: o.days[0], b: o.days[1] }) + '</small></td>' +
+      '<td class="p-c num money">' + money(o.price) + '</td><td class="d-c num">' + (o.shipping ? money(o.shipping) : t('free')) + (o.days[0] != null ? '<small>' + t('days', { a: o.days[0], b: o.days[1] != null ? o.days[1] : o.days[0] }) + '</small>' : '') + '</td>' +
       '<td class="tot-c num tot">' + money(o.total) + '</td><td class="s-c">' + (o.inStock ? '<span class="stock-ok">' + t('inStock') + '</span>' : '<span class="stock-no">' + t('outStock') + '</span>') + '<small>' + fresh(o) + '</small></td>' +
       '<td class="a-c num"><button class="btn ' + (o === bestOffer ? 'primary' : 'visit') + ' sm" type="button" data-visit="' + esc(o.store.name) + '" data-track="' + esc(o.trackingId) + '"' + (o.url ? ' data-url="1"' : '') + '>' + t('visit') + '</button></td></tr>').join('');
     return '<div class="page"><div class="wrap"><div class="crumbs"><a href="#/">' + t('home') + '</a> / ' + (c ? '<a href="#/c/' + c.id + '">' + esc(nm(c)) + '</a>' : '') + (sub ? ' / <a href="#/c/' + c.id + '/' + sub.id + '">' + esc(nm(sub)) + '</a>' : '') + '</div>' +
@@ -1301,7 +1301,14 @@
     navMenu.init();
     $('#langBtn').addEventListener('click', () => { lang = lang === 'en' ? 'ar' : 'en'; store.set('lang', lang); applyLang(); route(); });
     $('#signInBtn').addEventListener('click', () => { if (user) location.hash = '#/account'; else openAuth('signin'); });
-    $('#modal').addEventListener('click', e => { if (e.target === e.currentTarget || e.target.closest('[data-close-modal]')) e.currentTarget.close(); });
+    // Close on the backdrop only: the press and the release must both land outside the dialog box. Clicks on the dialog's own
+    // padding (and a drag that starts in a field and ends outside) report the dialog itself as the target, so the target alone is not enough.
+    (() => {
+      const m = $('#modal'); let downOut = false;
+      const outside = e => { const r = m.getBoundingClientRect(); return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom; };
+      m.addEventListener('pointerdown', e => { downOut = e.target === m && outside(e); });
+      m.addEventListener('click', e => { const out = downOut && e.target === m && outside(e); downOut = false; if (out || e.target.closest('[data-close-modal]')) m.close(); });
+    })();
     // A field in a dialog scrolls into view when it gets focus, so the on-screen keyboard cannot cover it.
     $('#modal').addEventListener('focusin', e => { if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) setTimeout(() => e.target.scrollIntoView({ block: 'center', behavior: 'smooth' }), 250); });
     document.addEventListener('click', async e => {
