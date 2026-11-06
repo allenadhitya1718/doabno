@@ -176,6 +176,14 @@
     if (vars) Object.keys(vars).forEach(k => { s = s.replace('{' + k + '}', () => vars[k]); });
     return s;
   }
+  // Settings the admin saved for the public pages (D.SITE, from get_catalog); {} without a database or when nothing is saved. Each use falls back to the built-in text.
+  const siteSet = form => { const v = D.SITE && D.SITE[form]; return v && typeof v === 'object' ? v : {}; };
+  const siteLang = (form, base) => { const v = siteSet(form)[base + (state.lang === 'ar' ? 'Ar' : 'En')]; return typeof v === 'string' ? v.trim() : ''; };
+  function maintHtml() {
+    if (siteSet('maint').maint !== true) return '';
+    const msg = siteLang('maint', 'maint') || (state.lang === 'ar' ? 'نُحدّث دوابنو الآن، وسنعود قريبًا.' : 'DOABNO is getting an update. We’ll be back shortly.');
+    return '<div role="status" style="background:#FFF4D6;color:#5A3B00;border-bottom:1px solid #E8C877;padding:10px 16px;text-align:center;font-weight:600;font-size:13px">' + esc(msg) + '</div>';
+  }
   const pluralRules = {};
   function tp(key, n) {
     const rules = pluralRules[state.lang] || (pluralRules[state.lang] = new Intl.PluralRules(state.lang));
@@ -572,7 +580,7 @@
       tab: '', bar: appBar({ logo: true, actions: bellBtn() }), after: sc.ok ? runShowcase : null,
       html: '<div class="search-row"><a class="search-field" href="#/search">' + icon(ICONS.search, 20) + '<span>' + t('search.ph') + '</span></a>' +
         '<button type="button" class="scan-btn" data-sheet="scan" aria-label="' + t('scan.btn') + '">' + icon(ICONS.scan, 24) + '</button></div>' +
-        '<div class="intro"><h2>' + t('hero.title', { n: tp('n.trustedStores', D.STORES[state.market].length), m: t('market.in.' + state.market) }) + '</h2>' +
+        '<div class="intro"><h2>' + (siteLang('hero', 'hero') ? esc(siteLang('hero', 'hero')) : t('hero.title', { n: tp('n.trustedStores', D.STORES[state.market].length), m: t('market.in.' + state.market) })) + '</h2>' +
         '<button type="button" class="market-chip" data-sheet="country">' + icon(ICONS.globe, 16) + t('market.' + state.market) + ' · ' + state.currency + icon(ICONS.chevron, 14, 'flip') + '</button></div>' + sc.html +
         '<section class="trend"><p class="trend-label">' + t('home.trending') + '</p><div class="hscroll">' + D.POPULAR.slice(0, 8).map(q => '<a class="chip" href="#/search?q=' + encodeURIComponent(q) + '">' + esc(q) + '</a>').join('') + '</div></section>' +
         '<section class="section tight">' + sectionHead(t('home.cats'), '#/categories') + '<div class="hscroll fade-x">' + D.CATEGORIES.map(c =>
@@ -1140,7 +1148,7 @@
     $('#appbar').hidden = !!s.bare;
     $('#appbar').innerHTML = s.bare ? '' : s.bar;
     $('#appbar').className = 'appbar' + (s.search ? ' search-bar' : '') + (!s.bare && s.bar.indexOf('data-back') >= 0 ? ' has-back' : '');
-    screenEl.innerHTML = s.html;
+    screenEl.innerHTML = maintHtml() + s.html;
     if (!ui.keepScroll) { screenEl.classList.remove('enter'); void screenEl.offsetWidth; screenEl.classList.add('enter'); }
     $('#tabbar').hidden = !!(s.noTabs || s.bare);
     $('#tabbar').innerHTML = TABS.map(([p, ic, key]) => '<a class="tab" href="#/' + p + '"' + (s.tab === p ? ' aria-current="page"' : '') + '>' + icon(ICONS[ic], 22) + '<span>' + t(key) + '</span></a>').join('');
