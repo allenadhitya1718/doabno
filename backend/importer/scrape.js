@@ -116,7 +116,9 @@ function stockWord(availability) {
 // The page must be about our product: same barcode when it gives one, our brand in its name otherwise.
 function pageMatches(page, product) {
   if (page.gtin && product.gtin) return gtinKey(page.gtin) === gtinKey(product.gtin);
-  if (product.brand) { const b = String(product.brand).toLowerCase(); return [page.name, page.brand].some(s => s && s.toLowerCase().includes(b)); }
+  // Letters and digits only, accents removed: "De'Longhi" matches "DeLonghi", "L'Oréal" matches "Loreal".
+  const key = v => String(v || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (product.brand) { const b = key(product.brand); return !!b && [page.name, page.brand].some(s => s && key(s).includes(b)); }
   return !!page.name;
 }
 

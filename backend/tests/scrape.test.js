@@ -136,3 +136,9 @@ test('page rows match by product id when the product has no barcode; feed rows s
   assert.equal(r.accepted[0].product_id, 'galaxy-s26'); assert.equal(r.accepted[0].price, 3099); assert.equal(r.accepted[0].shipping, 25);
   assert.deepEqual(r.rejects.map(x => x.reason), ['no_gtin']);
 });
+
+test('brand match ignores punctuation and accents', () => {
+  assert.equal(pageMatches({ name: 'DeLonghi Dedica Duo' }, { brand: "De'Longhi" }), true);
+  assert.equal(pageMatches({ name: 'Loreal Paris Elvive' }, { brand: "L'Oréal" }), true);
+  assert.equal(pageMatches({ name: 'Philips 2200' }, { brand: "De'Longhi" }), false);
+});
