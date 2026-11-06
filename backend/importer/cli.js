@@ -4,6 +4,7 @@
 //   node backend/importer/cli.js run --feed-id 7               run one feed
 //   node backend/importer/cli.js push-test --token <device token> --platform android|ios      send one test notification to one phone
 //   node backend/importer/cli.js alerts [--dry true]           email and push-notify people whose price alert was reached (needs RESEND_API_KEY, ALERT_FROM, SITE_URL for email; FCM_SERVICE_ACCOUNT_JSON and/or APNS_KEY_P8, APNS_KEY_ID, APNS_TEAM_ID, BUNDLE_ID for phones)
+//   node backend/importer/cli.js drops                         recompute products.drop_pct from the price history (also runs after every `run`)
 //   node backend/importer/cli.js dry-run --file feed.csv --format csv --store noon-sa
 //                                                              try a feed file against the demo catalog, saving nothing
 //   node backend/importer/cli.js page-test --url https://www.extra.com/en-sa/.../p/00123456 --product sony-wh1000xm6
@@ -27,6 +28,11 @@ async function sendAlerts(db, dry) {
   if (pusher.enabled) console.log('push: ' + pusher.platforms.join(', '));
   const res = await checkAlerts({ db, mailer, pusher, siteUrl: process.env.SITE_URL || 'http://localhost:5174', max: +process.env.ALERT_MAX_EMAILS || 80, dryRun: dry, log: m => console.log('  ' + m) });
   console.log('alerts: ' + JSON.stringify(res));
+}
+
+async function updateDrops() {
+  try { console.log('drops: ' + await require('./drops').runDrops(null) + ' products updated'); }
+  catch (e) { console.log('drops: failed (' + e.message + ')'); process.exitCode = 1; }
 }
 
 async function main() {
@@ -75,6 +81,7 @@ async function main() {
       console.log('feed ' + feed.id + ' (' + feed.store_id + '): ' + res.status + (res.status === 'error' ? ' ' + (res.error || '') + ' ' + (res.message || '') : ', ' + res.items + ' items, ' + res.rejected + ' rejected'));
     }
     console.log(feeds.length + ' feeds, ' + failed + ' failed');
+    await updateDrops();   // new prices (and history rows) are in: refresh the price-drop numbers
     if ((process.env.RESEND_API_KEY && process.env.ALERT_FROM) || process.env.FCM_SERVICE_ACCOUNT_JSON || process.env.APNS_KEY_P8) await sendAlerts(db, false);   // after new prices are in, tell people whose target was reached
     return;
   }
@@ -87,6 +94,7 @@ async function main() {
     process.exitCode = r.sent ? 0 : 1;
     return;
   }
+  if (cmd === 'drops') { await updateDrops(); return; }
   if (cmd === 'alerts') {
     const { createSupabaseDb } = require('./db-supabase');
     await sendAlerts(createSupabaseDb(), opt.dry === 'true');
