@@ -121,7 +121,7 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
           {c && sub ? <> / <Link href={href(L, M, '/c/' + c.id + '/' + sub.id)}>{nm(L, sub)}</Link></> : null}
         </div>
         <div className="phead">
-          <Gallery photos={photos} />
+          <Gallery photos={photos.slice(0, 1)} />
           <div>
             <h1 dir="auto">{nm(L, p)}</h1>
             <div className="pmeta">

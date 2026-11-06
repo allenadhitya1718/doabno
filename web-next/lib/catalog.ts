@@ -29,28 +29,36 @@ export type Data = {
 /** A product with its offers in one market, as web-v2's items() returns it. */
 export type Item = { p: Product; offers: Offer[]; best: Offer; save: number; n: number };
 
-async function fetchLiveCatalog(): Promise<unknown | null> {
-  const url = process.env.SUPABASE_URL, key = process.env.SUPABASE_ANON_KEY;
-  if (!url || !key) return null;
+const DB_URL = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
+const DB_KEY = process.env.SUPABASE_ANON_KEY || '';
+
+// Throws on failure, so a failed request is never cached (the next request tries again).
+async function fetchLiveCatalog(): Promise<unknown> {
+  const r = await fetch(DB_URL + '/rest/v1/rpc/get_catalog', {
+    method: 'POST',
+    headers: { apikey: DB_KEY, Authorization: 'Bearer ' + DB_KEY, 'Content-Type': 'application/json' },
+    body: '{}',
+    signal: AbortSignal.timeout(8000),
+    cache: 'no-store', // caching is done by unstable_cache below
+  });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const j = await r.json();
+  if (!j || !Array.isArray(j.products) || !j.products.length) throw new Error('empty catalog');
+  return j;
+}
+
+// The database address is part of the cache key, so switching databases (or demo -> live) never serves an old answer.
+const cachedLive = unstable_cache(fetchLiveCatalog, ['doabno-catalog', DB_URL], { revalidate: REVALIDATE_SECONDS, tags: ['catalog'] });
+
+async function cachedCatalog(): Promise<unknown | null> {
+  if (!DB_URL || !DB_KEY) return null;
   try {
-    const r = await fetch(url.replace(/\/$/, '') + '/rest/v1/rpc/get_catalog', {
-      method: 'POST',
-      headers: { apikey: key, Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
-      body: '{}',
-      signal: AbortSignal.timeout(8000),
-      cache: 'no-store', // caching is done by unstable_cache below
-    });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const j = await r.json();
-    if (!j || !Array.isArray(j.products) || !j.products.length) throw new Error('empty catalog');
-    return j;
+    return await cachedLive();
   } catch (e) {
     console.warn('Catalog not loaded (' + (e as Error).message + '). Using demo data.');
     return null;
   }
 }
-
-const cachedCatalog = unstable_cache(fetchLiveCatalog, ['doabno-catalog'], { revalidate: REVALIDATE_SECONDS, tags: ['catalog'] });
 
 type Built = { data: Data; live: boolean; items: Partial<Record<Market, Item[]>> };
 let memo: { raw: unknown; built: Built } | null = null;
