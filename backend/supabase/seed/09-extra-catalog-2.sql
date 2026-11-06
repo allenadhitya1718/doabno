@@ -1899,4 +1899,7 @@ insert into public.feeds (store_id, format, schedule, url)
 select 'extra', 'scrape', 'daily', null
 where not exists (select 1 from public.feeds where store_id = 'extra' and format = 'scrape');
 
+-- eXtra also sells toys now listed here.
+update public.stores set categories = array(select distinct unnest(categories || array['kids']::text[])) where id = 'extra';
+
 commit;
