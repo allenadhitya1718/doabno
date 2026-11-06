@@ -17,4 +17,4 @@ GitHub > Actions > **Android build** > Run workflow (version number optional). A
 ## Notes
 - The camera permission is added for the barcode scanner; photos are chosen through the phone's own picker.
 - The barcode scanner uses the app's bundled reader (the Android web view has no BarcodeDetector in every version).
-- Push notifications: see `docs/push-notifications.md`.
+- Push notifications: see `docs/push-notifications.md`. The small notification icon is `res-overlay/drawable/ic_stat_doabno.xml` (white DOABNO symbol, 24dp) with the navy accent in `res-overlay/values/`; `scripts/apply-native-config.sh` copies them into the generated project and sets the `default_notification_icon` / `default_notification_color` manifest entries. The workflow must run that script after `cap add android` (one extra step).

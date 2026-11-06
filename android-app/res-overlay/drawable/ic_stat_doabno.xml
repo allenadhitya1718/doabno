@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOABNO status-bar / notification small icon: single-colour (white) silhouette of the brand symbol
+     (web-v2/assets/brand/doabno-symbol.svg): the "D" outline and its two bars. Android tints it; only alpha matters. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="168"
+    android:viewportHeight="168">
+    <group android:translateX="-8.5" android:translateY="-5">
+        <group android:translateX="6" android:translateY="6">
+            <path
+                android:pathData="M33,21 H79 C116,21 140,47 140,83 C140,119 116,145 79,145 H33 Z"
+                android:strokeColor="#FFFFFF"
+                android:strokeWidth="16"
+                android:strokeLineCap="round"
+                android:strokeLineJoin="round" />
+            <path
+                android:pathData="M53,72 H109"
+                android:strokeColor="#FFFFFF"
+                android:strokeWidth="14"
+                android:strokeLineCap="round" />
+            <path
+                android:pathData="M53,103 H92"
+                android:strokeColor="#FFFFFF"
+                android:strokeWidth="14"
+                android:strokeLineCap="round" />
+        </group>
+    </group>
+</vector>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Accent colour of notifications: DOABNO navy (the navy token in web-v2/assets/brand/doabno-tokens.css) -->
+    <color name="doabno_notification_color">#0E2A47</color>
+</resources>
