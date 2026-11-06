@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { lsGet, lsSet } from './store';
 import { useToast } from './Toast';
+import { useAccount } from '../account/AccountProvider';
 
 export function CopyCode({ code, label, copied }: { code: string; label: string; copied: string }) {
   const { show, node } = useToast();
@@ -42,7 +43,8 @@ export type PrLabels = {
 export function PrivacyRequestForm({ labels, notConnected }: { labels: PrLabels; notConnected: string }) {
   const [err, setErr] = useState('');
   const [done, setDone] = useState<{ r: string; e: string } | null>(null);
-  const submit = (ev: React.FormEvent<HTMLFormElement>) => {
+  const { enabled, acc, market, tx } = useAccount();
+  const submit = async (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
     const f = ev.currentTarget;
     const name = (f.elements.namedItem('name') as HTMLInputElement).value.trim();
@@ -50,14 +52,25 @@ export function PrivacyRequestForm({ labels, notConnected }: { labels: PrLabels;
     const ok = (f.elements.namedItem('confirm') as HTMLInputElement).checked;
     if (!name || !/^\S+@\S+\.\S+$/.test(email) || !ok) { setErr(labels.err); return; }
     setErr('');
-    setDone({ r: 'PR-' + Date.now().toString(36).toUpperCase(), e: email });
+    const ref = 'PR-' + Date.now().toString(36).toUpperCase();
+    if (enabled && acc) {
+      // Accounts on: the request is filed in the database (same call as web-v2).
+      try {
+        await acc.filePrivacyRequest({ reference: ref, type: (f.elements.namedItem('type') as HTMLSelectElement).value, name, email, details: (f.elements.namedItem('details') as HTMLTextAreaElement).value.trim(), market });
+      } catch { setErr(tx['pr.errSend'] || labels.err); return; }
+    } else {
+      const all = lsGet<unknown[]>('privacyRequests', []) || [];
+      all.push({ ref, type: (f.elements.namedItem('type') as HTMLSelectElement).value, name, email, details: (f.elements.namedItem('details') as HTMLTextAreaElement).value.trim(), at: Date.now() });
+      lsSet('privacyRequests', all);
+    }
+    setDone({ r: ref, e: email });
   };
   if (done) {
     return (
       <div className="card" role="status">
         <h2>{labels.doneT}</h2>
         <p>{labels.doneP.replace('{r}', done.r).replace('{e}', done.e)}</p>
-        <p className="muted small">{notConnected}</p>
+        {enabled ? null : <p className="muted small">{notConnected}</p>}
       </div>
     );
   }
@@ -72,7 +85,7 @@ export function PrivacyRequestForm({ labels, notConnected }: { labels: PrLabels;
       <label className="switch"><input type="checkbox" name="confirm" /><span>{labels.confirm}</span></label>
       {err ? <p className="form-err">{err}</p> : null}
       <button className="btn primary" type="submit">{labels.send}</button>
-      <p className="muted small">{labels.demo} {notConnected}</p>
+      {enabled ? null : <p className="muted small">{labels.demo} {notConnected}</p>}
     </form>
   );
 }

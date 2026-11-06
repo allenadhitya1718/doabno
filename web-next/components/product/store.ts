@@ -10,5 +10,5 @@ export const lsGet = <T,>(k: string, d: T): T => {
 };
 export const lsSet = (k: string, v: unknown) => {
   try { localStorage.setItem('doabno2.' + k, JSON.stringify(v)); } catch { /* private mode */ }
-  try { window.dispatchEvent(new Event('doabno-store')); } catch { /* ignore */ }
+  try { window.dispatchEvent(new CustomEvent('doabno:store', { detail: k })); } catch { /* ignore */ }
 };

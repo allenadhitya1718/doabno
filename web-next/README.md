@@ -61,13 +61,42 @@ npm run cf:preview   # runs the Worker locally on http://127.0.0.1:8787; values 
 npm run cf:deploy    # builds and deploys (needs `npx wrangler login`)
 ```
 
-### Deploying to Cloudflare (not done yet)
-1. **R2 bucket:** dashboard > R2 > Create bucket `doabno-next-cache` (or `npx wrangler r2 bucket create doabno-next-cache`).
-2. **Worker from Git (recommended):** Workers & Pages > Create > Import a repository. Project name `doabno-web` (must match `name` in `wrangler.jsonc`), root directory `web-next`, build command `npm ci && npm run cf:build`, deploy command `npx opennextjs-cloudflare deploy`. The build reads `../web-v2`, which Workers Builds has because it clones the whole repo.
-   Or from a computer: `npm ci`, `npx wrangler login`, `npm run cf:deploy`.
-3. **Variables** (none are secrets): `SUPABASE_URL`, `SUPABASE_ANON_KEY` (publishable key only), `SITE_URL`, `NEXT_PUBLIC_CLICK_OUT_URL`. Set them **both** under Settings > Variables (runtime) **and** Settings > Build > Variables, because pages are prerendered and `NEXT_PUBLIC_` values are baked in at build time. Changing them needs a rebuild.
-4. **Check:** open the `*.workers.dev` address, load `/en/sa` and a product page; the `x-nextjs-cache` header should say HIT.
-5. **Domain:** Settings > Domains & Routes > Custom domain (the DNS zone must be on Cloudflare). Then set `SITE_URL` to it and rebuild, because canonical links, hreflang and the sitemap use it. Submit `https://<domain>/sitemap.xml` in Google Search Console.
+### Deploying to Cloudflare (not done yet: each step below changes the Cloudflare account and needs the owner's OK)
+
+Account: `doabno@gmail.com` (the one Wrangler on the dev machine is signed in to). Today the Pages project `doabno` serves `doabno.com`, `www.doabno.com` and `doabno.pages.dev`, including `/app/` (mobile web app) and `/admin/`. The account has no R2 bucket yet.
+
+**The four settings** (all public values, none are secrets):
+
+| Name | Value |
+|---|---|
+| `SUPABASE_URL` | `https://jturenubwqxzesjlyjpi.supabase.co` |
+| `SUPABASE_ANON_KEY` | the publishable key `sb_publishable_…` from `web-v2/assets/config.js` (never `service_role`) |
+| `SITE_URL` | `https://doabno-web.<account subdomain>.workers.dev` while testing, `https://doabno.com` after the switch |
+| `NEXT_PUBLIC_CLICK_OUT_URL` | `https://jturenubwqxzesjlyjpi.supabase.co/functions/v1/go` |
+
+Pages are prerendered at build time and `NEXT_PUBLIC_` values are baked into the browser code, so the settings must be present **when building** (in `web-next/.env.production.local` for a deploy from this computer, or under Settings > Build > Variables with Workers Builds) as well as at run time (Worker > Settings > Variables). Changing one needs a rebuild.
+
+**Stage 1: test copy on workers.dev (production untouched)**
+1. Create the cache bucket: `npx wrangler r2 bucket create doabno-next-cache` (R2 has to be enabled on the account once; the free tier covers this site).
+2. Put the four settings in `web-next/.env.production.local`, then `npm run cf:deploy`. This creates the Worker `doabno-web` on `https://doabno-web.<subdomain>.workers.dev`.
+3. Add the same values as Worker variables in the dashboard (Worker > Settings > Variables).
+4. Check `/en/sa`, `/ar/sa`, a product page, `/sitemap.xml`; the `x-nextjs-cache` response header should say `HIT`.
+   Optional: connect Git instead (Workers & Pages > Create > Import a repository; project name `doabno-web`, root directory `web-next`, build `npm ci && npm run cf:build`, deploy `npx opennextjs-cloudflare deploy`), so each push to the chosen branch redeploys.
+
+**Stage 2: move doabno.com to the new site (production change)**
+`/app/` and `/admin/` must keep working, and they are only in the Pages project. Two safe ways:
+- **A. Worker routes for the website paths only (recommended).** Add routes on the `doabno.com` zone for `doabno.com/`, `doabno.com/en/*`, `doabno.com/ar/*`, `doabno.com/_next/*`, `doabno.com/assets/*`, `doabno.com/sitemap.xml`, `doabno.com/robots.txt` (and the same for `www`), pointing at `doabno-web`. Everything else (`/app/`, `/admin/`, old files) keeps coming from Pages. Easy to undo: delete the routes.
+- **B. Worker takes the whole domain** and the Next config proxies `/app/*` and `/admin/*` to `doabno.pages.dev` with rewrites. One place to manage, but every app and admin request goes through the Worker.
+Then set `SITE_URL=https://doabno.com`, rebuild and deploy, and submit `https://doabno.com/sitemap.xml` in Google Search Console. Old `doabno.com/#/…` links keep working (they land on `/` and are forwarded in the browser).
+
+## Tested again (2026-11-06, evening, after merging redesign-v2)
+
+- Live catalogue: 92 products, all with offers in Saudi Arabia only (other markets have no offers yet, so they show no products). `next build` prerenders 492 pages; the sitemap lists 394 addresses.
+- Store photos load from eXtra's and Nahdi's image servers under the Content-Security-Policy (no CSP errors in the console).
+- No stars, no review counts and no `aggregateRating` anywhere (all ratings are null now); no made-up barcode in JSON-LD.
+- Product page shows "Similar and alternative products" and "Cheaper alternatives" (shared `recommend.js`); offers without delivery days hide that line.
+- Sign-in dialog opens from the header (English and Arabic); "Set price alert" while signed out asks to sign in, as web-v2 does.
+- **Not tested:** signing in, signing up and syncing favourites and alerts with a real account. That needs a real or test account on the live project, which only the owner should create (test plan below).
 
 ## Tested (2026-11-06)
 
@@ -80,12 +109,13 @@ npm run cf:deploy    # builds and deploys (needs `npx wrangler login`)
 ## What is left
 
 - [ ] **Deploy:** create the R2 bucket and the Worker, set the variables, connect the domain, and submit the sitemap in Google Search Console. Then point doabno.com (or the pages.dev site) at the Worker and retire the web-v2 upload for the website. `app-v2` and the admin stay as they are.
-- [ ] **Sign-in:** sign-in, sign-up and account syncing are not ported. web-v2 does them with `assets/account.js`. `/account` is a placeholder, and favourites and alerts stay in this browser only.
+- [x] **Sign-in:** ported (`components/account/`), reusing web-v2's `assets/account.js` unchanged. Accounts switch on when `SUPABASE_URL` and `SUPABASE_ANON_KEY` are set at build time; optional `SOCIAL_LOGIN=google,apple`. Favourites and alerts sync to the account 0.4 s after a change and are merged on sign-in and on every page load.
+  - **Owner test still to do with a real account:** sign up (confirmation email lands on the site and signs in), sign in, add a favourite and an alert, reload, sign in on a second browser and check both appear, change a notification setting on /account, sign out, delete account. Then submit a privacy request while signed in.
 - [x] **Hero animation and currency selector:** ported.
   - The animated hero follows what is typed in the hero search box.
   - The currency select converts prices in the browser (`components/CurrencyApply.tsx`).
   - Not converted yet: prices that sit inside sentences, such as the alert target in the nav dropdown and the alert button text. JSON-LD always stays in the market currency.
-- [ ] **Offers without delivery days:** the line is hidden. Live eXtra offers have no `daysMin`/`daysMax`, and web-v2 shows "– days" for them, so the importer should fill those fields.
+- [x] **Offers without delivery days:** the line is hidden, as web-v2 now does.
 - [ ] **Smaller differences from web-v2:**
   - The navigation dropdown does not animate between panels.
   - The app banner phones are static.
@@ -93,4 +123,4 @@ npm run cf:deploy    # builds and deploys (needs `npx wrangler login`)
   - Internal links are plain `<a>` tags (full page loads) rather than `next/link`.
 - [ ] **Language for `/`:** `/` always redirects to `/en/sa`. A small middleware could pick Arabic or the market from the browser's language.
 - [ ] **Privacy request form:** shows the confirmation but is not connected to the database yet. web-v2 has the same limit.
-- [ ] **After launch:** watch Search Console for coverage and structured-data errors. Consider product pages only for the markets where a product has offers (today all 20 products have offers everywhere).
+- [ ] **After launch:** watch Search Console for coverage and structured-data errors. Consider product pages only for the markets where a product has offers (today only Saudi Arabia has offers).

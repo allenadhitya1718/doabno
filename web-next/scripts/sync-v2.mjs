@@ -47,3 +47,10 @@ wrapCommonJs('account.js', 'export const createAccount = module.exports.createAc
 wrapCommonJs('recommend.js', 'export const recommend = module.exports.recommend;\nexport const cheaper = module.exports.cheaper;');
 
 console.log('sync-v2: copied v2.css, assets and data.js from', v2);
+
+// 5. With --fresh-data (used by build and cf:build): drop the cached database answer from earlier builds,
+// so a build always prerenders today's catalogue instead of serving a stale copy while revalidating.
+if (process.argv.includes('--fresh-data')) {
+  fs.rmSync(path.join(root, '.next', 'cache', 'fetch-cache'), { recursive: true, force: true });
+  console.log('sync-v2: cleared the cached catalogue (.next/cache/fetch-cache)');
+}

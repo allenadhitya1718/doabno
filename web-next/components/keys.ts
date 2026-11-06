@@ -15,3 +15,9 @@ export const SAVED_KEYS = ['favsT', 'alertsT', 'sv.favsSub', 'alertsD', 'sv.empt
 
 export const SEARCH_KEYS = ['search.ph', 'search.hero', 'tab.search', 'recent', 'popular', 'sProducts', 'sBrands', 'sStores', 'searchFor', 'stores', 'store1'];
 export const CARD_KEYS = ['stores', 'store1', 'usually', 'lessN', 'viz.buyNow', 'compare', 'dropTag', 'drop.vs'];
+
+/** Text for sign-in, the auth dialog, the account page and sync messages (picked on the server and passed to AccountProvider). */
+export const ACCOUNT_KEYS = ['signin', 'siTitle', 'siGo', 'siDone', 'email', 'pass', 'ac.signup', 'ac.name', 'ac.have', 'ac.new', 'ac.live', 'ac.demo', 'ac.pw8', 'ac.consent', 'ac.marketing',
+  'foot.terms', 'foot.privacy', 'ac.err', 'ac.errName', 'ac.errAuth', 'ac.errConfirm', 'ac.errExists', 'ac.errWeak', 'ac.errRate', 'ac.errNet', 'ac.errGeneric', 'ac.checkMail', 'ac.signedUp',
+  'ac.or', 'ac.google', 'ac.apple', 'ac.confirmed', 'ac.errLink', 'ac.syncErr', 'ac.needSignIn', 'ac.title', 'ac.hello', 'ac.signout', 'ac.prefs', 'ac.notif', 'ac.promo', 'ac.saved',
+  'ac.data', 'ac.dataD', 'ac.export', 'ac.delete', 'ac.confirmDel', 'ac.deleted', 'favsT', 'alertsT', 'favsNav', 'alerts', 'pr.errSend'];

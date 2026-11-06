@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { lsGet, lsSet } from './store';
 import { fmtMoney, type MoneyFmt } from './PriceHistory';
 import { useToast } from './Toast';
+import { useAccount } from '../account/AccountProvider';
 
 type Alerts = Record<string, { target: number; email?: string; currency?: string; consent?: { marketing: boolean; at: number } }>;
 
@@ -19,7 +20,13 @@ export function AlertButton({ id, defaultTarget, currency, money, labels, privac
   const [err, setErr] = useState('');
   const dlg = useRef<HTMLDialogElement>(null);
   const { show, node } = useToast();
-  useEffect(() => { setAl((lsGet<Alerts>('alerts', {}) || {})[id] || null); }, [id]);
+  const { user, requireSignInForAlert } = useAccount();
+  useEffect(() => {
+    const read = () => setAl((lsGet<Alerts>('alerts', {}) || {})[id] || null);
+    read();
+    window.addEventListener('doabno:store', read); window.addEventListener('storage', read);
+    return () => { window.removeEventListener('doabno:store', read); window.removeEventListener('storage', read); };
+  }, [id]);
 
   const open = () => {
     if (al) {
@@ -29,6 +36,7 @@ export function AlertButton({ id, defaultTarget, currency, money, labels, privac
       setAl(null);
       return;
     }
+    if (!requireSignInForAlert()) return;   // accounts on and signed out: opens the sign-in dialog instead
     setErr('');
     dlg.current?.showModal();
   };
@@ -63,7 +71,7 @@ export function AlertButton({ id, defaultTarget, currency, money, labels, privac
             <input type="number" name="target" min={1} step={1} inputMode="decimal" defaultValue={defaultTarget} />
           </label>
           <label className="al-f"><span>{labels.email}</span>
-            <input type="email" name="email" autoComplete="email" placeholder="name@example.com" />
+            <input type="email" name="email" autoComplete="email" placeholder="name@example.com" defaultValue={user?.email || ''} key={user?.email || ''} />
           </label>
           <label className="switch"><input type="checkbox" name="consent" /><span>{labels.consent} (<a href={privacyHref}>{labels.privacy}</a>)</span></label>
           {err ? <p className="form-err">{err}</p> : null}

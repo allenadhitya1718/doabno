@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { href, storeSet, swapSeg, type Tx } from './clientlib';
 import { useChosenCurrency } from './currency';
+import { useAccount } from './account/AccountProvider';
 
 
 export function Prefs({ lang, market, markets, soon, tx, currencies, marketCurrency, syms, rates }: {
@@ -15,6 +16,7 @@ export function Prefs({ lang, market, markets, soon, tx, currencies, marketCurre
   const [search, setSearch] = useState('');
   useEffect(() => { setSearch(window.location.search); }, [pathname]);
   const cur = useChosenCurrency({ market: marketCurrency, rates, syms, lang });
+  const { user, openAuth } = useAccount();
   const other = lang === 'ar' ? 'en' : 'ar';
   return (
     <div className="util">
@@ -34,9 +36,9 @@ export function Prefs({ lang, market, markets, soon, tx, currencies, marketCurre
         </div>
         <div className="util-end">
           <a className="util-btn" id="langBtn" href={swapSeg(pathname, 0, other) + search} hrefLang={other} lang={other} onClick={() => storeSet('lang', other)}>{tx.lang}</a>
-          <a className="util-btn" id="signInBtn" href={href(lang, market, '/account')}>
+          <a className="util-btn" id="signInBtn" href={href(lang, market, '/account')} onClick={e => { if (!user) { e.preventDefault(); openAuth('signin'); } }}>
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
-            <span>{tx.signin}</span>
+            <span>{user && typeof user.name === 'string' && user.name ? user.name.split(' ')[0] : tx.signin}</span>
           </a>
         </div>
       </div>

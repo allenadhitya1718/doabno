@@ -4,12 +4,16 @@ import { lsGet, lsSet } from './store';
 
 export function FavToggle({ id, saveLabel, savedLabel }: { id: string; saveLabel: string; savedLabel: string }) {
   const [on, setOn] = useState(false);
-  useEffect(() => { setOn((lsGet<string[]>('favs', []) || []).includes(id)); }, [id]);
+  useEffect(() => {
+    const read = () => setOn((lsGet<string[]>('favs', []) || []).includes(id));
+    read();
+    window.addEventListener('doabno:store', read); window.addEventListener('storage', read);
+    return () => { window.removeEventListener('doabno:store', read); window.removeEventListener('storage', read); };
+  }, [id]);
   const toggle = () => {
     const favs = lsGet<string[]>('favs', []) || [];
     const next = favs.includes(id) ? favs.filter(x => x !== id) : favs.concat(id);
     lsSet('favs', next);
-    setOn(next.includes(id));
   };
   return (
     <button className="btn ghost block" type="button" id="favBtn" aria-pressed={on} onClick={toggle}>

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import { LANGS, MARKETS, isLang, isMarket, t, href, type Lang, type Market } from '@/lib/site';
+import { LANGS, MARKETS, isLang, isMarket, t } from '@/lib/site';
+import { AccountPage } from '@/components/account/AccountPage';
 
 type Params = { lang: string; market: string };
 
@@ -15,23 +15,9 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   return { title: { absolute: t(lang, 'ac.title') + ' | DOABNO' }, robots: { index: false, follow: false } };
 }
 
-/* Placeholder: sign-in and account sync still live in web-v2. */
-export default async function AccountPage({ params }: { params: Promise<Params> }) {
+/* Everything on this page depends on who is signed in, so the page itself is a client component (AccountPage); the account state lives in AccountProvider (the market layout). */
+export default async function AccountRoute({ params }: { params: Promise<Params> }) {
   const { lang, market } = await params;
   if (!isLang(lang) || !isMarket(market)) notFound();
-  const L: Lang = lang, M: Market = market;
-  return (
-    <div className="page">
-      <div className="wrap acc">
-        <div className="page-h"><div><h1>{t(L, 'ac.title')}</h1></div></div>
-        <section className="card">
-          <p>{L === 'ar' ? 'تسجيل الدخول وإدارة الحساب ما زالا يعملان في النسخة الحالية من الموقع (web-v2). سننقلهما إلى هذه النسخة قريبًا.' : 'Sign-in and account management are still handled in web-v2 for now. They will move to this version soon.'}</p>
-          <p>
-            <Link className="btn ghost sm" href={href(L, M, '/favorites')}>{t(L, 'favsNav')}</Link>{' '}
-            <Link className="btn ghost sm" href={href(L, M, '/alerts')}>{t(L, 'alerts')}</Link>
-          </p>
-        </section>
-      </div>
-    </div>
-  );
+  return <AccountPage />;
 }
