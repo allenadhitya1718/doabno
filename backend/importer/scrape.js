@@ -5,7 +5,7 @@
 // mapped it to (scrape_pages), and the page has to agree: the same barcode when the page gives one, the product's brand
 // in the page's name otherwise. Anything else is rejected, never guessed.
 const { FeedError } = require('./parse');
-const { gtinKey } = require('./normalize');
+const { gtinKey, PAGE_PRODUCT } = require('./normalize');
 
 const BOT_NAME = 'DOABNOBot';
 const USER_AGENT = BOT_NAME + '/1.0 (+https://doabno.pages.dev; price comparison)';
@@ -120,9 +120,10 @@ function pageMatches(page, product) {
   return !!page.name;
 }
 
-// A feed-style row for the importer (normalizeRow reads these keys). The barcode is ours: the page was matched to the product.
+// A feed-style row for the importer (normalizeRow reads these keys). The page was matched to the product, so the row
+// names it directly (products without a barcode work too); the barcode, when we have one, is ours.
 function rowFor(page, product, pageUrl) {
-  const row = { gtin: product.gtin, sku: page.sku || page.mpn, title: page.name, price: page.price, currency: page.currency,
+  const row = { [PAGE_PRODUCT]: product.id, gtin: product.gtin || undefined, sku: page.sku || page.mpn, title: page.name, price: page.price, currency: page.currency,
     availability: stockWord(page.availability), url: pageUrl };
   if (page.shipping !== undefined) row.shipping = page.shipping;
   return row;

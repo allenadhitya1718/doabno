@@ -62,14 +62,22 @@ function readRow(row) {
   };
 }
 
+// Rows from the store page reader carry the product they were read for under this key (a Symbol, so no feed column can set it).
+// Those rows need no barcode: the page was already matched to the product.
+const PAGE_PRODUCT = Symbol('pageProduct');
+
 // Returns { offer } or { reject: { reason } }.
 function normalizeRow(row, ctx) {
   const r = readRow(row);
   const ref = r.sku || r.gtin || r.title || '';
   const fail = reason => ({ reject: { reason, ref: String(ref).slice(0, 80) } });
-  if (!r.gtin) return fail('no_gtin');
-  const gtin = String(r.gtin).replace(/\D/g, '');
-  if (!gtinValid(gtin)) return fail('invalid_gtin');
+  const productId = row[PAGE_PRODUCT] || null;
+  let gtin = null;
+  if (!productId || r.gtin) {
+    if (!r.gtin) return fail('no_gtin');
+    gtin = String(r.gtin).replace(/\D/g, '');
+    if (!gtinValid(gtin)) return fail('invalid_gtin');
+  }
   const p = parsePrice(r.price);
   if (!p || p.amount <= 0) return fail('bad_price');
   const currency = (r.currency && String(r.currency).trim().toUpperCase()) || p.currency || ctx.marketCurrency;
@@ -81,9 +89,9 @@ function normalizeRow(row, ctx) {
   const reg = r.regular !== undefined ? parsePrice(r.regular) : null;
   const was = reg && reg.amount > p.amount ? convert(reg.amount) : null;
   return {
-    offer: { gtinKey: gtinKey(gtin), price, shipping: convert(ship ? ship.amount : 0), was_price: was, currency: ctx.marketCurrency,
+    offer: { gtinKey: gtin ? gtinKey(gtin) : null, productId, price, shipping: convert(ship ? ship.amount : 0), was_price: was, currency: ctx.marketCurrency,
       in_stock: parseStock(r.availability), url: /^https:\/\/\S{1,2040}$/i.test(String(r.url || '').trim()) ? String(r.url).trim() : null, ref: String(ref).slice(0, 80) }
   };
 }
 
-module.exports = { parsePrice, gtinValid, gtinKey, parseStock, readRow, normalizeRow };
+module.exports = { parsePrice, gtinValid, gtinKey, parseStock, readRow, normalizeRow, PAGE_PRODUCT };
