@@ -76,7 +76,16 @@ Account: `doabno@gmail.com` (the one Wrangler on the dev machine is signed in to
 
 Pages are prerendered at build time and `NEXT_PUBLIC_` values are baked into the browser code, so the settings must be present **when building** (in `web-next/.env.production.local` for a deploy from this computer, or under Settings > Build > Variables with Workers Builds) as well as at run time (Worker > Settings > Variables). Changing one needs a rebuild.
 
-**Stage 1: test copy on workers.dev (production untouched)**
+**Stage 1: test copy on workers.dev: DONE 2026-11-06** at **https://doabno-web.doabno.workers.dev** (bucket `doabno-next-cache` created, Worker `doabno-web` deployed from the dev computer). Checked there: every page type in English and Arabic, 404s, `x-nextjs-cache: HIT`, CSP header, canonical links on the workers.dev address, sitemap (394 addresses), old `/#/p/…` link forwarding, Visit store through the `go` function, no console errors.
+
+To redeploy the test copy from this computer (`.env.production.local` holds the same four values for the build). Pass the values as `--var` every time: a deploy without them resets the Worker's variables to `wrangler.jsonc`, where `SITE_URL` is a placeholder.
+
+```bash
+npm run cf:build
+npx opennextjs-cloudflare deploy -- --var SITE_URL:https://doabno-web.doabno.workers.dev --var SUPABASE_URL:https://jturenubwqxzesjlyjpi.supabase.co --var SUPABASE_ANON_KEY:<publishable key> --var NEXT_PUBLIC_CLICK_OUT_URL:https://jturenubwqxzesjlyjpi.supabase.co/functions/v1/go
+```
+
+Original stage 1 steps, for reference:
 1. Create the cache bucket: `npx wrangler r2 bucket create doabno-next-cache` (R2 has to be enabled on the account once; the free tier covers this site).
 2. Put the four settings in `web-next/.env.production.local`, then `npm run cf:deploy`. This creates the Worker `doabno-web` on `https://doabno-web.<subdomain>.workers.dev`.
 3. Add the same values as Worker variables in the dashboard (Worker > Settings > Variables).
