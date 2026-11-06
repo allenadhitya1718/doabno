@@ -26,7 +26,7 @@ Create each in the company's name (or transfer to it), with a shared company ema
 
 | Account | Used for | Status | Cost |
 |---|---|---|---|
-| Supabase | Database, login, access rules | Created (project `hmanlftkhvruqgvkencn`, Frankfurt, free plan) | $0; Pro $25/mo when the 500 MB fills or it pauses |
+| Supabase | Database, login, access rules | Created (project `jturenubwqxzesjlyjpi`, Singapore, free plan; recreated 2026-11-06 after the first project was deleted) | $0; Pro $25/mo when the 500 MB fills or it pauses |
 | GitHub | The code, scheduled jobs | Repo `allenadhitya1718/doabno` (private) | $0 |
 | Cloudflare | Hosting the three pages | **To create** | $0; $5/mo only if traffic needs it |
 | Resend | Price-drop and sign-up emails | **To create** | $0 up to 100 emails/day |

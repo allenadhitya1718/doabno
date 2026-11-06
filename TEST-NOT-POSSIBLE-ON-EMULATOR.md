@@ -28,7 +28,7 @@ Companion to [TEST-RESULTS-EMULATOR.md](TEST-RESULTS-EMULATOR.md). Test IDs refe
 | F-16, F-17, F-20 (real feed errors, secret handling, real import) | Needs real feeds and `FEED_…` secrets |
 
 ## 3. Skipped to protect the live database (needs a throwaway project)
-These would change or try to change data in the real project `hmanlftkhvruqgvkencn`:
+These would change or try to change data in the real project `jturenubwqxzesjlyjpi`:
 - DB-4 for `coupons` (the live response was a parse error, which proves nothing about permission), and write probes on other tables (PATCH/DELETE).
 - DB-5 anonymous insert into `privacy_requests`; A-AC-6 to A-AC-9 (privacy form submissions).
 - DB-6, DB-7, DB-9 (shopper A vs shopper B, analyst calling owner-only functions): need two real shopper accounts and one analyst.

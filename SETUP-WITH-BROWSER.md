@@ -27,7 +27,7 @@ Other rules:
 
 ## 1. Before you start
 1. `git pull`, read `ROADMAP.md`. Add a row for what you are doing (for example "Account setup, browser") and push it first.
-2. Everything below is for repo `allenadhitya1718/doabno`, Supabase project `hmanlftkhvruqgvkencn` (Frankfurt). The website, app and admin are already built and merged into `main` (commit `09d9380` or later). All seven database files `0001` to `0007` have been run (confirmed by the owner on 2026-10-13).
+2. Everything below is for repo `allenadhitya1718/doabno`, Supabase project `jturenubwqxzesjlyjpi` (Frankfurt). The website, app and admin are already built and merged into `main` (commit `09d9380` or later). All seven database files `0001` to `0007` have been run (confirmed by the owner on 2026-10-13).
 3. Ask the person for: the **domain name** they want (or whether they already own one) and the **company email** the accounts should use.
 
 ## 2. Open the sign-in tabs
@@ -71,7 +71,7 @@ Tick the matching boxes in `remainingthings.md` as you finish, and push.
 3. Run **Import store feeds** once: it should finish cleanly even with no feeds yet.
 
 ### E. Repo edits after the function and domain exist
-- In all three `*/assets/config.js` (`web-v2`, `app-v2`, `admin-v2`) set `clickOutUrl: 'https://hmanlftkhvruqgvkencn.supabase.co/functions/v1/go'`. Never add a secret key. Run `cd backend && npm test`, commit, push small, tell the person.
+- In all three `*/assets/config.js` (`web-v2`, `app-v2`, `admin-v2`) set `clickOutUrl: 'https://jturenubwqxzesjlyjpi.supabase.co/functions/v1/go'`. Never add a secret key. Run `cd backend && npm test`, commit, push small, tell the person.
 - Update the Done / Queued lists in `ROADMAP.md` and tick boxes in `remainingthings.md`.
 
 ### F. Live checks (launch checklist, `remainingthings.md` section 9)

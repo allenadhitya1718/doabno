@@ -107,7 +107,7 @@ Two jobs: price-drop alert emails (sent by the importer job), and sign-up / conf
 - Never put these values in the repo, in `config.js`, or in chat.
 
 ### 2.5 Supabase *(Owner, about 30 minutes)*
-Already created (project `hmanlftkhvruqgvkencn`, Frankfurt, free). To finish:
+Already created (project `jturenubwqxzesjlyjpi`, Frankfurt, free). To finish:
 1. [ ] **Ownership:** make sure the project sits in an organization owned by the company; add the technical people as members; 2FA on.
 2. [ ] **SQL Editor:** run `backend/supabase/migrations/0001` to `0007` in order, then the two seed files only if demo data is wanted. Done so far: 0001 to 0004. **Still to run: `0005_alerts.sql`, `0006_click_stats.sql` and `0007_admin_people.sql`.**
 3. [ ] **First owner:** after that person signs up on the website, run the SQL in `backend/README.md` ("Making the first admin"). Done once for the current owner account.
@@ -169,7 +169,7 @@ Done and tested. Owners add team members in Admin, Settings, Team (the person si
 
 ### 5.3 Google sign-in *(Owner + Dev, about 1 hour, free)*
 1. [ ] Google Cloud Console: create a project, set up the **OAuth consent screen** (app name DOABNO, support email, the domain, privacy-policy and terms links).
-2. [ ] Credentials, **Create OAuth client ID**, type Web application. Authorized redirect URI: `https://hmanlftkhvruqgvkencn.supabase.co/auth/v1/callback`.
+2. [ ] Credentials, **Create OAuth client ID**, type Web application. Authorized redirect URI: `https://jturenubwqxzesjlyjpi.supabase.co/auth/v1/callback`.
 3. [ ] Copy the client ID and secret into Supabase, Authentication, Providers, **Google**, enable.
 4. [ ] In the three `assets/config.js` files set `socialLogin: ['google']` (add `'apple'` later), commit, push. The buttons appear in the website dialog and the app profile.
 5. [ ] Test sign-in end to end.
@@ -177,7 +177,7 @@ Done and tested. Owners add team members in Admin, Settings, Team (the person si
 ### 5.4 Apple sign-in *(Client company + Dev, needs Apple Developer Program, $99/year)*
 1. [ ] Enrol the company in the Apple Developer Program.
 2. [ ] Create an **App ID**, a **Services ID** (the web login), and a **key** with Sign in with Apple; note Team ID, Key ID, Services ID.
-3. [ ] Return URL: `https://hmanlftkhvruqgvkencn.supabase.co/auth/v1/callback`; add the domain.
+3. [ ] Return URL: `https://jturenubwqxzesjlyjpi.supabase.co/auth/v1/callback`; add the domain.
 4. [ ] Supabase, Providers, **Apple**: enter the IDs and key. Apple client secrets expire every 6 months at most: put a reminder in the calendar to renew it.
 5. [ ] Add `'apple'` to `socialLogin` in `config.js`.
 
@@ -188,7 +188,7 @@ Done and tested. Owners add team members in Admin, Settings, Team (the person si
 ### 5.6 Click tracking *(Owner, about 20 minutes, free)*
 1. [ ] Supabase, Edge Functions, create function `go` from `backend/supabase/functions/go/index.ts`, **JWT verification off**; or in a terminal from the `backend` folder: `supabase functions deploy go` (settings file included).
 2. [ ] Function secrets: `CLICK_SALT` (any long random text) and `SITE_URL` (`https://domain`).
-3. [ ] In the three `config.js` files set `clickOutUrl: 'https://hmanlftkhvruqgvkencn.supabase.co/functions/v1/go'`, commit, push.
+3. [ ] In the three `config.js` files set `clickOutUrl: 'https://jturenubwqxzesjlyjpi.supabase.co/functions/v1/go'`, commit, push.
 4. [ ] Test with an offer that has a store link: click "Visit store", you should land on the store, and Admin, Clicks and revenue should show the click (zero before real clicks).
 5. [ ] This is also what earns commission, so test it with each network's own tracking link format.
 
