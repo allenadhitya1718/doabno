@@ -7,7 +7,8 @@ export const LISTING_KEYS = ['filters', 'sort', 's.rel', 's.pop', 's.price', 's.
 
 export const NAV_KEYS = ['nav.cats', 'deals', 'alerts', 'favsNav', 'foot.aboutUs', 'coupons', 'nav.all', 'alertsE', 'favsE', 'target', 'now', 'from'];
 
-export const PREFS_KEYS = ['marketHd', 'lang', 'signin', 'soon'];
+export const PREFS_KEYS = ['marketHd', 'currencyLbl', 'lang', 'signin', 'soon'];
+export const VIZ_KEYS = ['viz.s0', 'viz.s1', 'viz.s2', 'viz.s3', 'viz.s4', 'viz.low', 'viz.save', 'viz.more', 'viz.drop', 'viz.today', 'viz.alt', 'viz.buy', 'bestTag'];
 
 export const SAVED_KEYS = ['favsT', 'alertsT', 'sv.favsSub', 'alertsD', 'sv.emptyF', 'sv.emptyA', 'sv.emptyFd', 'sv.emptyAd', 'sv.browse', 'sv.nDrops', 'sv.lowest', 'sv.nReached', 'sv.closest',
   'sv.nSaved', 'sv.nAlerts', 'sv.unsave', 'al.reachedT', 'al.below', 'al.above', 'al.view', 'remove', 'now', 'target'];

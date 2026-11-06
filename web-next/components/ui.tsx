@@ -20,7 +20,10 @@ export const Star = () => (
   <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" fill="currentColor" /></svg>
 );
 
-export const Money = ({ children }: { children: ReactNode }) => <span className="money">{children}</span>;
+/** A price. v / c (value and currency code, default = market currency) let CurrencyApply convert it in the browser. */
+export const Money = ({ children, v, c, dec }: { children: ReactNode; v?: number; c?: string; dec?: boolean }) => (
+  <span className="money" data-v={v} data-c={v == null ? undefined : c} data-d={dec ? 1 : undefined}>{children}</span>
+);
 
 export type Photo = { a: string; b: string } | null;
 /** Product photo (plain img, hotlinked). */

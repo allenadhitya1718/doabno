@@ -28,8 +28,8 @@ export function AppBanner({ items, lang, market, data }: { items: Item[]; lang: 
           <div className="pd-top"><Logo /><span className="pd-heart on"><HeartIcon on /></span></div>
           <div className="mp-hero"><Thumb photo={photoOf(data, feat.p, 320, 320)} w={320} h={320} />{feat.p.drop >= 3 ? <span className="mp-drop">↓ {Math.round(feat.p.drop)}%</span> : null}</div>
           <b className="mp-name" dir="auto">{nm(lang, feat.p)}</b><small className="mp-meta">{sl(feat.n)} · {t(lang, 'verified', { n: ago(lang, best.updatedMin) })}</small>
-          <div className="mp-best"><small>{t(lang, 'viz.low')}</small><div className="mp-bp"><b className="money">{mt(best.total)}</b><LogoBox name={best.store.name} color={best.store.color || '#0D2942'} domain={dom(best.store.id)} /></div><span>{best.store.name} · {t(lang, 'bestTag')}</span></div>
-          <ul className="mp-rows">{rows.slice(1).map((o: any) => <li key={o.store.id}><LogoBox name={o.store.name} color={o.store.color || '#0D2942'} domain={dom(o.store.id)} /><span>{o.store.name}</span><b className="money">{mt(o.total)}</b></li>)}</ul>
+          <div className="mp-best"><small>{t(lang, 'viz.low')}</small><div className="mp-bp"><b className="money" data-v={best.total} data-c={cur}>{mt(best.total)}</b><LogoBox name={best.store.name} color={best.store.color || '#0D2942'} domain={dom(best.store.id)} /></div><span>{best.store.name} · {t(lang, 'bestTag')}</span></div>
+          <ul className="mp-rows">{rows.slice(1).map((o: any) => <li key={o.store.id}><LogoBox name={o.store.name} color={o.store.color || '#0D2942'} domain={dom(o.store.id)} /><span>{o.store.name}</span><b className="money" data-v={o.total} data-c={cur}>{mt(o.total)}</b></li>)}</ul>
           <div className="mp-chart"><svg viewBox="0 0 200 44" preserveAspectRatio="none"><path d={path + ' L200 44 L0 44 Z'} fill="rgba(31,169,113,.12)" /><path d={path} fill="none" stroke="#1FA971" strokeWidth="2" vectorEffect="non-scaling-stroke" /></svg></div>
           <span className="mp-btn">{t(lang, 'p.visit', { s: best.store.name })}</span>
         </div></div>
@@ -49,7 +49,7 @@ export function AppBanner({ items, lang, market, data }: { items: Item[]; lang: 
     <div className="phone side"><div className="phone-screen"><div className="pd-top"><Logo /></div><h4 className="sp-h">{t(lang, 'app.deals')}</h4>
       {pool.slice().sort((a, b) => b.p.drop - a.p.drop).slice(0, 4).map(i => (
         <div className="sp-row" key={i.p.id}><span className="sp-img"><Thumb photo={photoOf(data, i.p, 40, 40)} w={40} h={40} /></span>
-          <span className="sp-t"><b dir="auto">{nm(lang, i.p)}</b><small><strong className="money">{mt(i.best.total)}</strong><em className="dn">↓ {Math.round(i.p.drop)}%</em></small></span></div>
+          <span className="sp-t"><b dir="auto">{nm(lang, i.p)}</b><small><strong className="money" data-v={i.best.total} data-c={cur}>{mt(i.best.total)}</strong><em className="dn">↓ {Math.round(i.p.drop)}%</em></small></span></div>
       ))}
     </div></div>
   );

@@ -7,8 +7,10 @@ import { LogoBox, Money, SearchIcon, Arrow, Thumb } from './ui';
 import type { SearchIndex } from './slim';
 
 
-export function SearchBox({ lang, market, index, tx, variant = 'hero', initial = '' }: {
+export function SearchBox({ lang, market, index, tx, variant = 'hero', initial = '', onQueryChange }: {
   lang: string; market: string; index: SearchIndex; tx: Tx; variant?: 'hero' | 'page'; initial?: string;
+  /** Called with the raw input text on every change (the hero uses it to switch the animated comparison). */
+  onQueryChange?: (q: string) => void;
 }) {
   const router = useRouter();
   const [q, setQ] = useState(initial);
@@ -62,7 +64,7 @@ export function SearchBox({ lang, market, index, tx, variant = 'hero', initial =
       action={href(lang, market, '/search')} onSubmit={e => { e.preventDefault(); go(q); (document.activeElement as HTMLElement | null)?.blur(); }}>
       <svg className="si" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2" /><path d="M20 20l-4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
       <input type="search" id={ids.i} name="q" value={q} placeholder={tx['search.hero']} aria-label={tx['search.ph']} role="combobox" aria-expanded={open} aria-controls={ids.s}
-        onFocus={() => setOpen(true)} onChange={e => { setQ(e.target.value); setOpen(true); }} onKeyDown={onKey} />
+        onFocus={() => setOpen(true)} onChange={e => { setQ(e.target.value); setOpen(true); onQueryChange?.(e.target.value); }} onKeyDown={onKey} />
       <button className="btn go" type="submit" aria-label={tx['tab.search']}><Arrow /></button>
       <div className="suggest" id={ids.s} hidden={!open} ref={box} onMouseDown={e => e.preventDefault()} onClick={e => { if ((e.target as HTMLElement).closest('a')) setOpen(false); }}>
         {!t ? (
@@ -78,7 +80,7 @@ export function SearchBox({ lang, market, index, tx, variant = 'hero', initial =
               <a key={p.id} className={cls()} href={href(lang, market, '/p/' + p.id)}>
                 <span className="ico"><Thumb photo={p.photo} w={36} h={36} /></span>
                 <span dir="auto">{nm(p)}<small>{p.brand} · {sl(p.n)}</small></span>
-                <span className="px"><Money>{p.text}</Money></span>
+                <span className="px"><Money v={p.total} c={index.cur}>{p.text}</Money></span>
               </a>
             ))}
             {brands.length ? <div className="grp">{tx.sBrands}</div> : null}

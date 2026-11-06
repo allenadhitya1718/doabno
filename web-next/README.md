@@ -81,7 +81,11 @@ npm run cf:deploy    # builds and deploys (needs `npx wrangler login`)
 
 - [ ] **Deploy:** create the R2 bucket and the Worker, set the variables, connect the domain, and submit the sitemap in Google Search Console. Then point doabno.com (or the pages.dev site) at the Worker and retire the web-v2 upload for the website. `app-v2` and the admin stay as they are.
 - [ ] **Sign-in:** sign-in, sign-up and account syncing are not ported. web-v2 does them with `assets/account.js`. `/account` is a placeholder, and favourites and alerts stay in this browser only.
-- [ ] **Hero animation and currency selector:** being ported now (see the commit log). Until that lands, the hero is a static card and prices show in the market currency only.
+- [x] **Hero animation and currency selector:** ported.
+  - The animated hero follows what is typed in the hero search box.
+  - The currency select converts prices in the browser (`components/CurrencyApply.tsx`).
+  - Not converted yet: prices that sit inside sentences, such as the alert target in the nav dropdown and the alert button text. JSON-LD always stays in the market currency.
+- [ ] **Offers without delivery days:** the line is hidden. Live eXtra offers have no `daysMin`/`daysMax`, and web-v2 shows "– days" for them, so the importer should fill those fields.
 - [ ] **Smaller differences from web-v2:**
   - The navigation dropdown does not animate between panels.
   - The app banner phones are static.

@@ -5,7 +5,7 @@ import { Dot } from './Dot';
 import { DOMAINS } from '@/lib/strings';
 
 export function Money({ lang, data, currency, v, dec }: { lang: Lang; data: Data; currency: string; v: number; dec?: boolean }) {
-  return <span className="money">{moneyText(lang, data.CURRENCIES, currency, v, dec)}</span>;
+  return <span className="money" data-v={v} data-c={currency} data-d={dec ? 1 : undefined}>{moneyText(lang, data.CURRENCIES, currency, v, dec)}</span>;
 }
 
 export function ago(lang: Lang, m: number): string {

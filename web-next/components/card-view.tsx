@@ -5,6 +5,13 @@ import type { Slim } from './slim';
 
 export const storesLabel = (tx: Tx, n: number) => (n === 1 ? tx.store1 : fmt(tx.stores, { n }));
 
+/** "Usually {x}" with the price in its own convertible span. */
+const usually = (tpl: string | undefined, s: Slim) => {
+  const parts = (tpl ?? '').split('{x}');
+  if (parts.length !== 2) return fmt(tpl, { x: s.usual });
+  return <>{parts[0]}<Money v={s.usualV} c={s.cur}>{s.usual}</Money>{parts[1]}</>;
+};
+
 /** Square listing card: image, chips, title, price, "usually" line, buy button. */
 export function ListCardView({ s, lang, market, tx }: { s: Slim; lang: string; market: string; tx: Tx }) {
   const hasDrop = s.drop >= 3;
@@ -17,9 +24,9 @@ export function ListCardView({ s, lang, market, tx }: { s: Slim; lang: string; m
         <span className="sq-c rate"><Star />{s.rating.toFixed(1)} ({rv})</span>
       </div>
       <h3 dir="auto">{lang === 'ar' ? s.ar : s.en}</h3>
-      <div className="sq-pr"><LogoBox name={s.store.name} color={s.store.color} domain={s.store.domain} /><b><Money>{s.text}</Money></b></div>
+      <div className="sq-pr"><LogoBox name={s.store.name} color={s.store.color} domain={s.store.domain} /><b><Money v={s.total} c={s.cur}>{s.text}</Money></b></div>
       <div className="sq-us">
-        {hasDrop ? <><span>{fmt(tx.usually, { x: s.usual })}</span><em>{fmt(tx.lessN, { n: Math.round(s.drop) })}</em></> : <span>{storesLabel(tx, s.n)}</span>}
+        {hasDrop ? <><span>{usually(tx.usually, s)}</span><em>{fmt(tx.lessN, { n: Math.round(s.drop) })}</em></> : <span>{storesLabel(tx, s.n)}</span>}
       </div>
       <span className="btn ghost sq-buy">{tx['viz.buyNow']}</span>
     </a>
@@ -32,7 +39,7 @@ export function ProductCardView({ s, lang, market, tx }: { s: Slim; lang: string
     <a className="pc" href={href(lang, market, '/p/' + s.id)}>
       <div className="im"><Thumb photo={s.photo} w={260} h={120} /></div>
       <h3 dir="auto">{lang === 'ar' ? s.ar : s.en}</h3>
-      <div className="pr"><Money>{s.text}</Money></div>
+      <div className="pr"><Money v={s.total} c={s.cur}>{s.text}</Money></div>
       <div className="was">{s.drop >= 3 ? <><span className="tag drop">{fmt(tx.dropTag, { n: Math.round(s.drop) })}</span><span>{tx['drop.vs']}</span></> : null}</div>
       <div className="meta">{s.store.name} · {storesLabel(tx, s.n)}</div>
       <span className="btn ghost sm">{tx.compare} <Arrow /></span>

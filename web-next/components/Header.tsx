@@ -17,6 +17,8 @@ export async function Header({ lang, market }: { lang: Lang; market: Market }) {
     <>
       <Prefs lang={lang} market={market} tx={dict(lang, PREFS_KEYS)}
         markets={MARKETS.map(m => ({ id: m, name: nm(lang, MARKET_NAMES[m]) }))}
+        currencies={Object.keys(data.CURRENCIES)} marketCurrency={cur} rates={data.RATES}
+        syms={Object.fromEntries(Object.keys(data.CURRENCIES).map(k => [k, data.CURRENCIES[k][lang]]))}
         soon={(SOON as { en: string; ar: string }[]).map(s => nm(lang, s))} />
       <NavBar lang={lang} market={market} tx={dict(lang, NAV_KEYS)} sym={sym}
         cats={data.CATEGORIES.map(c => ({ id: c.id, name: nm(lang, c), icon: c.icon, subs: c.subs.map(s => ({ id: s.id, name: nm(lang, s) })) }))}

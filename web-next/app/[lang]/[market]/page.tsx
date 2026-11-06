@@ -1,15 +1,17 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { BRAND_DOMAINS, ABOUT, DOMAINS } from '../../../lib/strings';
-import { alternates, href, isLang, isMarket, moneyText, nm, t, MARKET_NAMES, type Lang, type Market } from '../../../lib/site';
+import { alternates, href, isLang, isMarket, nm, t, MARKET_NAMES, type Lang, type Market } from '../../../lib/site';
 import { getData, getItems } from '../../../lib/catalog';
 import { AppBanner } from '../../../components/AppBanner';
 import { ListCard, ProductCard } from '../../../components/cards';
 import { dict } from '../../../components/dict';
-import { SearchBox } from '../../../components/SearchBox';
-import { SEARCH_KEYS } from '../../../components/keys';
+import { HeroSearch } from '../../../components/HeroSearch';
+import { HeroViz } from '../../../components/HeroViz';
+import { vizItems } from '../../../components/vizdata';
+import { SEARCH_KEYS, VIZ_KEYS } from '../../../components/keys';
 import { searchIndex, photoOf } from '../../../components/slim';
-import { Arrow, Check, LogoBox, Money, Thumb } from '../../../components/ui';
+import { Check, LogoBox, Thumb } from '../../../components/ui';
 
 export const revalidate = 900;
 
@@ -39,7 +41,8 @@ export default async function Home({ params }: P) {
   const popularRows = all.slice().sort((a, b) => b.p.reviews - a.p.reviews).slice(0, 8);
   const drops = all.slice().sort((a, b) => b.p.drop - a.p.drop).slice(0, 4);
   const cur = data.MARKETS[market].currency;
-  const mt = (v: number) => moneyText(lang, data.CURRENCIES, cur, v);
+  const viz = vizItems(all, lang, data, market);
+  const cx = { market: cur, rates: data.RATES, lang, syms: Object.fromEntries(Object.keys(data.CURRENCIES).map(k => [k, data.CURRENCIES[k][lang]])) };
   const about = (ABOUT as Record<string, any>)[lang] || ABOUT.en;
   const nodes = promoNodes(lang);
   const dom = (id: string) => (DOMAINS as Record<string, string>)[id];
@@ -51,26 +54,15 @@ export default async function Home({ params }: P) {
           <div>
             <h1 dangerouslySetInnerHTML={{ __html: t(lang, 'hero.title') }} />
             <p className="sub">{t(lang, 'hero.sub')}</p>
-            <SearchBox lang={lang} market={market} index={searchIndex(all, lang, data, market)} tx={dict(lang, SEARCH_KEYS)} variant="hero" />
+            <HeroSearch lang={lang} market={market} index={searchIndex(all, lang, data, market)} tx={dict(lang, SEARCH_KEYS)} />
             <div className="chips-row"><span className="lbl">{t(lang, 'hero.try')}</span>
               {data.POPULAR.slice(0, 4).map(r => <a key={r} className="chip" href={href(lang, market, '/search?q=' + encodeURIComponent(r))}>{r}</a>)}
             </div>
             <ul className="trust">{['trust.1', 'trust.2', 'trust.3', 'trust.4'].map(k => <li key={k}><Check />{t(lang, k)}</li>)}</ul>
           </div>
           {feat ? (
-            <div className="viz-wrap">
-              <div style={{ background: '#fff', borderRadius: 24, boxShadow: '0 14px 40px rgba(13,41,66,.12)', padding: 18, textAlign: 'center' }}>
-                <Thumb photo={photoOf(data, feat.p, 360, 300)} w={360} h={300} />
-                <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 8 }}>{t(lang, 'viz.low')}</p>
-                <p style={{ fontSize: 28, fontWeight: 800 }}><Money>{mt(feat.best.total)}</Money></p>
-                <p style={{ fontSize: 13, color: 'var(--muted)' }}>{t(lang, 'viz.save', { x: mt(feat.save) })} · {t(lang, 'stores', { n: feat.n })}</p>
-              </div>
-              <a className="viz-cta" href={href(lang, market, '/p/' + feat.p.id)} aria-label={t(lang, 'viz.buy', { p: nm(lang, feat.p), s: feat.best.store.name })}>
-                <span className="vc-logo"><LogoBox name={feat.best.store.name} color={feat.best.store.color || '#0D2942'} domain={dom(feat.best.store.id)} /></span>
-                <span className="vc-info"><span className="vc-best">{t(lang, 'bestTag')} · {feat.best.store.name}</span><span className="vc-name" dir="auto">{nm(lang, feat.p)}</span></span>
-                <b className="vc-price money">{mt(feat.best.total)}</b><span className="vc-go" aria-hidden="true"><Arrow /></span>
-              </a>
-            </div>
+            <HeroViz lang={lang} market={market} items={viz} featId={feat.p.id} stores={(data.STORES[market] || []).map((s: any) => ({ id: s.id, name: s.name }))}
+              tx={dict(lang, VIZ_KEYS)} cx={cx} />
           ) : null}
         </div>
         <div className="wrap">

@@ -75,8 +75,8 @@ export function Saved({ kind, items, lang, market, tx, cardTx, sym }: { kind: 'f
             <div className="al-b">
               <div className="al-top"><h3 dir="auto"><a href={href(lang, market, '/p/' + r.i.id)}>{nm(r.i)}</a></h3><span className="al-st">{r.hit ? tx['al.reachedT'] : '↓ ' + m(r.gap)}</span></div>
               <div className="al-px">
-                <div><small>{fmt(tx.now, { x: '' }).trim()}</small><b><Money>{m(r.now)}</Money></b></div>
-                <div><small>{fmt(tx.target, { x: '' }).trim()}</small><b className="tg"><Money>{m(r.tg)}</Money></b></div>
+                <div><small>{fmt(tx.now, { x: '' }).trim()}</small><b><Money v={r.now}>{m(r.now)}</Money></b></div>
+                <div><small>{fmt(tx.target, { x: '' }).trim()}</small><b className="tg"><Money v={r.tg}>{m(r.tg)}</Money></b></div>
               </div>
               <div className="al-bar" role="progressbar" aria-valuenow={Math.round(r.pc)} aria-valuemin={0} aria-valuemax={100}><i style={{ width: r.pc.toFixed(0) + '%' }} /></div>
               <p className="al-note">{r.hit ? fmt(tx['al.below'], { x: m(r.gap) }) : fmt(tx['al.above'], { x: m(r.gap) })}{alerts[r.i.id].email ? ' · ' + alerts[r.i.id].email : ''}</p>

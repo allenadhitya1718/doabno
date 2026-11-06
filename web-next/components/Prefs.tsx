@@ -3,24 +3,32 @@
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { href, storeSet, swapSeg, type Tx } from './clientlib';
+import { useChosenCurrency } from './currency';
 
 
-export function Prefs({ lang, market, markets, soon, tx }: {
+export function Prefs({ lang, market, markets, soon, tx, currencies, marketCurrency, syms, rates }: {
   lang: string; market: string; markets: { id: string; name: string }[]; soon: string[]; tx: Tx;
+  currencies: string[]; marketCurrency: string; syms: Record<string, string>; rates: Record<string, number>;
 }) {
   const pathname = usePathname() || href(lang, market);
   const router = useRouter();
   const [search, setSearch] = useState('');
   useEffect(() => { setSearch(window.location.search); }, [pathname]);
+  const cur = useChosenCurrency({ market: marketCurrency, rates, syms, lang });
   const other = lang === 'ar' ? 'en' : 'ar';
   return (
     <div className="util">
       <div className="wrap util-in">
         <div className="util-prefs">
           <label><span>{tx.marketHd}</span>
-            <select id="marketSelect" value={market} onChange={e => { storeSet('market', e.target.value); router.push(swapSeg(pathname, 1, e.target.value) + window.location.search); }}>
+            <select id="marketSelect" value={market} onChange={e => { storeSet('market', e.target.value); storeSet('currency', null); router.push(swapSeg(pathname, 1, e.target.value) + window.location.search); }}>
               {markets.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
               {soon.map(s => <option key={s} disabled>{s} ({tx.soon})</option>)}
+            </select>
+          </label>
+          <label><span>{tx.currencyLbl}</span>
+            <select id="currencySelect" value={cur} onChange={e => storeSet('currency', e.target.value === marketCurrency ? null : e.target.value)}>
+              {currencies.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </label>
         </div>

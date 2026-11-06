@@ -5,6 +5,8 @@ import { CHROME_KEYS } from '../../../components/keys';
 import { dict } from '../../../components/dict';
 import { Footer } from '../../../components/Footer';
 import { Header } from '../../../components/Header';
+import { CurrencyApply } from '../../../components/CurrencyApply';
+import { getData } from '../../../lib/catalog';
 
 export const revalidate = 900;
 export const generateStaticParams = () => LANGS.flatMap(lang => MARKETS.map(market => ({ lang, market })));
@@ -13,6 +15,8 @@ export default async function MarketLayout({ children, params }: { children: Rea
   const { lang, market } = await params;
   if (!isLang(lang) || !isMarket(market)) notFound();
   const tx = dict(lang, CHROME_KEYS);
+  const { data } = await getData();
+  const cx = { market: data.MARKETS[market].currency, rates: data.RATES, lang, syms: Object.fromEntries(Object.keys(data.CURRENCIES).map(k => [k, data.CURRENCIES[k][lang]])) };
   return (
     <>
       <a className="skip-link" href="#main">{t(lang, 'skip')}</a>
@@ -22,6 +26,7 @@ export default async function MarketLayout({ children, params }: { children: Rea
       <TabBar lang={lang} market={market} tx={tx} />
       <CookieBanner tx={tx} />
       <Toast />
+      <CurrencyApply cx={cx} />
     </>
   );
 }

@@ -38,9 +38,9 @@ export function PriceHistory({ series, current, labels, money }: {
       </div>
       <div id="hist">
         <div className="hist-stats">
-          <div><small>{labels.hi}</small><b><span className="money">{fmtMoney(Math.max(...v), money)}</span></b></div>
-          <div className="cur"><small>{labels.cur}</small><b><span className="money">{fmtMoney(current, money)}</span></b></div>
-          <div><small>{labels.lo}</small><b><span className="money">{fmtMoney(Math.min(...v, current), money)}</span></b></div>
+          <div><small>{labels.hi}</small><b><span className="money" data-v={Math.max(...v)}>{fmtMoney(Math.max(...v), money)}</span></b></div>
+          <div className="cur"><small>{labels.cur}</small><b><span className="money" data-v={current}>{fmtMoney(current, money)}</span></b></div>
+          <div><small>{labels.lo}</small><b><span className="money" data-v={Math.min(...v, current)}>{fmtMoney(Math.min(...v, current), money)}</span></b></div>
         </div>
         <svg className="chart" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={labels.title}>
           <path d={`${line} L${last[0]} ${H} L${pts[0][0]} ${H} Z`} fill="#16845B" opacity=".08" />
