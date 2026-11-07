@@ -228,11 +228,9 @@
   PRODUCTS.forEach(p => { p.photos = (PHOTOS[p.id] || []).map(([id, by]) => ({ id, by })); });
 
   const COUPONS = [
-    { store: 'noon', market: 'sa', code: 'DOAB10', en: '10% off electronics', ar: 'خصم 10% على الإلكترونيات', cat: 'electronics', days: 12 },
     { store: 'Namshi', market: 'sa', code: 'NEW20', en: '20% off your first order', ar: 'خصم 20% على أول طلب', cat: 'fashion', days: 20 },
     { store: 'Sephora', market: 'sa', code: 'GLOW15', en: '15% off skincare', ar: 'خصم 15% على العناية بالبشرة', cat: 'beauty', days: 8 },
     { store: 'Nahdi', market: 'sa', code: 'BABY25', en: 'SAR 25 off baby essentials', ar: 'خصم 25 ر.س على مستلزمات الأطفال', cat: 'kids', days: 15 },
-    { store: 'noon', market: 'ae', code: 'DOABAE', en: 'AED 50 off orders over AED 300', ar: 'خصم 50 د.إ للطلبات فوق 300 د.إ', cat: 'home', days: 10 },
     { store: 'Sharaf DG', market: 'ae', code: 'TECH7', en: '7% off headphones', ar: 'خصم 7% على السماعات', cat: 'electronics', days: 6 },
     { store: 'Target', market: 'us', code: 'HOME20', en: '$20 off $100 home', ar: 'خصم 20$ عند شراء أدوات منزلية بـ 100$', cat: 'home', days: 9 },
     { store: "Macy's", market: 'us', code: 'STYLE25', en: '25% off select fashion', ar: 'خصم 25% على أزياء مختارة', cat: 'fashion', days: 4 },

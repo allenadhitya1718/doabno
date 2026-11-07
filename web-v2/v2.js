@@ -189,9 +189,9 @@
   }
   // Real logos come from the site favicon service for the demo; production serves licensed logo files from the merchant feed.
   const DOMAINS = {
-    'amazon-sa': 'amazon.sa', 'noon-sa': 'noon.com', jarir: 'jarir.com', extra: 'extra.com', 'carrefour-sa': 'carrefourksa.com', 'virgin-sa': 'virginmegastore.sa', saco: 'saco.com.sa',
+    'amazon-sa': 'amazon.sa', jarir: 'jarir.com', extra: 'extra.com', 'carrefour-sa': 'carrefourksa.com', 'virgin-sa': 'virginmegastore.sa', saco: 'saco.com.sa',
     'namshi-sa': 'namshi.com', 'ounass-sa': 'ounass.com', 'centrepoint-sa': 'centrepointstores.com', 'sephora-sa': 'sephora.com', nahdi: 'nahdionline.com',
-    'amazon-ae': 'amazon.ae', 'noon-ae': 'noon.com', sharafdg: 'sharafdg.com', jumbo: 'jumbo.ae', 'carrefour-ae': 'carrefouruae.com', 'virgin-ae': 'virginmegastore.ae',
+    'amazon-ae': 'amazon.ae', sharafdg: 'sharafdg.com', jumbo: 'jumbo.ae', 'carrefour-ae': 'carrefouruae.com', 'virgin-ae': 'virginmegastore.ae',
     'namshi-ae': 'namshi.com', 'ounass-ae': 'ounass.com', 'centrepoint-ae': 'centrepointstores.com', 'sephora-ae': 'sephora.ae', firstcry: 'firstcry.ae',
     'amazon-us': 'amazon.com', bestbuy: 'bestbuy.com', walmart: 'walmart.com', target: 'target.com', bhphoto: 'bhphotovideo.com', homedepot: 'homedepot.com', macys: 'macys.com', nordstrom: 'nordstrom.com', 'sephora-us': 'sephora.com', ulta: 'ulta.com',
     'amazon-uk': 'amazon.co.uk', argos: 'argos.co.uk', currys: 'currys.co.uk', johnlewis: 'johnlewis.com', very: 'very.co.uk', ao: 'ao.com', boots: 'boots.com', lookfantastic: 'lookfantastic.com', asos: 'asos.com', jdsports: 'jdsports.co.uk'
@@ -819,7 +819,7 @@
     { x: 12, y: 20, cls: 'green', a: t => '↓ 18%', b: t => t('pn.drop') },
     { x: 9, y: 70, cls: '', a: t => 'SAVE10', b: t => t('pn.code') },
     { x: 85, y: 16, cls: 'best', a: t => 'SAR 3,914', b: t => 'Carrefour · ' + t('pn.best') },
-    { x: 90, y: 38, cls: '', a: t => t('pn.free'), b: t => 'noon' }
+    { x: 90, y: 38, cls: '', a: t => t('pn.free'), b: t => 'eXtra' }
   ];
   // About Us panel on the home page; the full text lives on #/about.
   function aboutSection() {
@@ -1086,7 +1086,7 @@
     const mock = '<figure class="ab-photo"><img src="assets/about-hero.jpg" alt="" width="1200" height="833" loading="eager" decoding="async"></figure>' +
       '<span class="ab-float f1">↓ 18%<small>' + t('pn.drop') + '</small></span>' +
       '<span class="ab-float f2">SAR 3,914<small>Carrefour · ' + t('pn.best') + '</small></span>' +
-      '<span class="ab-float f3">' + t('pn.free') + '<small>noon</small></span>';
+      '<span class="ab-float f3">' + t('pn.free') + '<small>eXtra</small></span>';
     return '<div class="about-page">' +
       '<section class="ab-hero"><div class="wrap ab-hero-in"><div><span class="app-pill">' + esc(u.pill) + '</span><h1>' + u.h1 + '</h1><p class="ab-lede">' + esc(d.lead) + '</p>' +
         '<div class="ab-ctas"><a class="btn primary" href="#/">' + esc(u.cta1) + '</a><a class="btn ghost" href="#/legal/privacy">' + esc(u.cta2) + '</a></div></div><div class="ab-visual">' + mock + '</div></div></section>' +
