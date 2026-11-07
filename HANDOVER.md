@@ -10,7 +10,7 @@ Three static web pages plus a database:
 | Website | `web-v2/` | `/` | Search-first price comparison (English and Arabic) |
 | Mobile app (prototype) | `app-v2/` | `/app/` | The phone-sized app screens, same data and accounts |
 | Admin portal | `admin-v2/` | `/admin/` | Products, stores, coupons, rates, team, activity |
-| Database and back end | `backend/` | Supabase (Frankfurt) | Tables, login, access rules, importer, tests |
+| Database and back end | `backend/` | Supabase (Singapore) | Tables, login, access rules, importer, tests |
 
 All three pages talk straight to Supabase from the visitor's browser, using a **public** key. There is no server of our own. What each person may see or change is enforced by the database (row-level security), not by the pages.
 
@@ -28,10 +28,10 @@ Create each in the company's name (or transfer to it), with a shared company ema
 |---|---|---|---|
 | Supabase | Database, login, access rules | Created (project `jturenubwqxzesjlyjpi`, Singapore, free plan; recreated 2026-11-06 after the first project was deleted) | $0; Pro $25/mo when the 500 MB fills or it pauses |
 | GitHub | The code, scheduled jobs | Repo `allenadhitya1718/doabno` (private) | $0 |
-| Cloudflare | Hosting the three pages | **To create** | $0; $5/mo only if traffic needs it |
+| Cloudflare | Hosting the three pages (Pages project `doabno`, deployed with Wrangler) | Created; doabno.pages.dev, doabno.com, www.doabno.com | $0; $5/mo only if traffic needs it |
 | Resend | Price-drop and sign-up emails | **To create** | $0 up to 100 emails/day |
-| Domain name | The web address | **To buy** | about $10 to $15 a year |
-| Affiliate networks / Noon / Amazon | Real store feeds and commission links | **Client papers needed** (see `ClientRequirements.pdf`) | free to join |
+| Domain name | The web address | doabno.com (attached to Cloudflare Pages) | about $10 to $15 a year |
+| Affiliate networks / Noon / Amazon | Real store feeds and commission links | noon joined (organisation JEC, affiliate `AFF7afd47407a73`; payouts need the CR). Amazon.sa, ArabClicks, DCM, Admitad pending. See `docs/STORE-INTEGRATION.md` | free to join |
 | Apple / Google developer | Only if store apps or Apple/Google sign-in are wanted | Not started | Apple $99/yr, Google $25 once |
 
 ## 3. Secrets: what exists and where each lives
@@ -49,13 +49,13 @@ Never put any of these in the repository, in `config.js`, or in chat.
 If a secret is ever exposed, rotate it (section 7) before anything else.
 
 ## 4. Setting up from nothing (a new project)
-1. **Supabase project:** new project, region Central EU (Frankfurt). In the SQL Editor run, in order: `backend/supabase/migrations/0001` to `0007`, then `backend/supabase/seed/01-catalog.sql` and `02-history.sql` (demo catalog; skip when real feeds are in).
+1. **Supabase project:** new project (the live one is in Singapore; pick the region the legal adviser approves). Run, in order, every file in `backend/supabase/migrations/` (0001 to the highest number), then `backend/supabase/seed/01-catalog.sql` and `02-history.sql` (demo catalog; skip when real feeds are in).
 2. **First admin:** have that person sign up on the website, then run the SQL in `backend/README.md` ("Making the first admin").
 3. **Point the pages at it:** put the project URL and publishable key in `web-v2/assets/config.js`, `app-v2/assets/config.js`, `admin-v2/assets/config.js` (same values in all three).
 4. **Supabase login settings** (Authentication):
    - URL Configuration: Site URL = the real web address; Redirect URLs = that address with `/**` (and `/app/**`).
    - Email: keep "Confirm email" **on**. Turn on **custom SMTP** with Resend, because Supabase's built-in sender is limited to a few emails an hour.
-5. **Hosting (Cloudflare Pages):** Workers & Pages, Create, Pages, connect the GitHub repo. Production branch `main`, build command `node scripts/build-site.js`, output directory `dist`. Add the custom domain. Every push to `main` then redeploys. (Merge `redesign-v2` into `main` first; `main` still holds the older website and app.)
+5. **Hosting (Cloudflare Pages):** project `doabno`, direct upload with Wrangler (not connected to Git). From the repo root: `node scripts/build-site.js` then `npx wrangler pages deploy dist --project-name doabno --branch main` (once: `npx wrangler login`). Never upload a zip made with Windows Compress-Archive: its backslash paths break `/app/` and `/admin/`.
 6. **Click tracking (when real store links exist):** Supabase, Edge Functions, create `go` from `backend/supabase/functions/go/index.ts`, switch **JWT verification off**, set secrets `CLICK_SALT` and `SITE_URL`. Or from a terminal, in the `backend` folder: `supabase functions deploy go` (the settings file `backend/supabase/config.toml` already turns JWT checking off for it). Then put its address (`https://<project>.supabase.co/functions/v1/go`) in `clickOutUrl` in the three `assets/config.js` files: from then on, "Visit store" for an offer that has a store link logs the click and goes to the store.
 7. **Scheduled jobs:** add the GitHub secrets in section 3. The daily importer (`import-feeds.yml`) and weekly backup (`backup-db.yml`) only run from `main`.
 
@@ -91,8 +91,8 @@ If a secret is ever exposed, rotate it (section 7) before anything else.
 **Real:** accounts, sign-in by email, favorites and price alerts saved per account, profile and consent records, privacy requests, account deletion, the admin (sign-in with roles, all edits saved, activity log, users, team), hiding products and pausing stores, shopper accounts (suspend, export, delete) and privacy requests with their legal deadlines, buttons hidden by role (and checked against the database rules by a test), the real Store feeds page, the importer and alert-email code, hosting build, backups.
 
 **Still demo or not done:**
-- **Prices and stores are demo data** until real feeds are connected. Needs the affiliate approvals and feeds from the client.
-- **"Visit store" does not track clicks yet.** The function is written but not deployed (and `clickOutUrl` is empty), and demo offers have no store links.
+- **Prices:** real for 92 products from eXtra, Saco and Nahdi (store page reader, see `docs/STORE-INTEGRATION.md`); other stores need affiliate feeds. Demo offers, ratings, review counts and price drops were removed (seeds 04, 04b, 08; reversible with 05). Price drops are now computed from real price history (needs 7 days).
+- **"Visit store" tracks clicks** through the `go` function for offers with a store link (page-read offers link to the store page; affiliate tracking links come with the networks).
 - **Admin settings tabs are saved in the database** (table `settings`, migration 0012; owner edits, other roles read). **The public site does not read them yet**, so changing a setting there has no effect on the site until that is wired.
 - **Reports** (Reports page tabs Purchases, No purchase, Import conversions, plus PDF export by printing): purchases come from network conversion CSVs uploaded in the admin (`conversions`, migration 0012); "most viewed without purchase" needs `product_views` (0013). Both are empty until the networks approve us and the new database is set up.
 - **Admin traffic and revenue numbers are real but read zero until clicks exist** (they come from the recorded "Visit store" clicks, times each store's cost per click). Only owner, partners and analyst roles can read clicks; a catalog manager sees zeros. The Store feeds page is real too: each feed's latest run, and "No feed yet" for stores without one.
@@ -100,12 +100,12 @@ If a secret is ever exposed, rotate it (section 7) before anything else.
 - **Apple and Google sign-in** are wired in but switched off: set the provider up in Supabase, then list it in `socialLogin` in the three `config.js` files and the buttons appear (details in `remainingthings.md`).
 - **Content-Security-Policy is moderate:** it blocks other sites' scripts and limits where data can go, but still allows inline scripts and styles because the pages use a few inline event handlers. Removing those would allow a stricter policy.
 - **SEO:** page addresses use `#/`, so search engines cannot index product pages. Fixing it means moving the website to a server-rendered framework (Next.js), about three weeks.
-- **Native iOS and Android apps:** not built; the app folder is a mobile-sized prototype.
+- **Native iOS and Android apps:** Capacitor wrappers built (`ios-app/`, `android-app/`); iOS uploaded to TestFlight, Android debug builds; Play Store not set up.
 - **Other Gulf markets** (Qatar, Kuwait, Bahrain, Oman): listed as "soon", no stores or prices yet.
 - **Legal texts are placeholders** and must be approved by the client's legal adviser before launch.
 
 ## 9. Legal and privacy checklist before launch
-- Written advice from a Saudi legal adviser on storing user data in Frankfurt (PDPL applies to Saudi residents' data wherever it is stored). If Saudi hosting is required, the user tables (`profiles`, `favorites`, `alerts`, `privacy_requests`, and Supabase login) are separate and can move.
+- Written advice from a Saudi legal adviser on storing user data in Singapore (PDPL applies to Saudi residents' data wherever it is stored). If Saudi hosting is required, the user tables (`profiles`, `favorites`, `alerts`, `privacy_requests`, and Supabase login) are separate and can move.
 - Final privacy policy, terms, disclaimer, cookie policy and affiliate disclosure, approved and published.
 - A named contact for privacy requests.
 - Consent is recorded when someone ticks the email-alert or marketing box (`alerts.consent_at`, `profiles.consent_at`). Emails are only sent to people who ticked it.
@@ -114,4 +114,4 @@ If a secret is ever exposed, rotate it (section 7) before anything else.
 At launch about **$0 plus the domain**. Realistic first upgrades: Supabase Pro $25/mo and Cloudflare Workers paid $5/mo, so about **$30/month**; Resend Pro $20/mo only above 100 alert emails a day. Prices change; check each vendor's page.
 
 ## 11. Where things are
-`ROADMAP.md` (status and open work) · `BACKEND-PLAN.md` (reasons for each tool) · `backend/README.md` (database and importer details) · `ClientRequirements.pdf` (what the client must send) · `remainingthings.md` (everything still needed to hand over, with set-up steps) · `CLAUDE.md` (rules for AI assistants working in the repo).
+`docs/HANDOVER-ar.md` (this guide in Arabic) · `docs/ACCOUNT-TRANSFER.md` (moving every account into the client's name) · `docs/STORE-INTEGRATION.md` (connecting stores) · `docs/ARCHITECTURE.md`, `docs/API.md` · `ROADMAP.md` (status and open work) · `BACKEND-PLAN.md` (reasons for each tool) · `backend/README.md` (database and importer details) · `ClientRequirements.pdf` (what the client must send) · `remainingthings.md` (everything still needed to hand over, with set-up steps) · `CLAUDE.md` (rules for AI assistants working in the repo).

@@ -130,6 +130,12 @@
     us: { code: 'US', en: 'United States', ar: 'الولايات المتحدة' }, uk: { code: 'UK', en: 'United Kingdom', ar: 'المملكة المتحدة' }
   };
   const SOON = [{ code: 'QA', en: 'Qatar', ar: 'قطر' }, { code: 'KW', en: 'Kuwait', ar: 'الكويت' }, { code: 'BH', en: 'Bahrain', ar: 'البحرين' }, { code: 'OM', en: 'Oman', ar: 'عُمان' }];
+  // Settings the admin saved for the public site (D.SITE, from get_catalog); {} when there is no database or nothing saved. Every use has a built-in fallback.
+  const siteSet = form => { const v = D.SITE && D.SITE[form]; return v && typeof v === 'object' ? v : {}; };
+  const siteText = (form, key) => { const v = siteSet(form)[key]; return typeof v === 'string' && v.trim() ? v.trim() : ''; };
+  const siteLang = (form, base) => siteText(form, base + (lang === 'ar' ? 'Ar' : 'En'));
+  const siteEmail = (form, key, fallback) => { const v = siteText(form, key); return /^[^\s@<>"']+@[^\s@<>"']+\.[^\s@<>"']+$/.test(v) ? v : fallback; };
+  const siteUrl = (form, key) => { const v = siteText(form, key); return /^https:\/\/[^\s"'<>]+$/.test(v) ? v : ''; };
   function t(k, vars) {
     let s = S[lang][k]; if (s == null) s = S.en[k]; if (s == null) return k;
     if (vars && typeof s === 'string') s = s.replace(/\{(\w+)\}/g, (m, n) => vars[n] == null ? '' : vars[n]);
@@ -680,8 +686,28 @@
       pool.slice().sort((a, b) => b.p.drop - a.p.drop).slice(0, 4).map(i => '<div class="sp-row"><span class="sp-img">' + thumb(i.p, 40, 40) + '</span><span class="sp-t"><b dir="auto">' + esc(nm(i.p)) + '</b><small><strong class="money">' + moneyText(i.best.total) + '</strong><em class="dn">↓ ' + Math.round(i.p.drop) + '%</em></small></span></div>').join('') + '</div></div>';
     return '<section class="sec app-sec"><div class="wrap"><div class="app-promo2"><span class="app-pill">' + t('app.pill') + '</span>' +
       '<h2>' + t('app.title') + '<span>' + t('app.title2') + '</span></h2><p class="app-text">' + t('app.text') + '</p>' +
-      '<div class="store-badges"><span class="store-badge">' + storeLogo(APPLE) + '<span><small>' + t('app.soon') + '</small>App Store</span></span><span class="store-badge">' + storeLogo(PLAY) + '<span><small>' + t('app.soon') + '</small>Google Play</span></span></div>' +
+      '<div class="store-badges">' + storeBadge(APPLE, 'App Store', 'iosUrl') + storeBadge(PLAY, 'Google Play', 'androidUrl') + '</div>' +
       '<div class="app-phones" aria-hidden="true">' + alertsPh + phone + dealsPh + '</div></div></div></section>';
+  }
+  // A store badge: a real link when the admin marked the app live and gave that store's https address, otherwise "Coming soon".
+  function storeBadge(logo, name, key) {
+    const url = siteSet('app').appLive === true ? siteUrl('app', key) : '';
+    const small = url ? (lang === 'ar' ? 'حمّل من' : 'Download on') : t('app.soon');
+    const inner = logo + '<span><small>' + esc(small) + '</small>' + name + '</span>';
+    return url ? '<a class="store-badge" href="' + esc(url) + '" target="_blank" rel="noopener">' + inner + '</a>' : '<span class="store-badge">' + inner + '</span>';
+  }
+  // Maintenance notice from Admin > Settings > Maintenance: a banner above the page when switched on.
+  function applySite() {
+    let bar = document.getElementById('maintBar');
+    const on = siteSet('maint').maint === true;
+    const msg = on ? (siteLang('maint', 'maint') || (lang === 'ar' ? 'نُحدّث دوابنو الآن، وسنعود قريبًا.' : 'DOABNO is getting an update. We’ll be back shortly.')) : '';
+    if (!msg) { if (bar && bar.parentNode) bar.parentNode.removeChild(bar); return; }
+    if (!bar) {
+      bar = document.createElement('div'); bar.id = 'maintBar'; bar.setAttribute('role', 'status');
+      bar.style.cssText = 'background:#FFF4D6;color:#5A3B00;border-bottom:1px solid #E8C877;padding:10px 16px;text-align:center;font-weight:600;font-size:14px';
+      document.body.insertBefore(bar, document.body.firstChild);
+    }
+    bar.textContent = msg;
   }
   function appDemoInit() {
     appDemoStop();
@@ -811,7 +837,7 @@
     const drops = all.slice().sort((a, b) => b.p.drop - a.p.drop).slice(0, 4);
     const vizHtml = '<div class="viz-wrap"><div class="viz" id="viz"></div><p class="sr" id="vizAlt"></p><a class="viz-cta" id="vizCta" href="#/p/' + feat.p.id + '"></a></div>';
     const trust = ['trust.1', 'trust.2', 'trust.3', 'trust.4'].map(k => '<li>' + icon.check + t(k) + '</li>').join('');
-    return '<section class="hero"><div class="wrap hero-in"><div><h1>' + t('hero.title') + '</h1><p class="sub">' + t('hero.sub') + '</p>' +
+    return '<section class="hero"><div class="wrap hero-in"><div><h1>' + (siteLang('hero', 'hero') ? esc(siteLang('hero', 'hero')) : t('hero.title')) + '</h1><p class="sub">' + (siteLang('hero', 'sub') ? esc(siteLang('hero', 'sub')) : t('hero.sub')) + '</p>' +
       '<form class="bigsearch" id="heroSearch" role="search" autocomplete="off"><svg class="si" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
       '<input type="search" id="heroQ" placeholder="' + esc(t('search.hero')) + '" aria-label="' + esc(t('search.ph')) + '" role="combobox" aria-expanded="false" aria-controls="suggestHero"><button class="btn go" type="submit" aria-label="' + t('tab.search') + '">' + icon.arrow + '</button><div class="suggest" id="suggestHero" hidden></div></form>' +
       '<div class="chips-row"><span class="lbl">' + t('hero.try') + '</span>' + D.POPULAR.slice(0, 4).map(r => '<a class="chip" href="#/search?q=' + encodeURIComponent(r) + '">' + esc(r) + '</a>').join('') + '</div>' +
@@ -1000,7 +1026,9 @@
   }
   function legalPage(id) {
     const d = LEGAL[id]; if (!d) return notFound();
-    const [title, secs] = d[lang] || d.en;
+    const [title, secs0] = d[lang] || d.en;
+    const pe = siteEmail('legal', 'privacyEmail', 'privacy@doabno.com'), se = siteEmail('legal', 'supportEmail', 'support@doabno.com');
+    const secs = secs0.map(x => [x[0], x[1].split('privacy@doabno.com').join(pe).split('support@doabno.com').join(se)]);
     const toc = secs.length > 8 ? '<nav class="toc" aria-label="' + esc(t('toc')) + '"><b>' + t('toc') + '</b><ol>' + secs.map((x, i) => '<li><button type="button" data-toc="s' + i + '">' + esc(x[0]) + '</button></li>').join('') + '</ol></nav>' : '';
     return '<div class="page"><div class="wrap legal"><div class="crumbs"><a href="#/">' + t('home') + '</a> / ' + esc(title) + '</div><h1>' + esc(title) + '</h1>' + toc +
       secs.map((x, i) => '<h2 id="s' + i + '">' + esc(x[0]) + '</h2><p>' + esc(x[1]) + '</p>').join('') +
@@ -1233,6 +1261,7 @@
     else if (seg[0] === 'account') { tab = 'home'; html = accountPage(); }
     else html = notFound();
     main.innerHTML = html;
+    applySite();
     $$('.tabbar a').forEach(a => a.classList.toggle('on', a.dataset.tab === tab));
     $$('.topnav a.nav-i').forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + path));
     if (!same) window.scrollTo(0, 0);
