@@ -33,8 +33,8 @@ function hasSecretKey(source) {
     try { return JSON.parse(Buffer.from(jwt.split('.')[1], 'base64url').toString('utf8')).role === 'service_role'; } catch (e) { return false; }
   });
 }
-const CSP = ["default-src 'self'", "script-src 'self' 'unsafe-inline'", "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com", "font-src 'self' https://fonts.gstatic.com data:",
-  "img-src 'self' data: blob: https://images.unsplash.com https://t3.gstatic.com https://media.extra.com https://www.nahdionline.com https://*.nahdionline.com", "media-src 'self' blob:", "connect-src 'self' https://*.supabase.co", "object-src 'none'", "base-uri 'self'", "form-action 'self'", "frame-ancestors 'self'"].join('; ');
+const CSP = ["default-src 'self'", "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com", "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com", "font-src 'self' https://fonts.gstatic.com data:",
+  "img-src 'self' data: blob: https://images.unsplash.com https://t3.gstatic.com https://media.extra.com https://www.nahdionline.com https://*.nahdionline.com", "media-src 'self' blob:", "connect-src 'self' https://*.supabase.co https://cloudflareinsights.com", "object-src 'none'", "base-uri 'self'", "form-action 'self'", "frame-ancestors 'self'"].join('; ');
 
 function build() {
 fs.rmSync(OUT, { recursive: true, force: true });
