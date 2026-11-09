@@ -151,7 +151,7 @@ async function loadRobots(origin, fetchImpl) {
 
 // One store's mapped pages -> { rows, rejects, failed }. `failed` holds the products whose page could not be read this
 // time, so the importer keeps their last known offer instead of marking it out of stock.
-async function readPages({ feed, db, fetchImpl = fetch, sleep = ms => new Promise(r => setTimeout(r, ms)), maxPages = +process.env.SCRAPE_MAX_PAGES || 500, log = () => {} }) {
+async function readPages({ feed, db, fetchImpl = fetch, sleep = ms => new Promise(r => setTimeout(r, ms)), maxPages = +process.env.SCRAPE_MAX_PAGES || 2000, log = () => {} }) {
   const pages = (await db.getScrapePages(feed.store_id)).slice(0, maxPages);
   const products = new Map((await db.getProducts()).map(p => [p.id, p]));
   const rows = [], rejects = [], failed = new Set();
