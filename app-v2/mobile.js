@@ -458,6 +458,13 @@
       '<span class="wb-ic far" style="top:84%;inset-inline-start:6%">' + icon('M3 4h2l2.4 11h10.2L20 7H6.2M9 20h.01M17 20h.01', 26) + '</span>' +
       '<span class="wb-ic bar" style="top:83%;inset-inline-end:8%"><svg viewBox="0 0 48 28" width="52" height="30"><path d="M3 2v24M8 2v24M12 2v24M19 2v24M23 2v24M30 2v24M34 2v24M40 2v24M45 2v24" stroke="currentColor" stroke-width="2.2" fill="none"/></svg></span></div>';
   }
+  // Country picker: live markets come from the catalog; Gulf markets without stores yet are listed as "coming soon".
+  const FLAGS = { sa: '🇸🇦', ae: '🇦🇪', kw: '🇰🇼', qa: '🇶🇦', bh: '🇧🇭', om: '🇴🇲', us: '🇺🇸', uk: '🇬🇧' };
+  const SOON_CUR = { kw: 'KWD', qa: 'QAR', bh: 'BHD', om: 'OMR' };
+  const MARKET_ORDER = ['sa', 'ae', 'kw', 'qa', 'bh', 'om', 'us', 'uk'];
+  const marketList = () => MARKET_ORDER.concat(Object.keys(D.MARKETS).filter(m => !MARKET_ORDER.includes(m)))
+    .filter(m => D.MARKETS[m] || SOON_CUR[m]).map(m => ({ id: m, live: !!D.MARKETS[m], cur: D.MARKETS[m] ? D.MARKETS[m].currency : SOON_CUR[m] }));
+  const flag = m => FLAGS[m] ? '<span class="flag" aria-hidden="true">' + FLAGS[m] + '</span>' : '';
   function screenWelcome() {
     return {
       bare: true, dark: true,
@@ -466,8 +473,8 @@
         '<h1 class="tagline" aria-label="' + t('welcome.t1') + ' / ' + t('welcome.t2') + ' / ' + t('welcome.t3') + '"><span>' + t('welcome.t1') + '</span><span>' + t('welcome.t2') + '</span><span class="hl">' + t('welcome.t3') + '</span></h1>' +
         '<p class="welcome-sub">' + t('welcome.sub') + '</p>' +
         '<ul class="welcome-list">' + [['search', 'app.f1'], ['bell', 'app.f2'], ['heart', 'app.f3']].map(([ic, k]) => '<li><span class="ic">' + icon(ICONS[ic], 20) + '</span>' + t(k) + '</li>').join('') + '</ul>' +
-        '<h2>' + t('welcome.country') + '</h2><div class="countries">' + Object.keys(D.MARKETS).map(m =>
-          '<button type="button" class="country" data-market="' + m + '" aria-pressed="' + (m === state.market) + '"><strong>' + t('market.' + m) + '</strong><small>' + D.MARKETS[m].currency + '</small></button>').join('') + '</div>' +
+        '<h2>' + t('welcome.country') + '</h2><button type="button" class="country-pick" data-sheet="country" aria-haspopup="dialog">' + flag(state.market) +
+          '<span><strong>' + t('market.' + state.market) + '</strong><small>' + D.MARKETS[state.market].currency + '</small></span>' + icon(ICONS.chevron, 18, 'flip') + '</button>' +
         '<h2>' + t('welcome.language') + '</h2><div class="seg seg-dark" role="group" aria-label="' + t('welcome.language') + '">' + [['ar', 'العربية'], ['en', 'English']].map(([l, label]) =>
           '<button type="button" data-lang="' + l + '" lang="' + l + '" aria-pressed="' + (l === state.lang) + '">' + label + '</button>').join('') + '</div>' +
         '<button type="button" class="btn btn-primary btn-block welcome-start" data-start>' + t('welcome.start') + '</button></div>'
@@ -1075,7 +1082,9 @@
         '<p class="fineprint scan-privacy">' + t('scan.ai.privacy') + '</p>';
     } else if (kind === 'country') {
       title = t('profile.country');
-      body = Object.keys(D.MARKETS).map(m => opt('market', m, t('market.' + m), state.market === m, '<span class="cnt">' + D.MARKETS[m].currency + '</span>')).join('');
+      body = marketList().map(m => m.live
+        ? opt('market', m.id, flag(m.id) + t('market.' + m.id), state.market === m.id, '<span class="cnt">' + m.cur + '</span>')
+        : '<label class="opt opt-soon"><input type="radio" name="market" value="' + m.id + '" disabled><span>' + flag(m.id) + t('market.' + m.id) + '</span><span class="soon-badge">' + t('country.soon') + '</span></label>').join('');
     } else if (kind === 'language') {
       title = t('profile.language');
       body = [['ar', 'العربية'], ['en', 'English']].map(([l, label]) => opt('lang', l, '<span lang="' + l + '">' + label + '</span>', state.lang === l)).join('');
@@ -1297,7 +1306,7 @@
       const n = filterList(ui.listBase, { brand: fd.getAll('brand'), free: !!fd.get('free'), sale: !!fd.get('sale') }).length;
       $('#filterApply').textContent = t('filter.show', { n: tp('n.products', n) });
     }
-    else if (form && form.dataset.kind === 'country') setMarket(el.value);
+    else if (form && form.dataset.kind === 'country') { closeSheet(); setMarket(el.value); }
     else if (form && form.dataset.kind === 'language') setLang(el.value);
     else if (form && form.dataset.kind === 'currency') { state.currency = el.value; save('currency', el.value); rerender(); }
   });
