@@ -5,6 +5,8 @@ Research date: 2026-11-09. Public pages and directories only; nothing was joined
 
 ## Read this first
 
+- **Scope (decided 2026-11-09):** DOABNO joins only the networks in the client's PRD: Amazon Associates (SA, US, UK), Awin (includes ShareASale), CJ, and noon's own programme. ArabClicks, Admitad, DCM, Boostiny and the other GCC networks below are **reference only, not planned**. GCC stores not on the PRD networks get prices from the page reader or a direct store feed, without commission.
+
 - **Network names.** "DCM" is **DCMnetwork, run by Digital Conversions Media DMCC** (Dubai, founded 2012), not "Dubai Coupon Market". **Boostiny** is run by ArabyAds, and ArabyAds also has a partnership with CJ Affiliate for the region. Other GCC networks that list GCC stores: Partnerize, Indoleads, TradeTracker, Affluxo, Adpump.
 - **Product feeds in the GCC are rare.** No GCC network page we read (ArabClicks, DCM, Boostiny) mentions product feeds for publishers. ArabClicks offers APIs, smart links and postback, not catalogues. Assume **no feed unless the network manager confirms one**. Mostly you will get links and coupon codes, and prices will come from the page reader or from feeds the stores send you directly.
 - **Deep links.** ArabClicks' Namshi program does **not allow deep links** (only the country landing pages). That is a problem for a price-comparison site: every Namshi click would land on the home page. Ask for an exception, or use another network.

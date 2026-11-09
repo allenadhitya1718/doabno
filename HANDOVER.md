@@ -31,7 +31,7 @@ Create each in the company's name (or transfer to it), with a shared company ema
 | Cloudflare | Hosting the three pages (Pages project `doabno`, deployed with Wrangler) | Created; doabno.pages.dev, doabno.com, www.doabno.com | $0; $5/mo only if traffic needs it |
 | Resend | Price-drop and sign-up emails | **To create** | $0 up to 100 emails/day |
 | Domain name | The web address | doabno.com (attached to Cloudflare Pages) | about $10 to $15 a year |
-| Affiliate networks / Noon / Amazon | Real store feeds and commission links | noon joined (organisation JEC, affiliate `AFF7afd47407a73`; payouts need the CR). Amazon.sa, ArabClicks, DCM, Admitad pending. See `docs/STORE-INTEGRATION.md` | free to join |
+| Affiliate networks / Noon / Amazon | Real store feeds and commission links | noon joined (organisation JEC, affiliate `AFF7afd47407a73`; payouts need the CR). Amazon Associates (SA/US/UK), Awin (incl. ShareASale) and CJ pending: the networks in the client's PRD. See `docs/STORE-INTEGRATION.md` | free to join |
 | Apple / Google developer | Only if store apps or Apple/Google sign-in are wanted | Not started | Apple $99/yr, Google $25 once |
 
 ## 3. Secrets: what exists and where each lives

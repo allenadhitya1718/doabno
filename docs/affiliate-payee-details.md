@@ -18,7 +18,7 @@ Until both exist, the only working choice is **Fahad as an individual**, paid to
 
 Things to know before choosing:
 - **Changing later is hard.** On Amazon, the payee name and the tax form belong to the account. Moving from a person to a company usually means a new tax interview and sometimes a new account. If the CR is close (days or weeks), wait for it and sign up as the company.
-- **Use one choice everywhere.** Use the same payee on Amazon.sa, noon, ArabClicks and the others, so all income lands in one place for bookkeeping, VAT and zakat.
+- **Use one choice everywhere.** Use the same payee on Amazon (SA, US, UK), noon, Awin and CJ, so all income lands in one place for bookkeeping, VAT and zakat.
 - **Get the accountant's view.** Ask the client's accountant whether affiliate income may be paid to Fahad personally before a CR exists.
 
 ## Amazon.sa Associates: payment form fields
@@ -52,7 +52,8 @@ Ask the client for:
 |---|---|---|
 | noon Affiliates | Individual now allowed without a CR (Support, 2026-11-07); the client is getting a CR | Waiting for the CR, then set the legal entity to Company |
 | Amazon.sa Associates | As chosen above | Signup queued; payment form reached |
-| ArabClicks | Same payee | Signup queued |
-| Others (DCM, etc.) | Same payee | Not started |
+| Amazon US and UK Associates | Same payee | Not started |
+| Awin (includes ShareASale) | Same payee | Not started |
+| CJ Affiliate | Same payee | Not started |
 
 The signed authorization letter (`docs/affiliate-authorization-letter-template.md`) names the same company and bank account holder.

@@ -67,7 +67,6 @@ Detail on each built piece: `ROADMAP.md` (status), `HANDOVER.md` (accounts, rest
 - ☐ Amazon Associates SA (signup page open; you register under the client's company)
 - ☐ Amazon Associates US and UK
 - ☐ noon affiliates (signup page open)
-- ☐ ArabClicks, Admitad (Publisher role), DCM: for Namshi, Centrepoint, Sephora, Ounass and others
 - ☐ Awin, ShareASale, CJ (US and UK stores)
 - ☑ Unique tracking ID per store and product link (`doabno-{market}-{store}-{product}`)
 
@@ -105,7 +104,7 @@ There are four ways to get a store's prices into DOABNO. All four write into the
 
 | Method | When to use | What we need | Refresh |
 |---|---|---|---|
-| 1. Affiliate network feed | Store is on ArabClicks, Admitad, DCM, Awin, CJ, ShareASale | Approval in the network, then the store's product feed URL (CSV or XML) | Network regenerates it; we load it daily or hourly |
+| 1. Affiliate network feed | Store is on Awin (includes ShareASale) or CJ | Approval in the network, then the store's product feed URL (CSV or XML) | Network regenerates it; we load it daily or hourly |
 | 2. Store API | Amazon (Product Advertising API) | Associates approval plus 3 qualifying sales in 180 days, then API keys | We ask per product on our schedule |
 | 3. Direct feed from the store | Stores without a network (Jarir, eXtra, Saco, smaller shops) | Agreement with the store; a Google Merchant feed is the easiest format for them | Daily or hourly |
 | 4. Store page reader | Stores whose robots.txt allows product pages | A list of product page addresses per store | Daily, one page every 3 s |
@@ -143,13 +142,13 @@ There are four ways to get a store's prices into DOABNO. All four write into the
 | eXtra | 4, later 3 | 7 products mapped |
 | Saco | 4, later 3 | 7 products mapped |
 | Nahdi | 4, later 1 | 1 product mapped |
-| Namshi, Centrepoint, Sephora, Ounass | 1 | Through ArabClicks or Admitad |
+| Namshi, Centrepoint, Sephora, Ounass | 2 | Page reader where robots.txt allows, or a direct feed from the store (not on the PRD networks) |
 | Carrefour, Virgin | 1 or 3 | To ask |
 
 ## Pending, in order
 1. Recover the database (phase 0).
 2. Register doabno.com and open the remaining accounts in the client's name.
-3. Submit Amazon, noon, ArabClicks and Admitad applications with the client's company papers.
+3. Submit the PRD networks (Amazon Associates SA/US/UK, Awin incl. ShareASale, CJ) and noon applications with the client's company papers.
 4. Client approves the 10 to 15 brands; contact them.
 5. Load the first network feeds; grow towards 5,000 products.
 6. iPhone push key, App Store submission, Play Console.

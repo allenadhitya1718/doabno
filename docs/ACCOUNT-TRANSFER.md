@@ -134,7 +134,7 @@ These are registered **under the client's company**, not transferred, because mo
 |---|---|---|---|
 | noon | Joined 2026-11-06 under organisation **JEC** with Fahad Alkhalaf (affiliate id `AFF7afd47407a73`, project `PRJ651175`) | Decide whether DOABNO's own legal entity should hold the account instead of JEC; if yes, apply again in the company name, with payout documents (ID, bank) | Ask `affiliate.support@noon.com` whether an account can be moved to another entity, and for the product feed and written permission to use noon's name and logo |
 | Amazon Associates (amazon.sa) | Pending | Client's company applies, sale history, tax and bank details | Add the tracking tags in admin settings |
-| ArabClicks, DCM, Admitad | Pending | Client's company signs up, signatory, payout details | Request feeds, configure `feeds` rows |
+| Awin (incl. ShareASale), CJ | Pending | Client's company signs up, signatory, payout details | Request feeds, configure `feeds` rows |
 
 What breaks if done wrong: commission goes to the wrong legal entity (hard to recover); links built under a personal ID keep paying the wrong party; changing the tracking id breaks old links already live in `offers`, so ask each network whether old links keep working.
 

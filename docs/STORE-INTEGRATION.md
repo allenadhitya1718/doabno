@@ -13,7 +13,7 @@ Background: `docs/ARCHITECTURE.md` (how the pieces fit), `docs/API.md` (feed fie
 
 | Method | Use it when | What you need | How fresh |
 |---|---|---|---|
-| **A. Affiliate network feed** | The store is on ArabClicks, Admitad, DCM, Awin, CJ, ShareASale | Network approval + the store's product feed address | Daily or hourly |
+| **A. Affiliate network feed** | The store is on Awin (includes ShareASale) or CJ | Network approval + the store's product feed address | Daily or hourly |
 | **B. Store's own affiliate program** | noon, Amazon | Program approval; for Amazon also API keys after 3 sales | Daily or hourly |
 | **C. Direct feed from the store** | Store has no network (Jarir, eXtra, Saco, smaller shops) | An agreement and a feed file or address from the store | Daily or hourly |
 | **D. Store page reader** | Store gives nothing but its robots.txt allows product pages | A list of product page addresses | Daily, slow on purpose |
@@ -31,7 +31,7 @@ Where we stand today:
 | Amazon.sa | B | Apply (affiliate-program.amazon.sa) |
 | noon | B (or A) | **Joined 2026-11-06**: affiliate id `AFF7afd47407a73`, organisation JEC (project `PRJ651175`), terms accepted, Everyday Campaign active. Links are made one by one in the dashboard (server-side, no link pattern); payouts need ID and bank documents. Next: email affiliate.support@noon.com for a product feed/API with deep links and written OK to use noon's name and logo (terms 8.3) |
 | Jarir | C | Page reading forbidden by its robots.txt: ask Jarir for a feed |
-| Namshi, Centrepoint, Sephora, Ounass | A | Through ArabClicks or Admitad |
+| Namshi, Centrepoint, Sephora, Ounass | D or direct feed | Not on the PRD networks; page reader where robots.txt allows |
 | Carrefour, Virgin | A or C | To ask |
 
 ---
@@ -59,9 +59,10 @@ Rules for whoever fills in the forms:
 ## 2. Method A: affiliate network feed
 
 ### 2.1 Join the network (once per network)
-1. **Admitad:** https://www.admitad.com/en-sa/ → Join → choose **Publisher** (not Advertiser or Agency).
-   **ArabClicks:** https://arabclicks.com → Become a publisher.
-   **DCM:** https://www.dcmnetwork.com → Publishers.
+1. Only the networks in the client's PRD (decided 2026-11-09):
+   **Awin:** https://www.awin.com → Publishers → Join (one account also covers former ShareASale programmes; small refundable deposit, or a store's invitation code).
+   **CJ Affiliate:** https://www.cj.com → Publishers → Sign up (free; W-8BEN-E for a company, W-8BEN for an individual).
+   Amazon Associates SA/US/UK and noon have their own programmes (see section 1 and `docs/affiliate-payee-details.md`).
 2. Fill in the company details from section 1.
 3. Add the "ad space" (they call the website or app this): type **Website**, address, category **Coupons / Cashback / Price comparison** (pick "price comparison" if listed), country **Saudi Arabia**.
 4. Wait for approval (days to weeks). Keep the confirmation emails.

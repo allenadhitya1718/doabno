@@ -25,7 +25,7 @@ Where to send:
 > 1. A product feed (CSV, XML or Google Merchant format) with, for each product: name, brand, barcode (EAN/GTIN), price in SAR, delivery cost, stock status, product page link and image link. Updated daily is enough to start.
 > 2. Or written permission to read your public product pages, at most once a day, with a clearly named bot (`DOABNOBot`) and a pause between requests.
 >
-> If you run an affiliate program or work with an affiliate network (for example ArabClicks or Admitad), we are happy to join it so that sales we send you are tracked.
+> If you run an affiliate program or work with an affiliate network (for example Awin or CJ), we are happy to join it so that sales we send you are tracked.
 >
 > Company: <legal company name>, CR <number>
 > Contact: <name>, <title>, <phone>, <email>
@@ -46,7 +46,7 @@ Where to send:
 > 1. ملف منتجات (CSV أو XML أو بصيغة Google Merchant) يتضمن لكل منتج: الاسم، العلامة التجارية، الباركود (EAN/GTIN)، السعر بالريال، تكلفة التوصيل، حالة التوفر، رابط صفحة المنتج ورابط الصورة، ويكفي تحديثه يوميًا كبداية.
 > 2. أو إذنًا كتابيًا بقراءة صفحات المنتجات العامة مرة واحدة يوميًا كحد أقصى، باسم برنامج واضح (`DOABNOBot`) ومع فاصل زمني بين الطلبات.
 >
-> وإذا كان لديكم برنامج تسويق بالعمولة أو تعملون مع شبكة مثل ArabClicks أو Admitad، يسعدنا الانضمام إليه.
+> وإذا كان لديكم برنامج تسويق بالعمولة أو تعملون مع شبكة مثل Awin أو CJ، يسعدنا الانضمام إليه.
 >
 > الشركة: <الاسم القانوني>، سجل تجاري <الرقم>
 > للتواصل: <الاسم>، <المسمى>، <الجوال>، <البريد>

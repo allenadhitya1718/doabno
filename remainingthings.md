@@ -136,7 +136,7 @@ Already created (project `jturenubwqxzesjlyjpi`, Frankfurt, free). To finish:
 
 ### 4.1 Applications *(Dev prepares and submits for the client; approvals take weeks)*
 - [ ] **Noon:** affiliate programme (UAE / KSA). Apply through Noon's affiliate page or a network that carries it. Terms found online vary (rates and tracking by coupon or link); confirm the real terms in the approval email.
-- [ ] **Affiliate network** such as Awin or Admitad (whichever the client prefers or is approved): apply, then apply to each store's programme inside it.
+- [ ] **Affiliate network** Awin (includes ShareASale) and CJ, as named in the PRD: apply, then apply to each store's programme inside it.
 - [ ] **Amazon Associates**, one account **per country** (amazon.sa, amazon.ae, amazon.com, amazon.co.uk). Amazon's product API changed in 2026 (the Creators API replaces the old one; reported rule: a minimum number of qualifying sales in 30 days). Confirm current rules on Amazon's site before building on it. Plan for Amazon to come last.
 - [ ] Direct feeds from stores that offer one.
 - [ ] Record each approval: store, login, feed address, tracking-link format, payment terms (commission or per click).

@@ -79,7 +79,7 @@ Sign up with a fresh email on the live site (the person opens the email and clic
 
 ## 4. Not yours to do (leave for the person and the client)
 - Client papers, signed authorization, bank details, legal adviser answers, final legal texts.
-- Affiliate applications (Noon, Awin or Admitad, Amazon Associates): the person submits or approves; you can prepare answers from `ClientRequirements.pdf`.
+- Affiliate applications (noon, Amazon Associates SA/US/UK, Awin incl. ShareASale, CJ): the person submits or approves; you can prepare answers from `ClientRequirements.pdf`.
 - Supabase DPA, Apple Developer enrolment, SMS provider, any payment.
 - Real feeds need approved affiliate accounts first (section 4 of `remainingthings.md`).
 

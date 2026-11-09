@@ -44,7 +44,7 @@ download feed, stream-parse, normalise (currency, price + shipping to total), ma
 ## Build schedule: 3 days, as much as possible
 Key shortcut: keep the three finished front-ends and make them read from the database through a small loader that returns the **same `window.DOABNO_DATA` shape** the screens already use. No screen has to be redone. Work is about 10-12 hours a day, with me writing most of the code and you handling accounts and approvals in parallel.
 
-**Before day 1 (you, about 1 hour, can be done today):** create the Supabase project (Frankfurt), Cloudflare and GitHub (private repo) accounts and a Resend account; we submit the Noon, Awin/Admitad and Amazon Associates applications ourselves once the client sends the company details, authorized signatory, authorization letter and payout details (see `ClientRequirements.pdf`); a **sample feed file** from the first approved network or store is needed on day 2.
+**Before day 1 (you, about 1 hour, can be done today):** create the Supabase project (Frankfurt), Cloudflare and GitHub (private repo) accounts and a Resend account; we submit the noon, Amazon Associates (SA/US/UK), Awin and CJ applications ourselves once the client sends the company details, authorized signatory, authorization letter and payout details (see `ClientRequirements.pdf`); a **sample feed file** from the first approved network or store is needed on day 2.
 
 **Day 1: database, login, and all three apps on real data.**
 - Schema from data.js: markets, currencies/rates, categories, subcategories, stores, products (en/ar), offers, price history (change-only), coupons, clicks, feeds, feed_runs. User tables kept separate (profiles, favorites, alerts, consents, privacy_requests).
