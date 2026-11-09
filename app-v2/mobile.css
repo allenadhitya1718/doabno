@@ -373,6 +373,16 @@ html[lang="ar"] .group-title { letter-spacing: 0; font-size: 13px; }
 .country strong { font-size: 15px; font-weight: 600; }
 .country small { font-size: 12px; color: #C9D5E1; }
 .country[aria-pressed="true"] { border-color: var(--orange); background: rgba(255, 121, 0, .14); }
+.country-pick { display: flex; align-items: center; gap: var(--s3); width: 100%; margin-top: var(--s3); padding: var(--s3) var(--s4); border: 1.5px solid rgba(255, 255, 255, .2); border-radius: var(--r); background: rgba(255, 255, 255, .06); color: #fff; text-align: start; }
+.country-pick > span:not(.flag) { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.country-pick strong { font-size: 15px; font-weight: 600; }
+.country-pick small { font-size: 12px; color: #C9D5E1; }
+.country-pick .flag { font-size: 24px; line-height: 1; }
+.country-pick:focus-visible, .country-pick:active { border-color: var(--orange); }
+.opt .flag { margin-inline-end: 10px; font-size: 20px; line-height: 1; vertical-align: -2px; }
+.opt-soon { cursor: default; color: var(--muted); }
+.opt-soon .flag { opacity: .6; }
+.soon-badge { margin-inline-start: auto; padding: 2px 8px; border-radius: 999px; background: var(--line-2); color: var(--muted); font-size: 12px; font-weight: 600; }
 .seg-dark { margin-top: var(--s3); background: rgba(255, 255, 255, .1); }
 .seg-dark button { color: #C9D5E1; }
 .seg-dark button[aria-pressed="true"] { background: #fff; color: var(--navy); }
